@@ -275,13 +275,21 @@ class Ros(object):
         """Trigger a named event."""
         self.factory.emit(event_name, *args)
 
-    def on_ready(self, callback):
+    def on_ready(self, callback, run_in_thread=False):
         """Add a callback to be executed when the connection is established.
 
         If a connection to ROS is already available, the callback is executed immediately.
+
+        Args:
+            callback: Callable function to be invoked when ROS connection is ready.
+            run_in_thread (:obj:`bool`): True to run the callback in a separate thread, False otherwise.
         """
         def wrapper_callback(proto):
-            callback(proto)
+            if run_in_thread:
+                reactor.callInThread(callback)
+            else:
+                callback()
+
             return proto
 
         self.factory.on_ready(wrapper_callback)
@@ -294,7 +302,11 @@ class Ros(object):
         Args:
             message (:class:`.Message`): ROS Brige Message to send.
         """
-        self.on_ready(lambda proto: proto.send_ros_message(message))
+        def send_internal(proto):
+            proto.send_ros_message(message)
+            return proto
+
+        self.factory.on_ready(send_internal)
 
     def set_status_level(self, level, identifier):
         level_message = Message({
