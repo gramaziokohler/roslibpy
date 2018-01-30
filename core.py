@@ -88,14 +88,14 @@ class Topic(object):
         """Publish a message to the topic.
 
         Args:
-            message (:class:`.Message`):  ROS Brige Message to publish.
+            message (:class:`.Message`): ROS Brige Message to publish.
         """
         if not self._is_advertised:
             self.advertise()
 
         self.ros.send_on_ready(Message({
             'op': 'publish',
-            'id': 'publish:%s:%d' % (self.name, self.ros.id_counter-1),
+            'id': 'publish:%s:%d' % (self.name, self.ros.id_counter),
             'topic': self.name,
             'msg': dict(message),
             'latch': self.latch
@@ -327,19 +327,31 @@ class Ros(object):
 
 if __name__ == '__main__':
 
-    import sys
-    from twisted.python import log
+    import time
+
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 
     ros_client = Ros('127.0.0.1', 9090)
 
-    listener = Topic(ros_client, '/chatter', 'std_msgs/String')
-    # listener.publish(Message({'data': 'test'}))
-    def gotMessage(message):
-        print('Received message on: ' + message['data'])
+    def run_subscriber_example():
+        listener = Topic(ros_client, '/chatter', 'std_msgs/String')
+        listener.subscribe(lambda message: LOGGER.info('Received message on: %s', message['data']))
 
-    listener.subscribe(gotMessage)
+    def run_publisher_example():
+        publisher = Topic(ros_client, '/chatter', 'std_msgs/String')
+
+        def start_sending():
+            while ros_client.is_connected:
+                message = Message({'data': 'test'})
+                LOGGER.info('Publishing message to /chatter. %s', message)
+                publisher.publish(message)
+
+                time.sleep(0.75)
+    
+        ros_client.on_ready(start_sending, run_in_thread=True)
+
+    run_publisher_example()
 
     try:
         ros_client.run_event_loop()
