@@ -1,13 +1,14 @@
 from __future__ import print_function
 
 import json
+import logging
 
 from autobahn.twisted.websocket import (WebSocketClientFactory,
-                                        WebSocketClientProtocol,
-                                        connectWS)
+                                        WebSocketClientProtocol, connectWS)
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ReconnectingClientFactory
+from twisted.python import log
 
 # Python 2/3 compatibility import list
 try:
@@ -15,6 +16,7 @@ try:
 except ImportError:
     from UserDict import UserDict
 
+LOGGER = logging.getLogger('roslibpy')
 
 class Message(UserDict):
     """Message objects used for publishing and subscribing to/from topics.
@@ -122,23 +124,25 @@ class Topic(object):
 
 
 class RosBridgeProtocol(WebSocketClientProtocol):
+    """Implements the websocket client protocol to encode/decode JSON ROS Brige messages."""
+
+    def __init__(self, *args, **kwargs):
+        super(RosBridgeProtocol, self).__init__(*args, **kwargs)
+        self.factory = None
+
     def send_ros_message(self, message):
         """Encode and serialize ROS Brige protocol message
 
         Args:
             message (:class:`.Message`): ROS Brige Message to send.
         """
-        print('Sending', dict(message))
         self.sendMessage(json.dumps(dict(message)).encode('utf8'))
 
-    def __init__(self, *args, **kwargs):
-        super(RosBridgeProtocol, self).__init__(*args, **kwargs)
-        self.factory = None
-
     def onConnect(self, response):
-        print("Server connected: {0}".format(response.peer))
+        LOGGER.debug("Server connected: {0}".format(response.peer))
 
     def onOpen(self):
+        LOGGER.debug("Connection to ROS MASTER ready.")
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
@@ -153,7 +157,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             self.factory.emit(message['topic'], message['msg'])
 
     def onClose(self, wasClean, code, reason):
-        print("WebSocket connection closed: {0}".format(reason))
+        LOGGER.info("WebSocket connection closed: %s", reason)
 
 
 class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
@@ -198,14 +202,14 @@ class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
             subscriber(*args)
 
     def startedConnecting(self, connector):
-        print('Started to connect.')
+        LOGGER.debug('Started to connect...')
 
     def clientConnectionLost(self, connector, reason):
-        print('Lost connection. Reason: {}'.format(reason))
+        LOGGER.debug('Lost connection. Reason: %s', reason)
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        print('Connection failed. Reason: {}'.format(reason))
+        LOGGER.debug('Connection failed. Reason: %s', reason)
         ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
         self._on_ready_event.errback(reason)
 
@@ -217,6 +221,8 @@ class Ros(object):
         self._id_counter = 0
         self.connector = None
         self.factory = RosBridgeClientFactory(u"%s://%s:%s" % (scheme, host, port))
+        self._log_observer = log.PythonLoggingObserver()
+        self._log_observer.start()
 
         self.connect()
 
@@ -262,6 +268,7 @@ class Ros(object):
     def terminate(self):
         """Signals the termination of the main event loop."""
         reactor.stop()
+        self._log_observer.stop()
 
     def on(self, event_name, callback):
         """Add a callback to an arbitrary named event."""
@@ -322,8 +329,9 @@ if __name__ == '__main__':
 
     import sys
     from twisted.python import log
+    FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 
-    log.startLogging(sys.stdout)
     ros_client = Ros('127.0.0.1', 9090)
 
     listener = Topic(ros_client, '/chatter', 'std_msgs/String')
@@ -338,4 +346,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         ros_client.terminate()
 
-    print('Stopped.')
+    LOGGER.info('Stopped.')
