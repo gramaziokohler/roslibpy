@@ -50,12 +50,21 @@ class Topic(object):
         self.queue_length = queue_length
 
         self._subscribe_id = None
-        self._is_advertised = False
+        self._advertise_id = None
 
         # TODO: Implement the following options
         # self.compression = options.compression || 'none';
         # self.reconnect_on_close = options.reconnect_on_close || true;
         self.compression = 'none'
+
+    @property
+    def is_advertised(self):
+        """Indicate if the topic if current adversited or not.
+
+        Returns:
+            bool: True if advertised as publisher of this topic, False otherwise.
+        """
+        return self._advertise_id != None
 
     def subscribe(self, callback):
         """Register a subscription to the topic.
@@ -107,7 +116,7 @@ class Topic(object):
         Args:
             message (:class:`.Message`): ROS Brige Message to publish.
         """
-        if not self._is_advertised:
+        if not self.is_advertised:
             self.advertise()
 
         self.ros.send_on_ready(Message({
@@ -120,7 +129,7 @@ class Topic(object):
 
     def advertise(self):
         """Register as a publisher for the topic."""
-        if self._is_advertised:
+        if self.is_advertised:
             return
 
         self._advertise_id = 'advertise:%s:%d' % (
@@ -135,9 +144,20 @@ class Topic(object):
             'queue_size': self.queue_size
             }))
 
-        self._is_advertised = True
+        # TODO: Set _advertise_id=None on disconnect (if not reconnecting)
 
-        # TODO: Set _is_advertised=False on disconnect (if not reconnecting)
+    def unadvertise(self):
+        """Unregister as a publisher for the topic."""
+        if not self.is_advertised:
+            return
+
+        self.ros.send_on_ready(Message({
+            'op': 'unadvertise',
+            'id': self._advertise_id,
+            'topic': self.name,
+        }))
+
+        self._advertise_id = None
 
 
 class RosBridgeProtocol(WebSocketClientProtocol):
