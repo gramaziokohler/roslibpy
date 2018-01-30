@@ -180,10 +180,10 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         self.sendMessage(json.dumps(dict(message)).encode('utf8'))
 
     def onConnect(self, response):
-        LOGGER.debug("Server connected: {0}".format(response.peer))
+        LOGGER.debug('Server connected: %s', response.peer)
 
     def onOpen(self):
-        LOGGER.debug("Connection to ROS MASTER ready.")
+        LOGGER.debug('Connection to ROS MASTER ready.')
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
@@ -198,7 +198,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             self.factory.emit(message['topic'], message['msg'])
 
     def onClose(self, wasClean, code, reason):
-        LOGGER.info("WebSocket connection closed: %s", reason)
+        LOGGER.info('WebSocket connection closed: %s', reason)
 
 
 class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
