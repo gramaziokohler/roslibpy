@@ -18,14 +18,17 @@ except ImportError:
 
 LOGGER = logging.getLogger('roslibpy')
 
+
 class Message(UserDict):
     """Message objects used for publishing and subscribing to/from topics.
 
     A message is fundamentally a dictionary and behaves as one."""
+
     def __init__(self, values=None):
         self.data = {}
         if values is not None:
             self.update(values)
+
 
 class Topic(object):
     """Publish and/or subscribe to a topic in ROS.
@@ -39,6 +42,7 @@ class Topic(object):
         latch (:obj:`bool`): True to latch the topic when publishing, False otherwise.
         queue_length (:obj:`int`): Queue length at bridge side used when subscribing.
     """
+
     def __init__(self, ros, name, message_type, latch=False, throttle_rate=0,
                  queue_size=100, queue_length=0):
         self.ros = ros
@@ -91,8 +95,8 @@ class Topic(object):
             'compression': self.compression,
             'throttle_rate': self.throttle_rate,
             'queue_length': self.queue_length
-            }))
-    
+        }))
+
     def unsubscribe(self, callback):
         """Unregister from a subscribed the topic.
 
@@ -125,7 +129,7 @@ class Topic(object):
             'topic': self.name,
             'msg': dict(message),
             'latch': self.latch
-            }))
+        }))
 
     def advertise(self):
         """Register as a publisher for the topic."""
@@ -142,7 +146,7 @@ class Topic(object):
             'topic': self.name,
             'latch': self.latch,
             'queue_size': self.queue_size
-            }))
+        }))
 
         # TODO: Set _advertise_id=None on disconnect (if not reconnecting)
 
@@ -247,17 +251,20 @@ class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         LOGGER.debug('Connection failed. Reason: %s', reason)
-        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
+        ReconnectingClientFactory.clientConnectionFailed(
+            self, connector, reason)
         self._on_ready_event.errback(reason)
 
 
 class Ros(object):
     """Connection manager to ROS server."""
+
     def __init__(self, host, port):
         scheme = 'ws'
         self._id_counter = 0
         self.connector = None
-        self.factory = RosBridgeClientFactory(u"%s://%s:%s" % (scheme, host, port))
+        self.factory = RosBridgeClientFactory(
+            u"%s://%s:%s" % (scheme, host, port))
         self._log_observer = log.PythonLoggingObserver()
         self._log_observer.start()
 
