@@ -30,6 +30,24 @@ class Message(UserDict):
             self.update(values)
 
 
+class ServiceRequest(UserDict):
+    """Request for a service call."""
+
+    def __init__(self, values=None):
+        self.data = {}
+        if values is not None:
+            self.update(values)
+
+
+class ServiceResponse(UserDict):
+    """Response returned from a service call."""
+
+    def __init__(self, values=None):
+        self.data = {}
+        if values is not None:
+            self.update(values)
+
+
 class Topic(object):
     """Publish and/or subscribe to a topic in ROS.
 
@@ -170,14 +188,45 @@ class RosBridgeProtocol(WebSocketClientProtocol):
     def __init__(self, *args, **kwargs):
         super(RosBridgeProtocol, self).__init__(*args, **kwargs)
         self.factory = None
+        self._pending_service_requests = {}
+        self._message_handlers = {
+            'publish': self._handle_publish,
+            'service_response': self._handle_service_response
+        }
+        # TODO: add handlers for op: call_service, status
 
     def send_ros_message(self, message):
-        """Encode and serialize ROS Brige protocol message
+        """Encode and serialize ROS Brige protocol message.
 
         Args:
             message (:class:`.Message`): ROS Brige Message to send.
         """
         self.sendMessage(json.dumps(dict(message)).encode('utf8'))
+
+    def register_message_handlers(self, op, handler):
+        """Register a message handler for a specific operation type.
+
+        Args:
+            op (:obj:`str`): ROS Bridge operation.
+            handler: Callback to handle the message.
+        """
+        if op in self._message_handlers:
+            raise StandardError('Only one handler can be registered per operation')
+
+        self._message_handlers[op] = handler
+
+    def send_ros_service_request(self, service_request, callback, errback):
+        """Initiate a ROS service request through the ROS Bridge.
+
+        Args:
+            service_request (:class:`.ServiceRequest`): Service request.
+            callback: Callback invoked on successful execution.
+            errback: Callback invoked on error.
+        """
+        request_id = service_request['id']
+        self._pending_service_requests[request_id] = (callback, errback)
+
+        self.sendMessage(json.dumps(dict(service_request)).encode('utf8'))
 
     def onConnect(self, response):
         LOGGER.debug('Server connected: %s', response.peer)
@@ -191,11 +240,31 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             raise NotImplementedError('Add support for binary messages')
 
         message = Message(json.loads(payload.decode('utf8')))
+        handler = self._message_handlers.get(message['op'], None)
+        if not handler:
+            raise StandardError('No handler registered for operation "%s"' % message['op'])
 
-        if 'topic' in message:
-            # TODO: Check if this is really the best way to emit
-            # of if we should emit the full message variable
-            self.factory.emit(message['topic'], message['msg'])
+        handler(message)
+
+    def _handle_publish(self, message):
+        self.factory.emit(message['topic'], message['msg'])
+
+    def _handle_service_response(self, message):
+        request_id = message['id']
+        service_handlers = self._pending_service_requests.get(request_id, None)
+
+        if not service_handlers:
+            raise StandardError('No handler registered for service request ID: "%s"' % request_id)
+
+        callback, errback = service_handlers
+        del self._pending_service_requests[request_id]
+
+        if 'result' in message and message['result'] == False:
+            if errback:
+                errback(message['values'])
+        else:
+            if callback:
+                callback(ServiceRequest(message['values']))
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: %s', reason)
@@ -359,6 +428,13 @@ class Ros(object):
 
         self.factory.on_ready(send_internal)
 
+    def send_service_request(self, message, callback, errback):
+        def send_internal(proto):
+            proto.send_ros_service_request(message, callback, errback)
+            return proto
+
+        self.factory.on_ready(send_internal)
+        
     def set_status_level(self, level, identifier):
         level_message = Message({
             'op': 'set_level',
