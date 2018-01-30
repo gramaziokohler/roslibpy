@@ -1,12 +1,6 @@
 from __future__ import print_function
 
-from . import Message
-
-# Python 2/3 compatibility import list
-try:
-    from collections import UserDict
-except ImportError:
-    from UserDict import UserDict
+from . import Message, ServiceRequest
 
 
 class Service(object):
@@ -18,6 +12,7 @@ class Service(object):
         name (:obj:`str`): Service name, e.g. ``/add_two_ints``.
         service_type (:obj:`str`): Service type, e.g. ``rospy_tutorials/AddTwoInts``.
     """
+
     def __init__(self, ros, name, service_type):
         self.ros = ros
         self.name = name
