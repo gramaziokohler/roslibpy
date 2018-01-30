@@ -83,6 +83,23 @@ class Topic(object):
             'throttle_rate': self.throttle_rate,
             'queue_length': self.queue_length
             }))
+    
+    def unsubscribe(self, callback):
+        """Unregister from a subscribed the topic.
+
+        Args:
+            callback: Function to unregister.
+        """
+        if not self._subscribe_id:
+            return
+
+        self.ros.off(self.name, callback)
+        self.ros.send_on_ready(Message({
+            'op': 'unsubscribe',
+            'id': self._subscribe_id,
+            'topic': self.name
+        }))
+        self._subscribe_id = None
 
     def publish(self, message):
         """Publish a message to the topic.
