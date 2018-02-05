@@ -1,11 +1,12 @@
 from __future__ import print_function
 
+import json
+
 from . import Message, ServiceRequest
 
 
 class Service(object):
     """Client to call ROS services.
-
 
     Args:
         ros (:class:`.Ros`): Instance of the ROS connection.
@@ -55,3 +56,85 @@ class Service(object):
             'service': self.name,
             'args': dict(request),
         }), callback, errback)
+
+
+class Param(object):
+    """A ROS parameter.
+
+    Args:
+        ros (:class:`.Ros`): Instance of the ROS connection.
+        name (:obj:`str`): Parameter name, e.g. ``max_vel_x``.
+    """
+
+    def __init__(self, ros, name):
+        self.ros = ros
+        self.name = name
+
+    def get(self, callback=None, errback=None):
+        """Fetch the current value of the parameter.
+
+        Args:
+            callback: Callable function to be invoked when the operation is completed.
+            errback: Callback invoked on error.
+        """
+        client = Service(self.ros, '/rosapi/get_param', 'rosapi/GetParam')
+        request = ServiceRequest({'name': self.name})
+
+        client.call(request, lambda(result): callback(json.loads(result['value'])), errback)
+
+    def set(self, value, callback=None, errback=None):
+        """Set a new value to the parameter.
+
+        Args:
+            value: Value to set the parameter to.
+            callback: Callable function to be invoked when the operation is completed.
+            errback: Callback invoked on error.
+        """
+        client = Service(self.ros, '/rosapi/set_param', 'rosapi/SetParam')
+        request = ServiceRequest({'name': self.name, 'value': json.dumps(value)})
+
+        client.call(request, callback, errback)
+
+    def delete(self, callback=None, errback=None):
+        """Delete the parameter.
+
+        Args:
+            callback: Callable function to be invoked when the operation is completed.
+            errback: Callback invoked on error.
+        """
+        client = Service(self.ros, '/rosapi/delete_param',
+                         'rosapi/DeleteParam')
+        request = ServiceRequest({'name': self.name})
+
+        client.call(request, callback, errback)
+
+
+if __name__ == '__main__':
+    import logging
+    from roslibpy import Ros
+
+    FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+
+    ros_client = Ros('127.0.0.1', 9090)
+
+    def run_get_example():
+        param = Param(ros_client, 'run_id')
+        param.get(print)
+
+    def run_set_example():
+        param = Param(ros_client, 'test_param')
+        param.set('test_value')
+
+    def run_delete_example():
+        param = Param(ros_client, 'test_param')
+        param.delete()
+
+    run_delete_example()
+
+    try:
+        ros_client.run_event_loop()
+    except KeyboardInterrupt:
+        ros_client.terminate()
+
+
