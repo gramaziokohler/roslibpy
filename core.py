@@ -264,15 +264,16 @@ if __name__ == '__main__':
                           'turtlesim/TeleportRelative')
         service.call(ServiceRequest({'linear': 2, 'angular': 2}), h1, h2)
 
-    def run_turle_subscriber_example():
-        listener = Topic(ros_client, '/turtle1/pose', 'turtlesim/Pose')
+    def run_turtle_subscriber_example():
+        listener = Topic(ros_client, '/turtle1/pose',
+                         'turtlesim/Pose', throttle_rate=500)
 
         def print_message(message):
             LOGGER.info('Received message on: %s', message)
 
         listener.subscribe(print_message)
 
-    run_service_example()
+    run_turtle_subscriber_example()
 
     try:
         ros_client.run_event_loop()
