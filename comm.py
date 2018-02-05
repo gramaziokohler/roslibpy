@@ -101,7 +101,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         LOGGER.info('WebSocket connection closed: %s', reason)
 
 
-class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory, EventEmitterMixin):
+class RosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSocketClientFactory):
     """Factory to construct instance of the ROS Bridge protocol."""
     protocol = RosBridgeProtocol
 

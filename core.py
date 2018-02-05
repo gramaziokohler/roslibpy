@@ -179,7 +179,6 @@ class EventEmitterMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(EventEmitterMixin, self).__init__(*args, **kwargs)
-        print("INITTING!")
         self.__event_subscribers = {}
 
     def on(self, event_name, callback):
