@@ -9,6 +9,7 @@ from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ReconnectingClientFactory
 
 from . import Message, ServiceRequest
+from .core import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
 
@@ -100,47 +101,19 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         LOGGER.info('WebSocket connection closed: %s', reason)
 
 
-class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
+class RosBridgeClientFactory(ReconnectingClientFactory, WebSocketClientFactory, EventEmitterMixin):
     """Factory to construct instance of the ROS Bridge protocol."""
     protocol = RosBridgeProtocol
 
     def __init__(self, *args, **kwargs):
         super(RosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._on_ready_event = Deferred()
-        self._event_subscribers = {}
 
     def on_ready(self, callback):
         self._on_ready_event.addCallback(callback)
 
     def ready(self, proto):
         self._on_ready_event.callback(proto)
-
-    def on(self, event_name, callback):
-        """Add a callback to an arbitrary named event."""
-        if event_name not in self._event_subscribers:
-            self._event_subscribers[event_name] = []
-
-        subscribers = self._event_subscribers[event_name]
-        if callback not in subscribers:
-            subscribers.append(callback)
-
-    def off(self, event_name, callback):
-        """Remove a callback from an arbitrary named event."""
-        if event_name not in self._event_subscribers:
-            return
-
-        subscribers = self._event_subscribers[event_name]
-        if callback in subscribers:
-            subscribers.remove(callback)
-
-    def emit(self, event_name, *args):
-        """Trigger a named event."""
-        if event_name not in self._event_subscribers:
-            return
-
-        subscribers = self._event_subscribers[event_name]
-        for subscriber in subscribers:
-            subscriber(*args)
 
     def startedConnecting(self, connector):
         LOGGER.debug('Started to connect...')
