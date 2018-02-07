@@ -81,7 +81,7 @@ class Goal(EventEmitterMixin):
         return self.result != None
 
 
-class ActionClient(object):
+class ActionClient(EventEmitterMixin):
     """Client to use ROS actions.
 
     Args:
@@ -92,6 +92,8 @@ class ActionClient(object):
     """
     def __init__(self, ros, server_name, action_name, timeout=None,
                  omit_feedback=False, omit_status=False, omit_result=False):
+        super(ActionClient, self).__init__()
+
         self.ros = ros
         self.server_name = server_name
         self.action_name = action_name
@@ -126,18 +128,9 @@ class ActionClient(object):
         if not self.omit_result:
             self.result_listener.subscribe(self._on_result_message)
 
-        """
-        // If timeout specified, emit a 'timeout' event if the action server does not respond
-        if (this.timeout) {
-            setTimeout(function() {
-            if (!receivedStatus) {
-                that.emit('timeout');
-            }
-            }, this.timeout);
-        }
-        }
-        """
-
+        # If timeout specified, emit a 'timeout' event if the action server does not respond
+        if self.timeout:
+            reactor.callLater(self.timeout / 1000., self._trigger_timeout)
 
     def _on_status_message(self, message):
         self._received_status = True
@@ -162,6 +155,10 @@ class ActionClient(object):
         if goal:
             goal.emit('status', message['status'])
             goal.emit('result', message['result'])
+
+    def _trigger_timeout(self):
+        if not self._received_status:
+            self.emit('timeout')
 
     def add_goal(self, goal):
         """Add a goal to this action client.
