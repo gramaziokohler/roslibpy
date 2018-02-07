@@ -9,7 +9,7 @@ from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ReconnectingClientFactory
 
 from . import Message, ServiceRequest
-from .core import EventEmitterMixin
+from .event_emitter import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
 

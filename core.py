@@ -174,41 +174,6 @@ class Topic(object):
         self._advertise_id = None
 
 
-class EventEmitterMixin(object):
-    """Mixin to add event emitter features to a class."""
-
-    def __init__(self, *args, **kwargs):
-        super(EventEmitterMixin, self).__init__(*args, **kwargs)
-        self.__event_subscribers = {}
-
-    def on(self, event_name, callback):
-        """Add a callback to an arbitrary named event."""
-        if event_name not in self.__event_subscribers:
-            self.__event_subscribers[event_name] = []
-
-        subscribers = self.__event_subscribers[event_name]
-        if callback not in subscribers:
-            subscribers.append(callback)
-
-    def off(self, event_name, callback):
-        """Remove a callback from an arbitrary named event."""
-        if event_name not in self.__event_subscribers:
-            return
-
-        subscribers = self.__event_subscribers[event_name]
-        if callback in subscribers:
-            subscribers.remove(callback)
-
-    def emit(self, event_name, *args):
-        """Trigger a named event."""
-        if event_name not in self.__event_subscribers:
-            return
-
-        subscribers = self.__event_subscribers[event_name]
-        for subscriber in subscribers:
-            subscriber(*args)
-
-
 if __name__ == '__main__':
 
     import time

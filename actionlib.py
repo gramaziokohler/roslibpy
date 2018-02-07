@@ -6,7 +6,7 @@ import time
 from twisted.internet import reactor
 
 from . import Message, Topic
-from .core import EventEmitterMixin
+from .event_emitter import EventEmitterMixin
 
 
 class Goal(EventEmitterMixin):
