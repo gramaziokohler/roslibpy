@@ -32,7 +32,12 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         Args:
             message (:class:`.Message`): ROS Brige Message to send.
         """
-        self.sendMessage(json.dumps(dict(message)).encode('utf8'))
+        try:
+            self.sendMessage(json.dumps(dict(message)).encode('utf8'))
+        except StandardError as exception:
+            # TODO: Check if it makes sense to raise exception again here
+            # Since this is wrapped in many layers of indirection
+            LOGGER.exception('Failed to send message, %s', exception)
 
     def register_message_handlers(self, operation, handler):
         """Register a message handler for a specific operation type.
