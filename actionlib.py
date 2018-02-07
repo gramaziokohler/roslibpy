@@ -188,7 +188,7 @@ class ActionClient(EventEmitterMixin):
 
 
 if __name__ == '__main__':
-    import time
+    import math
     import logging
     from . import Ros
     from twisted.internet import reactor
@@ -199,10 +199,17 @@ if __name__ == '__main__':
     ros_client = Ros('127.0.0.1', 9090)
 
     def run_action_example():
-        action_client = ActionClient(ros_client, '/follow_joint_trajectory',
-                                     'control_msgs/FollowJointTrajectoryAction')
+        action_client = ActionClient(ros_client, '/fibonacci', 'actionlib_tutorials/FibonacciAction', timeout=3000)
+        goal = Goal(action_client, Message({'order': 6}))
 
-    run_action_example()
+        goal.on('feedback', lambda feedback: print(feedback))
+        goal.on('result', lambda result: print('Final result: ', result['sequence']))
+        goal.on('timeout', lambda: print('TIMEOUT'))
+        action_client.on('timeout', lambda: print('CLIENT TIMEOUT'))
+
+        goal.send(60000)
+
+    ros_client.on_ready(run_action_example, run_in_thread=True)
 
     try:
         ros_client.run_event_loop()
