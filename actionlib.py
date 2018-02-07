@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import random
 import time
 
@@ -6,6 +7,7 @@ from twisted.internet import reactor
 
 from . import Message, Topic
 from .core import EventEmitterMixin
+
 
 class Goal(EventEmitterMixin):
     """Goal for an action server.
@@ -33,7 +35,7 @@ class Goal(EventEmitterMixin):
                 },
                 'id': self.goal_id
             },
-            'goal': self.goal_message
+            'goal': dict(self.goal_message)
         })
 
         self.action_client.add_goal(self)
