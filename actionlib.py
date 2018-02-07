@@ -136,22 +136,24 @@ class ActionClient(EventEmitterMixin):
         self._received_status = True
 
         for status in message['status_list']:
-            goal = self.goals[status['goal_id']['id']]
+            goal_id = status['goal_id']['id']
+            goal = self.goals.get(goal_id, None)
+
             if goal:
                 goal.emit('status', status)
 
     def _on_feedback_message(self, message):
         goal_id = message['status']['goal_id']['id']
+        goal = self.goals.get(goal_id, None)
 
-        goal = self.goals[goal_id]
         if goal:
             goal.emit('status', message['status'])
             goal.emit('feedback', message['feedback'])
 
     def _on_result_message(self, message):
         goal_id = message['status']['goal_id']['id']
+        goal = self.goals.get(goal_id, None)
 
-        goal = self.goals[goal_id]
         if goal:
             goal.emit('status', message['status'])
             goal.emit('result', message['result'])
