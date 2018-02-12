@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import json
 
-from . import Message, ServiceRequest
+from . import Message, ServiceRequest, ServiceResponse
 
 
 class Service(object):
@@ -19,7 +19,7 @@ class Service(object):
         self.name = name
         self.service_type = service_type
 
-        # self._service_callback = None
+        self._service_callback = None
         self._is_advertised = False
 
     @property
@@ -34,7 +34,7 @@ class Service(object):
         return self._is_advertised
 
     def call(self, request, callback, errback):
-        """Creates a service call.
+        """Start a service call.
 
         The service response is returned in the callback. If the
         service is currently advertised, this call does nothing.
@@ -56,6 +56,59 @@ class Service(object):
             'service': self.name,
             'args': dict(request),
         }), callback, errback)
+
+    def advertise(self, callback):
+        """Start advertising the service.
+        
+        This turns the instance from a client into a server. The callback will be
+        invoked with every request that is made to the service.
+
+        Args:
+            callback: Callback invoked on every service call. It should accept two parameters: `service_request` and
+                `service_response`. It should return `True` if executed correctly, otherwise `False`.
+        """
+        if self.is_advertised:
+            return
+
+        if not callable(callback):
+            raise ValueError('Callback is not a valid callable')
+        
+        self._service_callback = callback
+        self.ros.on(self.name, self._service_response_handler)
+        self.ros.send_on_ready(Message({
+            'op': 'advertise_service',
+            'type': self.service_type,
+            'service': self.name
+        }))
+        self._is_advertised = True
+
+    def unadvertise(self):
+        """Unregister as a service server."""
+        if not self.is_advertised:
+            return
+
+        self.ros.send_on_ready(Message({
+            'op': 'unadvertise_service',
+            'service': self.name,
+        }))
+        self.ros.off(self.name, self._service_response_handler)
+
+        self.is_advertised = False
+
+    def _service_response_handler(self, request):
+        response = ServiceResponse()
+        success = self._service_callback(request['args'], response)
+
+        call = Message({'op': 'service_response',
+            'service': self.name,
+            'values': dict(response),
+            'result': success
+        })
+
+        if 'id' in request:
+            call['id'] = request['id']
+        
+        self.ros.send_on_ready(call)
 
 
 class Param(object):

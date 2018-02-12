@@ -22,9 +22,10 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         self._pending_service_requests = {}
         self._message_handlers = {
             'publish': self._handle_publish,
-            'service_response': self._handle_service_response
+            'service_response': self._handle_service_response,
+            'call_service': self._handle_service_request,
         }
-        # TODO: add handlers for op: call_service, status
+        # TODO: add handlers for op: status
 
     def send_ros_message(self, message):
         """Encode and serialize ROS Brige protocol message.
@@ -101,6 +102,12 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         else:
             if callback:
                 callback(ServiceResponse(message['values']))
+
+    def _handle_service_request(self, message):
+        if 'service' not in message:
+            raise ValueError('Expected service name missing in service request')
+
+        self.factory.emit(message['service'], message)
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: %s', reason)
