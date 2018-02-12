@@ -8,7 +8,7 @@ from autobahn.twisted.websocket import (WebSocketClientFactory,
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ReconnectingClientFactory
 
-from . import Message, ServiceRequest
+from . import Message, ServiceRequest, ServiceResponse
 from .event_emitter import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
@@ -51,18 +51,18 @@ class RosBridgeProtocol(WebSocketClientProtocol):
 
         self._message_handlers[operation] = handler
 
-    def send_ros_service_request(self, service_request, callback, errback):
+    def send_ros_service_request(self, message, callback, errback):
         """Initiate a ROS service request through the ROS Bridge.
 
         Args:
-            service_request (:class:`.ServiceRequest`): Service request.
+            message (:class:`.Message`): ROS Brige Message containing the service request.
             callback: Callback invoked on successful execution.
             errback: Callback invoked on error.
         """
-        request_id = service_request['id']
+        request_id = message['id']
         self._pending_service_requests[request_id] = (callback, errback)
 
-        self.sendMessage(json.dumps(dict(service_request)).encode('utf8'))
+        self.sendMessage(json.dumps(dict(message)).encode('utf8'))
 
     def onConnect(self, response):
         LOGGER.debug('Server connected: %s', response.peer)
@@ -100,7 +100,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
                 errback(message['values'])
         else:
             if callback:
-                callback(ServiceRequest(message['values']))
+                callback(ServiceResponse(message['values']))
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: %s', reason)

@@ -6,7 +6,7 @@ from autobahn.twisted.websocket import connectWS
 from twisted.internet import reactor
 from twisted.python import log
 
-from . import Message
+from . import Message, ServiceRequest, Service
 from .comm import RosBridgeClientFactory
 
 LOGGER = logging.getLogger('roslibpy')
@@ -139,3 +139,117 @@ class Ros(object):
         })
 
         self.send_on_ready(level_message)
+
+    def get_action_servers(self, callback, errback=None):
+        """Retrieve list of action servers in ROS."""
+        service = Service(self, '/rosapi/action_servers',
+                          'rosapi/GetActionServers')
+
+        service.call(ServiceRequest(), callback, errback)
+
+    def get_topics(self, callback, errback=None):
+        """Retrieve list of topics in ROS."""
+        service = Service(self, '/rosapi/topics',
+                          'rosapi/Topics')
+
+        service.call(ServiceRequest(), callback, errback)
+
+    def get_topics_for_type(self, topic_type, callback, errback=None):
+        """Retrieve list of topics in ROS matching the specified type."""
+        service = Service(self, '/rosapi/topics_for_type',
+                          'rosapi/TopicsForType')
+
+        service.call(ServiceRequest({'type': topic_type}), callback, errback)
+
+    def get_services(self, callback, errback=None):
+        """Retrieve list of active service names in ROS."""
+        service = Service(self, '/rosapi/services',
+                          'rosapi/Services')
+
+        service.call(ServiceRequest(), callback, errback)
+
+    def get_services_for_type(self, service_type, callback, errback=None):
+        """Retrieve list of services in ROS matching the specified type."""
+        service = Service(self, '/rosapi/services_for_type',
+                          'rosapi/ServicesForType')
+
+        service.call(ServiceRequest({'type': service_type}), callback, errback)
+
+    def get_service_request_details(self, type, callback, errback=None):
+        """Retrieve details of a ROS Service Request."""
+        service = Service(self, '/rosapi/service_request_details',
+                          'rosapi/ServiceRequestDetails')
+
+        service.call(ServiceRequest({'type': type}), callback, errback)
+
+    def get_service_response_details(self, type, callback, errback=None):
+        """Retrieve details of a ROS Service Response."""
+        service = Service(self, '/rosapi/service_response_details',
+                          'rosapi/ServiceResponseDetails')
+
+        service.call(ServiceRequest({'type': type}), callback, errback)
+
+    def get_nodes(self, callback, errback=None):
+        """Retrieve list of active node names in ROS."""
+        service = Service(self, '/rosapi/nodes',
+                          'rosapi/Nodes')
+
+        service.call(ServiceRequest(), callback, errback)
+
+    def get_node_details(self, node, callback, errback=None):
+        """Retrieve list subscribed topics, publishing topics and services of a specific node name."""
+        service = Service(self, '/rosapi/node_details',
+                          'rosapi/NodeDetails')
+
+        service.call(ServiceRequest({'node': node}), callback, errback)
+
+    def get_params(self, callback, errback=None):
+        """Retrieve list of param names from the ROS Parameter Server."""
+        service = Service(self, '/rosapi/get_param_names',
+                          'rosapi/GetParamNames')
+
+        service.call(ServiceRequest(), callback, errback)
+
+    def get_topic_type(self, topic, callback, errback=None):
+        """Retrieve the type of a topic in ROS."""
+        service = Service(self, '/rosapi/topic_type',
+                          'rosapi/TopicType')
+
+        service.call(ServiceRequest({'topic': topic}), callback, errback)
+
+    def get_service_type(self, service_name, callback, errback=None):
+        """Retrieve the type of a service in ROS."""
+        service = Service(self, '/rosapi/service_type',
+                          'rosapi/ServiceType')
+
+        service.call(ServiceRequest(
+            {'service': service_name}), callback, errback)
+
+    def get_message_details(self, message_type, callback, errback=None):
+        """Retrieve details of a message type in ROS."""
+        service = Service(self, '/rosapi/message_details',
+                          'rosapi/MessageDetails')
+
+        service.call(ServiceRequest(
+            {'type': message_type}), callback, errback)
+
+
+if __name__ == '__main__':
+    import logging
+    from twisted.internet import reactor
+
+    FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+
+    ros_client = Ros('127.0.0.1', 9090)
+
+    def test():
+        ros_client.get_topics(print)
+
+    ros_client.on_ready(test)
+
+    try:
+        ros_client.run_event_loop()
+    except KeyboardInterrupt:
+        ros_client.terminate()
+
