@@ -47,17 +47,20 @@ class Topic(object):
         ros (:class:`.Ros`): Instance of the ROS connection.
         name (:obj:`str`): Topic name, e.g. ``/cmd_vel``.
         message_type (:obj:`str`): Message type, e.g. ``std_msgs/String``.
+        compression (:obj:`str`): Type of compression to use, e.g. `png`. Defaults to `None`.
         throttle_rate (:obj:`int`): Rate (in ms between messages) at which to throttle the topics.
         queue_size (:obj:`int`): Queue size created at bridge side for re-publishing webtopics.
         latch (:obj:`bool`): True to latch the topic when publishing, False otherwise.
         queue_length (:obj:`int`): Queue length at bridge side used when subscribing.
     """
+    SUPPORTED_COMPRESSION_TYPES = ('png', 'none')
 
-    def __init__(self, ros, name, message_type, latch=False, throttle_rate=0,
+    def __init__(self, ros, name, message_type, compression=None, latch=False, throttle_rate=0,
                  queue_size=100, queue_length=0):
         self.ros = ros
         self.name = name
         self.message_type = message_type
+        self.compression = compression
         self.latch = latch
         self.throttle_rate = throttle_rate
         self.queue_size = queue_size
@@ -66,10 +69,15 @@ class Topic(object):
         self._subscribe_id = None
         self._advertise_id = None
 
+        if self.compression == None:
+            self.compression = 'none'
+
+        if self.compression not in self.SUPPORTED_COMPRESSION_TYPES:
+            raise ValueError(
+                'Unsupported compression type. Must be one of: ' + str(self.SUPPORTED_COMPRESSION_TYPES))
+
         # TODO: Implement the following options
-        # self.compression = options.compression || 'none';
         # self.reconnect_on_close = options.reconnect_on_close || true;
-        self.compression = 'none'
 
     @property
     def is_advertised(self):
@@ -201,7 +209,7 @@ if __name__ == '__main__':
         reactor.callLater(10, lambda: listener.subscribe(print_message))
 
     def run_publisher_example():
-        publisher = Topic(ros_client, '/chatter', 'std_msgs/String')
+        publisher = Topic(ros_client, '/chatter', 'std_msgs/String', compression='png')
 
         def start_sending():
             i = 0
