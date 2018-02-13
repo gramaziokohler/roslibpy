@@ -71,8 +71,12 @@ class Ros(object):
 
     def terminate(self):
         """Signals the termination of the main event loop."""
+        if self.is_connected:
+            self.close()
+
         if reactor.running:
             reactor.stop()
+
         self._log_observer.stop()
 
     def on(self, event_name, callback):
@@ -248,13 +252,9 @@ if __name__ == '__main__':
 
     ros_client = Ros('127.0.0.1', 9090)
 
-    def test():
-        ros_client.get_topics(print)
-
-    ros_client.on_ready(test)
-
-    try:
-        ros_client.run_event_loop()
-    except KeyboardInterrupt:
-        ros_client.terminate()
+    ros_client.on_ready(lambda: ros_client.get_topics(print))
+    reactor.callLater(3, ros_client.close)
+    reactor.callLater(5, ros_client.terminate)
+    
+    ros_client.run_event_loop()
 
