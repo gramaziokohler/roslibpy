@@ -34,7 +34,10 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             message (:class:`.Message`): ROS Bridge Message to send.
         """
         try:
-            self.sendMessage(json.dumps(dict(message)).encode('utf8'))
+            json_message = json.dumps(dict(message)).encode('utf8')
+            LOGGER.debug('Sending ROS message: %s', json_message)
+
+            self.sendMessage(json_message)
         except StandardError as exception:
             # TODO: Check if it makes sense to raise exception again here
             # Since this is wrapped in many layers of indirection
@@ -63,13 +66,16 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         request_id = message['id']
         self._pending_service_requests[request_id] = (callback, errback)
 
-        self.sendMessage(json.dumps(dict(message)).encode('utf8'))
+        json_message = json.dumps(dict(message)).encode('utf8')
+        LOGGER.debug('Sending ROS service request: %s', json_message)
+
+        self.sendMessage(json_message)
 
     def onConnect(self, response):
         LOGGER.debug('Server connected: %s', response.peer)
 
     def onOpen(self):
-        LOGGER.debug('Connection to ROS MASTER ready.')
+        LOGGER.info('Connection to ROS MASTER ready.')
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
