@@ -16,6 +16,7 @@ class Goal(EventEmitterMixin):
         action_client (:class:`.ActionClient`): Instance of the action client associated with the goal.
         goal_message (:class:`.Message`): Goal for the action server.
     """
+
     def __init__(self, action_client, goal_message):
         super(Goal, self).__init__()
 
@@ -90,6 +91,7 @@ class ActionClient(EventEmitterMixin):
         action_name (:obj:`str`): Action message name, e.g. ``actionlib_tutorials/FibonacciAction``.
         timeout (:obj:`int`): Connection timeout.
     """
+
     def __init__(self, ros, server_name, action_name, timeout=None,
                  omit_feedback=False, omit_status=False, omit_result=False):
         super(ActionClient, self).__init__()
@@ -198,12 +200,18 @@ if __name__ == '__main__':
 
     ros_client = Ros('127.0.0.1', 9090)
 
+    def handle_result(result, client):
+        print('Final result', result['sequence'])
+
+        client.dispose()
+        reactor.callLater(2, client.ros.close)
+
     def run_action_example():
         action_client = ActionClient(ros_client, '/fibonacci', 'actionlib_tutorials/FibonacciAction', timeout=3000)
         goal = Goal(action_client, Message({'order': 6}))
 
+        goal.on('result', lambda result: handle_result(result, action_client))
         goal.on('feedback', lambda feedback: print(feedback))
-        goal.on('result', lambda result: print('Final result: ', result['sequence']))
         goal.on('timeout', lambda: print('TIMEOUT'))
         action_client.on('timeout', lambda: print('CLIENT TIMEOUT'))
 
