@@ -212,6 +212,10 @@ class EventEmitterMixin(object):
         """Removes the function ``f`` from ``event``."""
         self._events[event].pop(f)
 
+    def remove_listener(self, event, f):
+        """Removes the function ``f`` from ``event``."""
+        self._events[event].pop(f)
+
     def remove_all_listeners(self, event=None):
         """Remove all listeners attached to ``event``.
         If ``event`` is ``None``, remove all listeners on all events.

@@ -56,7 +56,11 @@ class Ros(object):
     def close(self):
         """Disconnect from ROS master."""
         if self.connector:
-            self.connector.disconnect()
+            def _wrapper_callback(proto):
+                proto.sendClose()
+                return proto
+
+            self.factory.on_ready(_wrapper_callback)
 
     def run_event_loop(self):
         """Kick-starts the main event loop of the ROS client.
@@ -67,7 +71,8 @@ class Ros(object):
 
     def terminate(self):
         """Signals the termination of the main event loop."""
-        reactor.stop()
+        if reactor.running:
+            reactor.stop()
         self._log_observer.stop()
 
     def on(self, event_name, callback):
@@ -107,7 +112,7 @@ class Ros(object):
         If a connection to ROS is already available, the message is sent immediately.
 
         Args:
-            message (:class:`.Message`): ROS Brige Message to send.
+            message (:class:`.Message`): ROS Bridge Message to send.
         """
         def _send_internal(proto):
             proto.send_ros_message(message)
@@ -121,7 +126,7 @@ class Ros(object):
         If a connection to ROS is already available, the request is sent immediately.
 
         Args:
-            message (:class:`.Message`): ROS Brige Message containing the request.
+            message (:class:`.Message`): ROS Bridge Message containing the request.
             callback: Callback invoked on successful execution.
             errback: Callback invoked on error.
         """

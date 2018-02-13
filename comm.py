@@ -14,7 +14,7 @@ from .event_emitter import EventEmitterMixin
 LOGGER = logging.getLogger('roslibpy')
 
 class RosBridgeProtocol(WebSocketClientProtocol):
-    """Implements the websocket client protocol to encode/decode JSON ROS Brige messages."""
+    """Implements the websocket client protocol to encode/decode JSON ROS Bridge messages."""
 
     def __init__(self, *args, **kwargs):
         super(RosBridgeProtocol, self).__init__(*args, **kwargs)
@@ -28,10 +28,10 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         # TODO: add handlers for op: status
 
     def send_ros_message(self, message):
-        """Encode and serialize ROS Brige protocol message.
+        """Encode and serialize ROS Bridge protocol message.
 
         Args:
-            message (:class:`.Message`): ROS Brige Message to send.
+            message (:class:`.Message`): ROS Bridge Message to send.
         """
         try:
             self.sendMessage(json.dumps(dict(message)).encode('utf8'))
@@ -56,7 +56,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         """Initiate a ROS service request through the ROS Bridge.
 
         Args:
-            message (:class:`.Message`): ROS Brige Message containing the service request.
+            message (:class:`.Message`): ROS Bridge Message containing the service request.
             callback: Callback invoked on successful execution.
             errback: Callback invoked on error.
         """
@@ -119,13 +119,18 @@ class RosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSo
 
     def __init__(self, *args, **kwargs):
         super(RosBridgeClientFactory, self).__init__(*args, **kwargs)
-        self._on_ready_event = Deferred()
+        self._proto = None
+        self.setProtocolOptions(closeHandshakeTimeout=5)
 
     def on_ready(self, callback):
-        self._on_ready_event.addCallback(callback)
+        if self._proto:
+            callback(self._proto)
+        else:
+            self.once('ready', callback)
 
     def ready(self, proto):
-        self._on_ready_event.callback(proto)
+        self._proto = proto
+        self.emit('ready', proto)
 
     def startedConnecting(self, connector):
         LOGGER.debug('Started to connect...')
@@ -133,9 +138,10 @@ class RosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSo
     def clientConnectionLost(self, connector, reason):
         LOGGER.debug('Lost connection. Reason: %s', reason)
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+        self._proto = None
 
     def clientConnectionFailed(self, connector, reason):
         LOGGER.debug('Connection failed. Reason: %s', reason)
         ReconnectingClientFactory.clientConnectionFailed(
             self, connector, reason)
-        self._on_ready_event.errback(reason)
+        self._proto = None

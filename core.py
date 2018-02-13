@@ -136,7 +136,7 @@ class Topic(object):
         """Publish a message to the topic.
 
         Args:
-            message (:class:`.Message`): ROS Brige Message to publish.
+            message (:class:`.Message`): ROS Bridge Message to publish.
         """
         if not self.is_advertised:
             self.advertise()
