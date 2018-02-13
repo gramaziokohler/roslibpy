@@ -93,7 +93,7 @@ class Service(object):
         }))
         self.ros.off(self.name, self._service_response_handler)
 
-        self.is_advertised = False
+        self._is_advertised = False
 
     def _service_response_handler(self, request):
         response = ServiceResponse()
