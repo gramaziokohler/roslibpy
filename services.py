@@ -72,7 +72,7 @@ class Service(object):
 
         if not callable(callback):
             raise ValueError('Callback is not a valid callable')
-        
+
         self._service_callback = callback
         self.ros.on(self.name, self._service_response_handler)
         self.ros.send_on_ready(Message({
@@ -100,14 +100,14 @@ class Service(object):
         success = self._service_callback(request['args'], response)
 
         call = Message({'op': 'service_response',
-            'service': self.name,
-            'values': dict(response),
-            'result': success
-        })
+                        'service': self.name,
+                        'values': dict(response),
+                        'result': success
+                        })
 
         if 'id' in request:
             call['id'] = request['id']
-        
+
         self.ros.send_on_ready(call)
 
 
@@ -163,7 +163,9 @@ class Param(object):
 
 
 if __name__ == '__main__':
+    import time
     import logging
+    from twisted.internet import reactor
     from roslibpy import Ros
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
@@ -183,11 +185,22 @@ if __name__ == '__main__':
         param = Param(ros_client, 'test_param')
         param.delete()
 
-    run_delete_example()
+    def run_server_example():
+        service = Service(ros_client, '/test_server',
+                          'rospy_tutorials/AddTwoInts')
 
-    try:
-        ros_client.run_event_loop()
-    except KeyboardInterrupt:
-        ros_client.terminate()
+        def dispose_server():
+            service.unadvertise()
+            reactor.callLater(1, service.ros.terminate)
 
+        def add_two_ints(request, response):
+            response['sum'] = request['a'] + request['b']
+            if response['sum'] == 42:
+                reactor.callLater(2, dispose_server)
 
+            return True
+
+        service.advertise(add_two_ints)
+
+    run_server_example()
+    ros_client.run_event_loop()
