@@ -59,7 +59,7 @@ class Service(object):
 
     def advertise(self, callback):
         """Start advertising the service.
-        
+
         This turns the instance from a client into a server. The callback will be
         invoked with every request that is made to the service.
 

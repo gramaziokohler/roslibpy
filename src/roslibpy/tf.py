@@ -109,7 +109,7 @@ class TFClient(object):
 
     def subscribe(self, frame_id, callback):
         """Subscribe to the given TF frame.
-        
+
         Args:
             frame_id (:obj:`str`):  TF frame identifier to subscribe to.
             callback (:obj:`callable`): A callable functions receiving one parameter with `transform` data.
@@ -135,7 +135,7 @@ class TFClient(object):
 
     def unsubscribe(self, frame_id, callback):
         """Unsubscribe from the given TF frame.
-        
+
         Args:
             frame_id (:obj:`str`):  TF frame identifier to unsubscribe from.
             callback (:obj:`callable`): The callback function to remove.

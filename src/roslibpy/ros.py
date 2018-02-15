@@ -255,6 +255,6 @@ if __name__ == '__main__':
     ros_client.on_ready(lambda: ros_client.get_topics(print))
     reactor.callLater(3, ros_client.close)
     reactor.callLater(5, ros_client.terminate)
-    
+
     ros_client.run_event_loop()
 
