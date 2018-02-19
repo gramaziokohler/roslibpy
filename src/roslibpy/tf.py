@@ -6,9 +6,8 @@ import math
 
 from twisted.internet import reactor
 
-from . import Message, ServiceRequest, Topic
+from . import Message, Service, ServiceRequest, Topic
 from .actionlib import ActionClient, Goal
-from .services import Service
 
 LOGGER = logging.getLogger('roslibpy.tf')
 
@@ -182,4 +181,3 @@ if __name__ == '__main__':
 
     run_tf_example()
     ros_client.run_event_loop()
-

@@ -6,7 +6,7 @@ from autobahn.twisted.websocket import connectWS
 from twisted.internet import reactor
 from twisted.python import log
 
-from . import Message, ServiceRequest, Service
+from . import Message, Service, ServiceRequest
 from .comm import RosBridgeClientFactory
 
 LOGGER = logging.getLogger('roslibpy')
@@ -257,4 +257,3 @@ if __name__ == '__main__':
     reactor.callLater(5, ros_client.terminate)
 
     ros_client.run_event_loop()
-
