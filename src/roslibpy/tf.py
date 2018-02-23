@@ -1,13 +1,11 @@
 from __future__ import print_function
 
-import json
 import logging
 import math
 
 from twisted.internet import reactor
 
-from . import Message, Service, ServiceRequest, Topic
-from .actionlib import ActionClient, Goal
+from . import Service, ServiceRequest, Topic
 
 LOGGER = logging.getLogger('roslibpy.tf')
 
@@ -156,9 +154,7 @@ class TFClient(object):
 
 
 if __name__ == '__main__':
-    import time
     import logging
-    from twisted.internet import reactor
     from roslibpy import Ros
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
@@ -168,7 +164,7 @@ if __name__ == '__main__':
 
     def run_tf_example():
         tfclient = TFClient(ros_client, fixed_frame='world',
-                           angular_threshold=0.01, translation_threshold=0.01)
+                            angular_threshold=0.01, translation_threshold=0.01)
 
         tfclient.subscribe('turtle2', print)
 

@@ -37,7 +37,7 @@ except ImportError:
     iscoroutine = None
     ensure_future = None
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 
 __all__ = ['EventEmitterMixin', 'EventEmitterException']
 

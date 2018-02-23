@@ -70,7 +70,7 @@ class Topic(object):
         self._subscribe_id = None
         self._advertise_id = None
 
-        if self.compression == None:
+        if self.compression is None:
             self.compression = 'none'
 
         if self.compression not in self.SUPPORTED_COMPRESSION_TYPES:
@@ -87,7 +87,7 @@ class Topic(object):
         Returns:
             bool: True if advertised as publisher of this topic, False otherwise.
         """
-        return self._advertise_id != None
+        return self._advertise_id is not None
 
     def subscribe(self, callback):
         """Register a subscription to the topic.

@@ -3,15 +3,14 @@ from __future__ import print_function
 import json
 import logging
 
-from autobahn.twisted.websocket import (WebSocketClientFactory,
-                                        WebSocketClientProtocol)
-from twisted.internet.defer import Deferred
+from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
 from twisted.internet.protocol import ReconnectingClientFactory
 
-from . import Message, ServiceRequest, ServiceResponse
+from . import Message, ServiceResponse
 from .event_emitter import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
+
 
 class RosBridgeProtocol(WebSocketClientProtocol):
     """Implements the websocket client protocol to encode/decode JSON ROS Bridge messages."""
@@ -102,7 +101,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         callback, errback = service_handlers
         del self._pending_service_requests[request_id]
 
-        if 'result' in message and message['result'] == False:
+        if 'result' in message and message['result'] is False:
             if errback:
                 errback(message['values'])
         else:

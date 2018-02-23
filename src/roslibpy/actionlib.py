@@ -53,7 +53,7 @@ class Goal(EventEmitterMixin):
         """
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
-          reactor.callLater(timeout / 1000., self._trigger_timeout)
+            reactor.callLater(timeout / 1000., self._trigger_timeout)
 
     def cancel(self):
         """Cancel the current goal."""
@@ -79,7 +79,7 @@ class Goal(EventEmitterMixin):
         Returns:
             bool: True if finished, False otherwise.
         """
-        return self.result != None
+        return self.result is not None
 
 
 class ActionClient(EventEmitterMixin):
@@ -190,10 +190,8 @@ class ActionClient(EventEmitterMixin):
 
 
 if __name__ == '__main__':
-    import math
     import logging
     from . import Ros
-    from twisted.internet import reactor
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
