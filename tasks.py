@@ -3,8 +3,11 @@
 import contextlib
 import os
 import sys
+from shutil import rmtree
 
 from invoke import Collection, task
+
+BASE_FOLDER = os.path.dirname(__file__)
 
 
 class Log(object):
@@ -44,20 +47,34 @@ def help(ctx):
     'bytecode': 'True to clean up compiled python files, otherwise False.'})
 def clean(ctx, docs=True, bytecode=True):
     """Cleans the local copy from compiled artifacts."""
-    patterns = []
-    if docs:
-        patterns.append('docs/_build')
-        patterns.append('dist/')
     if bytecode:
-        patterns.append('src/**/*.pyc')
-    for pattern in patterns:
-        ctx.run('rm -rf %s' % pattern)
+        for root, dirs, files in os.walk(BASE_FOLDER):
+            for f in files:
+                if f.endswith('.pyc'):
+                    os.remove(os.path.join(root, f))
+            if '.git' in dirs:
+                dirs.remove('.git')
+
+    folders = []
+
+    if docs:
+        folders.append('docs/_build')
+        folders.append('dist/')
+
+    if bytecode:
+        folders.append('src/roslibpy/__pycache__')
+
+    for folder in folders:
+        rmtree(os.path.join(BASE_FOLDER, folder), ignore_errors=True)
 
 
 @task(clean, help={
+      'rebuild': 'True to clean all previously built docs before starting, otherwise False.',
       'check_links': 'True to check all web links in docs for validity, otherwise False.'})
 def docs(ctx, rebuild=True, check_links=False):
     """Builds package's HTML documentation."""
+    if rebuild:
+        clean(ctx)
     ctx.run('sphinx-build -b doctest docs dist/docs')
     ctx.run('sphinx-build -b html docs dist/docs')
     if check_links:
