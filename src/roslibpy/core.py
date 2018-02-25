@@ -314,7 +314,7 @@ class Param(object):
         client = Service(self.ros, '/rosapi/get_param', 'rosapi/GetParam')
         request = ServiceRequest({'name': self.name})
 
-        client.call(request, lambda(result): callback(
+        client.call(request, lambda result: callback(
             json.loads(result['value'])), errback)
 
     def set(self, value, callback=None, errback=None):

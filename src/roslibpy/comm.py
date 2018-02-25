@@ -12,6 +12,11 @@ from .event_emitter import EventEmitterMixin
 LOGGER = logging.getLogger('roslibpy')
 
 
+class RosBridgeException(Exception):
+    """Exception raised on the ROS bridge communication."""
+    pass
+
+
 class RosBridgeProtocol(WebSocketClientProtocol):
     """Implements the websocket client protocol to encode/decode JSON ROS Bridge messages."""
 
@@ -37,7 +42,7 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             LOGGER.debug('Sending ROS message: %s', json_message)
 
             self.sendMessage(json_message)
-        except StandardError as exception:
+        except Exception as exception:
             # TODO: Check if it makes sense to raise exception again here
             # Since this is wrapped in many layers of indirection
             LOGGER.exception('Failed to send message, %s', exception)
@@ -50,7 +55,8 @@ class RosBridgeProtocol(WebSocketClientProtocol):
             handler: Callback to handle the message.
         """
         if operation in self._message_handlers:
-            raise StandardError('Only one handler can be registered per operation')
+            raise RosBridgeException(
+                'Only one handler can be registered per operation')
 
         self._message_handlers[operation] = handler
 
@@ -84,7 +90,8 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         message = Message(json.loads(payload.decode('utf8')))
         handler = self._message_handlers.get(message['op'], None)
         if not handler:
-            raise StandardError('No handler registered for operation "%s"' % message['op'])
+            raise RosBridgeException(
+                'No handler registered for operation "%s"' % message['op'])
 
         handler(message)
 
@@ -96,7 +103,8 @@ class RosBridgeProtocol(WebSocketClientProtocol):
         service_handlers = self._pending_service_requests.get(request_id, None)
 
         if not service_handlers:
-            raise StandardError('No handler registered for service request ID: "%s"' % request_id)
+            raise RosBridgeException(
+                'No handler registered for service request ID: "%s"' % request_id)
 
         callback, errback = service_handlers
         del self._pending_service_requests[request_id]
@@ -110,7 +118,8 @@ class RosBridgeProtocol(WebSocketClientProtocol):
 
     def _handle_service_request(self, message):
         if 'service' not in message:
-            raise ValueError('Expected service name missing in service request')
+            raise ValueError(
+                'Expected service name missing in service request')
 
         self.factory.emit(message['service'], message)
 
