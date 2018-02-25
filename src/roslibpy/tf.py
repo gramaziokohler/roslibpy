@@ -1,3 +1,18 @@
+"""
+TF
+==
+
+ROS provides a very powerful transform library called `TF2 <http://wiki.ros.org/tf2>`_,
+which lets the user keep track of multiple coordinate frames over time.
+
+The **roslibpy** library offers access to it through the
+`tf2_web_republisher <http://wiki.ros.org/tf2_web_republisher>`_
+via the :class:`TFClient` class.
+
+.. autoclass:: TFClient
+   :members:
+
+"""
 from __future__ import print_function
 
 import logging

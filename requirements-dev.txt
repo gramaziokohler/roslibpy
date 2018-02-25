@@ -1,5 +1,4 @@
 sphinx>=1.5
-sphinx-rtd-theme>=0.2
 invoke>=0.14
 bumpversion>=0.5
 flake8

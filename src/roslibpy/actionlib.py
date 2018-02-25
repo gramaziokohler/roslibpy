@@ -1,3 +1,21 @@
+"""
+Actionlib
+=========
+
+Another way to interact with ROS is through the **actionlib** stack. Actions in
+ROS allow to execute preemptable tasks, i.e. tasks that can be interrupted by the client.
+
+Actions are used via the :class:`ActionClient` to which :class:`Goals <Goal>`
+can be added. Each goal emits events that can be listened to in order to react to the
+updates from the action server. There are four events emmitted: **status**, **result**,
+**feedback**, and **timeout**.
+
+.. autoclass:: ActionClient
+   :members:
+.. autoclass:: Goal
+   :members:
+
+"""
 from __future__ import print_function
 
 import random
@@ -11,6 +29,14 @@ from .event_emitter import EventEmitterMixin
 
 class Goal(EventEmitterMixin):
     """Goal for an action server.
+
+    After an event has been added to an action client, it will emit different
+    events to indicate its progress:
+
+    * ``status``: fires to notify clients on the current state of the goal.
+    * ``feedback``: fires to send clients periodic auxiliary information of the goal.
+    * ``result``: fires to send clients the result upon completion of the goal.
+    * ``timeout``: fires when the goal did not complete in the specified timeout window.
 
     Args:
         action_client (:class:`.ActionClient`): Instance of the action client associated with the goal.

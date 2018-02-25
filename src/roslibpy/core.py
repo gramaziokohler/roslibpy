@@ -184,7 +184,10 @@ class Topic(object):
 
 
 class Service(object):
-    """Client to call ROS services.
+    """Client/server of ROS services.
+
+    This class can be used both to consume other ROS services as a client,
+    or to provide ROS services as a server.
 
     Args:
         ros (:class:`.Ros`): Instance of the ROS connection.
