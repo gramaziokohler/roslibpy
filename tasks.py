@@ -44,9 +44,13 @@ def help(ctx):
 
 @task(help={
     'docs': 'True to generate documentation, otherwise False',
-    'bytecode': 'True to clean up compiled python files, otherwise False.'})
-def clean(ctx, docs=True, bytecode=True):
+    'bytecode': 'True to clean up compiled python files, otherwise False.',
+    'builds': 'True to clean up build/packaging artifacts, otherwise False.'})
+def clean(ctx, docs=True, bytecode=True, builds=True):
     """Cleans the local copy from compiled artifacts."""
+    if builds:
+        ctx.run('python setup.py clean')
+
     if bytecode:
         for root, dirs, files in os.walk(BASE_FOLDER):
             for f in files:
@@ -58,17 +62,20 @@ def clean(ctx, docs=True, bytecode=True):
     folders = []
 
     if docs:
-        folders.append('docs/_build')
+        folders.append('docs/_build/')
         folders.append('dist/')
 
     if bytecode:
         folders.append('src/roslibpy/__pycache__')
 
+    if builds:
+        folders.append('build/')
+        folders.append('src/roslibpy.egg-info/')
+
     for folder in folders:
         rmtree(os.path.join(BASE_FOLDER, folder), ignore_errors=True)
 
-
-@task(clean, help={
+@task(help={
       'rebuild': 'True to clean all previously built docs before starting, otherwise False.',
       'check_links': 'True to check all web links in docs for validity, otherwise False.'})
 def docs(ctx, rebuild=True, check_links=False):
