@@ -104,9 +104,13 @@ def check(ctx):
     ctx.run('isort --check-only --diff --recursive src tests setup.py')
 
 
-@task(check)
-def test(ctx):
+@task(help={
+      'checks': 'True to run all checks before testing, otherwise False.'})
+def test(ctx, checks=True):
     """Run all tests."""
+    if checks:
+        check(ctx)
+
     ctx.run('pytest --doctest-module')
 
 
