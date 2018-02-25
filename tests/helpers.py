@@ -1,7 +1,7 @@
 """Everything in this module is horrible."""
 
-import traceback
 import multiprocessing
+import traceback
 
 
 class Process(multiprocessing.Process):
