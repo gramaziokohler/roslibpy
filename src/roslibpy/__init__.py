@@ -65,11 +65,21 @@ model via :class:`Services <Service>`.
 .. autoclass:: ServiceResponse
    :members:
 
+
+Parameter server
+----------------
+
+ROS provides a parameter server to share data among different nodes. This service
+can be accessed via the :class:`Param` class.
+
+.. autoclass:: Param
+   :members:
+
 """
 
 from .__version__ import __author__, __author_email__, __copyright__, __description__, __license__, __title__, __url__, __version__
-from .core import Message, Service, ServiceRequest, ServiceResponse, Topic
+from .core import Message, Param, Service, ServiceRequest, ServiceResponse, Topic
 from .ros import Ros
 
-__all__ = ['Ros', 'Message', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic', '__author__',
+__all__ = ['Ros', 'Message', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic', '__author__',
            '__author__', '__author_email__', '__copyright__', '__description__', '__license__', '__title__', '__url__', '__version__']
