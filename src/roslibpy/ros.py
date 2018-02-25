@@ -69,6 +69,15 @@ class Ros(object):
         to control the event loop."""
         reactor.run()
 
+    def call_later(self, delay, callback):
+        """Call the given function after a certain period of time has passed.
+
+        Args:
+            delay (:obj:`int`): Number of seconds to wait before invoking the callback.
+            callback (:obj:`callable`): Callable function to be invoked when ROS connection is ready.
+        """
+        reactor.callLater(delay, callback)
+
     def terminate(self):
         """Signals the termination of the main event loop."""
         if self.is_connected:
@@ -252,7 +261,7 @@ if __name__ == '__main__':
     ros_client = Ros('127.0.0.1', 9090)
 
     ros_client.on_ready(lambda: ros_client.get_topics(print))
-    reactor.callLater(3, ros_client.close)
-    reactor.callLater(5, ros_client.terminate)
+    ros_client.call_later(3, ros_client.close)
+    ros_client.call_later(5, ros_client.terminate)
 
     ros_client.run_event_loop()
