@@ -12,6 +12,6 @@ include ISSUE_TEMPLATE.md
 include LICENSE
 include README.rst
 
-include requirements-dev.txt tasks.py
+include requirements-dev.txt tasks.py pytest.ini
 
 global-exclude *.py[cod] __pycache__ *.so *.dylib
