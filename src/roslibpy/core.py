@@ -349,7 +349,6 @@ if __name__ == '__main__':
 
     import time
     from . import Ros
-    from twisted.internet import reactor
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
@@ -369,8 +368,8 @@ if __name__ == '__main__':
 
         listener.subscribe(print_message)
 
-        reactor.callLater(5, lambda: listener.unsubscribe(print_message))
-        reactor.callLater(10, lambda: listener.subscribe(print_message))
+        ros_client.call_later(5, lambda: listener.unsubscribe(print_message))
+        ros_client.call_later(10, lambda: listener.subscribe(print_message))
 
     def run_publisher_example():
         publisher = Topic(ros_client, '/chatter',
@@ -428,12 +427,12 @@ if __name__ == '__main__':
 
         def dispose_server():
             service.unadvertise()
-            reactor.callLater(1, service.ros.terminate)
+            ros_client.call_later(1, service.ros.terminate)
 
         def add_two_ints(request, response):
             response['sum'] = request['a'] + request['b']
             if response['sum'] == 42:
-                reactor.callLater(2, dispose_server)
+                ros_client.call_later(2, dispose_server)
 
             return True
 

@@ -18,8 +18,6 @@ from __future__ import print_function
 import logging
 import math
 
-from twisted.internet import reactor
-
 from . import Service, ServiceRequest, Topic
 
 LOGGER = logging.getLogger('roslibpy.tf')
@@ -136,7 +134,7 @@ class TFClient(object):
             self.frame_info[frame_id] = frame
 
             if not self.republisher_update_requested:
-                reactor.callLater(self.update_delay / 1000., self.update_goal)
+                self.ros.call_later(self.update_delay / 1000., self.update_goal)
                 self.republisher_update_requested = True
         else:
             # If we already have a transform, call back immediately
@@ -186,9 +184,9 @@ if __name__ == '__main__':
         def dispose_server():
             tfclient.dispose()
 
-        reactor.callLater(10, dispose_server)
-        reactor.callLater(11, ros_client.close)
-        reactor.callLater(12, ros_client.terminate)
+        ros_client.call_later(10, dispose_server)
+        ros_client.call_later(11, ros_client.close)
+        ros_client.call_later(12, ros_client.terminate)
 
     run_tf_example()
     ros_client.run_event_loop()

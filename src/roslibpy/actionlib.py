@@ -21,8 +21,6 @@ from __future__ import print_function
 import random
 import time
 
-from twisted.internet import reactor
-
 from . import Message, Topic
 from .event_emitter import EventEmitterMixin
 
@@ -79,7 +77,7 @@ class Goal(EventEmitterMixin):
         """
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
-            reactor.callLater(timeout / 1000., self._trigger_timeout)
+            self.action_client.ros.call_later(timeout / 1000., self._trigger_timeout)
 
     def cancel(self):
         """Cancel the current goal."""
@@ -158,7 +156,7 @@ class ActionClient(EventEmitterMixin):
 
         # If timeout specified, emit a 'timeout' event if the action server does not respond
         if self.timeout:
-            reactor.callLater(self.timeout / 1000., self._trigger_timeout)
+            self.ros.call_later(self.timeout / 1000., self._trigger_timeout)
 
     def _on_status_message(self, message):
         self._received_status = True
@@ -228,7 +226,7 @@ if __name__ == '__main__':
         print('Final result', result['sequence'])
 
         client.dispose()
-        reactor.callLater(2, client.ros.close)
+        client.ros.call_later(2, client.ros.close)
 
     def run_action_example():
         action_client = ActionClient(ros_client, '/fibonacci', 'actionlib_tutorials/FibonacciAction', timeout=3000)
