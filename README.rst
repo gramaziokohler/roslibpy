@@ -102,3 +102,24 @@ command line to ease recurring operations:
 * ``invoke``: Show available tasks.
 
 For more details, check the *Contributor's Guide* available as part of `the documentation <https://roslibpy.readthedocs.io/>`_.
+
+
+Releasing this project
+----------------------
+
+Ready to release a new version **roslibpy**? Here's how to do it:
+
+* We use `semver <http://semver.org/>`_, i.e. we bump versions as follows:
+
+  * ``patch``: bugfixes.
+  * ``minor``: backwards-compatible features added.
+  * ``major``: backwards-incompatible changes.
+
+* Update the ``CHANGELOG.rst`` with all novelty!
+* Ready? Release everything in one command:
+
+::
+
+    invoke release [patch|minor|major]
+
+* Profit!

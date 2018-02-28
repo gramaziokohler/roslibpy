@@ -5,7 +5,7 @@ import os
 import sys
 from shutil import rmtree
 
-from invoke import Collection, task
+from invoke import Collection, Exit, task
 
 BASE_FOLDER = os.path.dirname(__file__)
 
@@ -112,6 +112,19 @@ def test(ctx, checks=True):
         check(ctx)
 
     ctx.run('pytest --doctest-module')
+
+@task(help={
+      'release_type': 'Type of release follows semver rules. Must be one of: major, minor, patch.'})
+def release(ctx, release_type):
+    """Releases the project in one swift command!"""
+    if release_type not in ('patch', 'minor', 'major'):
+        raise Exit('The release type parameter is invalid.\nMust be one of: major, minor, patch')
+
+    ctx.run('bumpversion %s --verbose' % release_type)
+    ctx.run('invoke docs test')
+    ctx.run('python setup.py clean --all sdist bdist_wheel')
+    ctx.run('twine register dist/*')
+    ctx.run('twine upload --skip-existing dist/*.whl dist/*.gz dist/*.zip')
 
 
 @contextlib.contextmanager
