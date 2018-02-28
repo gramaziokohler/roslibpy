@@ -69,12 +69,16 @@ class Goal(EventEmitterMixin):
         self.on('result', self._set_result)
         self.on('feedback', self._set_feedback)
 
-    def send(self, timeout=None):
+    def send(self, result_callback=None, timeout=None):
         """Send goal to the action server.
 
         Args:
             timeout (:obj:`int`): Timeout for the goal's result expressed in milliseconds.
+            callback (:obj:`callable`): Function to be called when a result is received. It is a shorthand for hooking on the ``result`` event.
         """
+        if result_callback:
+            self.on('result', result_callback)
+
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
             self.action_client.ros.call_later(timeout / 1000., self._trigger_timeout)
