@@ -123,7 +123,6 @@ def release(ctx, release_type):
     ctx.run('bumpversion %s --verbose' % release_type)
     ctx.run('invoke docs test')
     ctx.run('python setup.py clean --all sdist bdist_wheel')
-    ctx.run('twine register dist/*')
     ctx.run('twine upload --skip-existing dist/*.whl dist/*.gz dist/*.zip')
 
 
