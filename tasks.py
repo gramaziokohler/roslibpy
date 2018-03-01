@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import contextlib
+import glob
 import os
 import sys
 from shutil import rmtree
 
 from invoke import Collection, Exit, task
 
+try:
+    input = raw_input
+except NameError:
+    pass
 BASE_FOLDER = os.path.dirname(__file__)
 
 
@@ -32,6 +38,19 @@ class Log(object):
 
 
 log = Log()
+
+
+def confirm(question):
+    while True:
+        response = input(question).lower().strip()
+
+        if not response or response in ('n', 'no'):
+            return False
+
+        if response in ('y', 'yes'):
+            return True
+
+        print('Focus, kid! It is either (y)es or (n)o', file=sys.stderr)
 
 
 @task(default=True)
@@ -123,7 +142,18 @@ def release(ctx, release_type):
     ctx.run('bumpversion %s --verbose' % release_type)
     ctx.run('invoke docs test')
     ctx.run('python setup.py clean --all sdist bdist_wheel')
-    ctx.run('twine upload --skip-existing dist/*.whl dist/*.gz dist/*.zip')
+
+    if confirm('You are about to upload the release to pypi.org. Are you sure? [y/N]'):
+        files = ['dist/*.whl', 'dist/*.gz', 'dist/*.zip']
+        dist_files = ' '.join([pattern for f in files for pattern in glob.glob(f)])
+
+        if len(dist_files):
+            ctx.run('twine upload --skip-existing %s' % dist_files)
+        else:
+            raise Exit('No files found to release')
+    else:
+        raise Exit('Aborted release')
+
 
 
 @contextlib.contextmanager
