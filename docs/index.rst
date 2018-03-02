@@ -1,3 +1,49 @@
+============================
+roslibpy: ROS Bridge library
+============================
+
+.. start-badges
+
+.. image:: https://readthedocs.org/projects/roslibpy/badge/?style=flat
+    :target: https://readthedocs.org/projects/roslibpy
+    :alt: Documentation Status
+
+.. image:: https://travis-ci.org/gramaziokohler/roslibpy.svg?branch=master
+    :target: https://travis-ci.org/gramaziokohler/roslibpy
+    :alt: Travis-CI Build Status
+
+.. image:: https://img.shields.io/pypi/l/roslibpy.svg
+    :target: https://pypi.python.org/pypi/roslibpy
+    :alt: License
+
+.. image:: https://img.shields.io/pypi/v/roslibpy.svg
+    :target: https://pypi.python.org/pypi/roslibpy
+    :alt: PyPI Package latest release
+
+.. image:: https://img.shields.io/pypi/wheel/roslibpy.svg
+    :target: https://pypi.python.org/pypi/roslibpy
+    :alt: PyPI Wheel
+
+.. image:: https://img.shields.io/pypi/pyversions/roslibpy.svg
+    :target: https://pypi.python.org/pypi/roslibpy
+    :alt: Supported versions
+
+.. image:: https://img.shields.io/pypi/implementation/roslibpy.svg
+    :target: https://pypi.python.org/pypi/roslibpy
+    :alt: Supported implementations
+
+.. end-badges
+
+**Python ROS Bridge library** allows to use Python to interact with `ROS <http://www.ros.org>`_,
+the open-source robotic middleware. It uses WebSockets to connect to
+`rosbridge 2.0 <http://wiki.ros.org/rosbridge_suite>`_ and provides publishing,
+subscribing, service calls, actionlib, TF, and other essential ROS functionality.
+
+Unlike the `rospy <http://wiki.ros.org/rospy>`_ library, this does not require a
+local ROS environment, allowing usage from platforms other than Linux.
+
+The API of **roslibpy** is modeled to closely match that of `roslibjs <http://wiki.ros.org/roslibjs>`_.
+
 ========
 Contents
 ========
