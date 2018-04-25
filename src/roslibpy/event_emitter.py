@@ -38,6 +38,7 @@ except ImportError:
     ensure_future = None
 
 from collections import OrderedDict, defaultdict
+from threading import RLock
 
 __all__ = ['EventEmitterMixin', 'EventEmitterException']
 
@@ -88,6 +89,7 @@ class EventEmitterMixin(object):
         self._events = defaultdict(OrderedDict)
         self._schedule = kwargs.get('scheduler', ensure_future)
         self._loop = kwargs.get('loop', None)
+        self._event_lock = RLock()
 
     def on(self, event, f=None):
         """Registers the function (or optionally an asyncio coroutine function)
@@ -117,14 +119,15 @@ class EventEmitterMixin(object):
         directly, as well as use them in remove_listener calls.
         """
 
-        def _on(f):
-            self._add_event_handler(event, f, f)
-            return f
+        with self._event_lock:
+            def _on(f):
+                self._add_event_handler(event, f, f)
+                return f
 
-        if f is None:
-            return _on
-        else:
-            return _on(f)
+            if f is None:
+                return _on
+            else:
+                return _on(f)
 
     def _add_event_handler(self, event, k, v):
         # Fire 'new_listener' *before* adding the new listener!
@@ -154,31 +157,32 @@ class EventEmitterMixin(object):
         """
         handled = False
 
-        for f in list(self._events[event].values()):
-            result = f(*args, **kwargs)
+        with self._event_lock:
+            for f in list(self._events[event].values()):
+                result = f(*args, **kwargs)
 
-            # If f was a coroutine function, we need to schedule it and
-            # handle potential errors
-            if iscoroutine and iscoroutine(result):
-                if self._loop:
-                    d = self._schedule(result, loop=self._loop)
-                else:
-                    d = self._schedule(result)
+                # If f was a coroutine function, we need to schedule it and
+                # handle potential errors
+                if iscoroutine and iscoroutine(result):
+                    if self._loop:
+                        d = self._schedule(result, loop=self._loop)
+                    else:
+                        d = self._schedule(result)
 
-                # scheduler gave us an asyncio Future
-                if hasattr(d, 'add_done_callback'):
-                    @d.add_done_callback
-                    def _callback(f):
-                        exc = f.exception()
-                        if exc:
+                    # scheduler gave us an asyncio Future
+                    if hasattr(d, 'add_done_callback'):
+                        @d.add_done_callback
+                        def _callback(f):
+                            exc = f.exception()
+                            if exc:
+                                self.emit('error', exc)
+
+                    # scheduler gave us a twisted Deferred
+                    elif hasattr(d, 'addErrback'):
+                        @d.addErrback
+                        def _callback(exc):
                             self.emit('error', exc)
-
-                # scheduler gave us a twisted Deferred
-                elif hasattr(d, 'addErrback'):
-                    @d.addErrback
-                    def _callback(exc):
-                        self.emit('error', exc)
-            handled = True
+                handled = True
 
         if not handled and event == 'error':
             if args:
@@ -193,20 +197,22 @@ class EventEmitterMixin(object):
         """The same as ``ee.on``, except that the listener is automatically
         removed after being called.
         """
-        def _wrapper(f):
-            def g(*args, **kwargs):
-                self.remove_listener(event, f)
-                # f may return a coroutine, so we need to return that
-                # result here so that emit can schedule it
-                return f(*args, **kwargs)
 
-            self._add_event_handler(event, f, g)
-            return f
+        with self._event_lock:
+            def _wrapper(f):
+                def g(*args, **kwargs):
+                    self.remove_listener(event, f)
+                    # f may return a coroutine, so we need to return that
+                    # result here so that emit can schedule it
+                    return f(*args, **kwargs)
 
-        if f is None:
-            return _wrapper
-        else:
-            return _wrapper(f)
+                self._add_event_handler(event, f, g)
+                return f
+
+            if f is None:
+                return _wrapper
+            else:
+                return _wrapper(f)
 
     def off(self, event, f):
         """Removes the function ``f`` from ``event``."""
@@ -220,10 +226,11 @@ class EventEmitterMixin(object):
         """Remove all listeners attached to ``event``.
         If ``event`` is ``None``, remove all listeners on all events.
         """
-        if event is not None:
-            self._events[event] = OrderedDict()
-        else:
-            self._events = defaultdict(OrderedDict)
+        with self._event_lock:
+            if event is not None:
+                self._events[event] = OrderedDict()
+            else:
+                self._events = defaultdict(OrderedDict)
 
     def listeners(self, event):
         """Returns a list of all listeners registered to the ``event``.
