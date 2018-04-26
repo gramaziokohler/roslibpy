@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import logging
 
-from autobahn.twisted.websocket import connectWS
 from twisted.internet import reactor
 from twisted.python import log
 
@@ -18,7 +17,6 @@ class Ros(object):
     def __init__(self, host, port):
         scheme = 'ws'
         self._id_counter = 0
-        self.connector = None
         self.factory = RosBridgeClientFactory(
             u"%s://%s:%s" % (scheme, host, port))
         self._log_observer = log.PythonLoggingObserver()
@@ -43,7 +41,7 @@ class Ros(object):
         Returns:
             bool: True if connected to ROS, False otherwise.
         """
-        return self.connector and self.connector.state == 'connected'
+        return self.factory.is_connected
 
     def connect(self):
         """Connect to ROS master."""
@@ -51,11 +49,11 @@ class Ros(object):
         if self.is_connected:
             return
 
-        self.connector = connectWS(self.factory)
+        self.factory.connect()
 
     def close(self):
         """Disconnect from ROS master."""
-        if self.connector:
+        if self.is_connected:
             def _wrapper_callback(proto):
                 proto.sendClose()
                 return proto

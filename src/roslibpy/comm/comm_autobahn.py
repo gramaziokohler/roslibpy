@@ -3,7 +3,7 @@ from __future__ import print_function
 import json
 import logging
 
-from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
+from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
 from twisted.internet.protocol import ReconnectingClientFactory
 
 from . import RosBridgeProtocol, RosBridgeException
@@ -51,7 +51,25 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
     def __init__(self, *args, **kwargs):
         super(AutobahnRosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._proto = None
+        self.connector = None
         self.setProtocolOptions(closeHandshakeTimeout=5)
+
+    def connect(self):
+        """Establish WebSocket connection to the ROS server defined for this factory.
+
+        Returns:
+            connector: An object which implements `twisted.interface.IConnector <http://twistedmatrix.com/documents/current/api/twisted.internet.interfaces.IConnector.html>`_.
+        """
+        self.connector = connectWS(self)
+
+    @property
+    def is_connected(self):
+        """Indicate if the WebSocket connection is open or not.
+
+        Returns:
+            bool: True if WebSocket is connected, False otherwise.
+        """
+        return self.connector and self.connector.state == 'connected'
 
     def on_ready(self, callback):
         if self._proto:
