@@ -1,12 +1,11 @@
 from __future__ import print_function
 
-import json
 import logging
 
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
 from twisted.internet.protocol import ReconnectingClientFactory
 
-from . import RosBridgeProtocol, RosBridgeException
+from . import RosBridgeProtocol
 from .. import Message, ServiceResponse
 from ..event_emitter import EventEmitterMixin
 
@@ -27,13 +26,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         if isBinary:
             raise NotImplementedError('Add support for binary messages')
 
-        message = Message(json.loads(payload.decode('utf8')))
-        handler = self._message_handlers.get(message['op'], None)
-        if not handler:
-            raise RosBridgeException(
-                'No handler registered for operation "%s"' % message['op'])
-
-        handler(message)
+        self.on_message(payload)
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: %s', reason)

@@ -27,6 +27,15 @@ class RosBridgeProtocol(object):
         }
         # TODO: add handlers for op: status
 
+    def on_message(self, payload):
+        message = Message(json.loads(payload.decode('utf8')))
+        handler = self._message_handlers.get(message['op'], None)
+        if not handler:
+            raise RosBridgeException(
+                'No handler registered for operation "%s"' % message['op'])
+
+        handler(message)
+
     def send_ros_message(self, message):
         """Encode and serialize ROS Bridge protocol message.
 
