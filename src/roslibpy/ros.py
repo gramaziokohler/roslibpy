@@ -3,6 +3,7 @@ from __future__ import print_function
 import logging
 
 from autobahn.twisted.websocket import connectWS
+from autobahn.websocket.util import create_url
 from twisted.internet import reactor
 from twisted.python import log
 
@@ -15,12 +16,11 @@ LOGGER = logging.getLogger('roslibpy')
 class Ros(object):
     """Connection manager to ROS server."""
 
-    def __init__(self, host, port):
-        scheme = 'ws'
+    def __init__(self, host, port=None):
         self._id_counter = 0
         self.connector = None
-        self.factory = RosBridgeClientFactory(
-            u"%s://%s:%s" % (scheme, host, port))
+        url = host if port is None else create_url(host, port)
+        self.factory = RosBridgeClientFactory(url)
         self._log_observer = log.PythonLoggingObserver()
         self._log_observer.start()
 
