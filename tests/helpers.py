@@ -27,8 +27,8 @@ class Process(multiprocessing.Process):
         return self._exception
 
 
-def run_as_process(func):
-    p = Process(target=func, args=())
+def run_as_process(func, *args, **kwargs):
+    p = Process(target=func, args=args, kwargs=kwargs)
     p.start()
     p.join()
 
