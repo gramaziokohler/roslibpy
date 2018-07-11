@@ -31,7 +31,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         self.on_message(payload)
 
     def onClose(self, wasClean, code, reason):
-        LOGGER.info('WebSocket connection closed: %s', reason)
+        LOGGER.info('WebSocket connection closed: Code=%d, Reason=%s', code, reason)
 
     def send_message(self, payload):
         return self.sendMessage(payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False)
