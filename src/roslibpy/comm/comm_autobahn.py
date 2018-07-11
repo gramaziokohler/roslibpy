@@ -3,7 +3,9 @@ from __future__ import print_function
 import logging
 
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
+from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
+from twisted.python import log
 
 from . import RosBridgeProtocol
 from .. import Message, ServiceResponse
@@ -44,15 +46,12 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
     def __init__(self, *args, **kwargs):
         super(AutobahnRosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._proto = None
+        self._manager = None
         self.connector = None
         self.setProtocolOptions(closeHandshakeTimeout=5)
 
     def connect(self):
-        """Establish WebSocket connection to the ROS server defined for this factory.
-
-        Returns:
-            connector: An object which implements `twisted.interface.IConnector <http://twistedmatrix.com/documents/current/api/twisted.internet.interfaces.IConnector.html>`_.
-        """
+        """Establish WebSocket connection to the ROS server defined for this factory."""
         self.connector = connectWS(self)
 
     @property
@@ -87,3 +86,55 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         ReconnectingClientFactory.clientConnectionFailed(
             self, connector, reason)
         self._proto = None
+
+    @property
+    def manager(self):
+        """Get an instance of the event loop manager for this factory."""
+        if not self._manager:
+            self._manager = TwistedEventLoopManager()
+
+        return self._manager
+
+
+class TwistedEventLoopManager(object):
+    """Manage the main event loop using Twisted reactor.
+
+    The event loop is a Twisted application is a very opinionated
+    management strategy. Other communication layers use different
+    event loop handlers that might be more fitting for different
+    execution environments.
+    """
+    def __init__(self):
+        self._log_observer = log.PythonLoggingObserver()
+        self._log_observer.start()
+
+    def run_forever(self):
+        """Kick-starts the main event loop of the ROS client.
+
+        This implementation relies on Twisted Reactors
+        to control the event loop."""
+        reactor.run()
+
+    def call_later(self, delay, callback):
+        """Call the given function after a certain period of time has passed.
+
+        Args:
+            delay (:obj:`int`): Number of seconds to wait before invoking the callback.
+            callback (:obj:`callable`): Callable function to be invoked when the delay has elapsed.
+        """
+        reactor.callLater(delay, callback)
+
+    def call_in_thread(self, callback):
+        """Call the given function on a thread.
+
+        Args:
+            callback (:obj:`callable`): Callable function to be invoked in a thread.
+        """
+        reactor.callInThread(callback)
+
+    def terminate(self):
+        """Signals the termination of the main event loop."""
+        if reactor.running:
+            reactor.stop()
+
+        self._log_observer.stop()

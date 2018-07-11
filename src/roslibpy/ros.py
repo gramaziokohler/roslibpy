@@ -2,9 +2,6 @@ from __future__ import print_function
 
 import logging
 
-from twisted.internet import reactor
-from twisted.python import log
-
 from . import Message, Service, ServiceRequest
 from .comm import RosBridgeClientFactory
 
@@ -19,9 +16,6 @@ class Ros(object):
         self._id_counter = 0
         self.factory = RosBridgeClientFactory(
             u"%s://%s:%s" % (scheme, host, port))
-        self._log_observer = log.PythonLoggingObserver()
-        self._log_observer.start()
-
         self.connect()
 
     @property
@@ -61,11 +55,8 @@ class Ros(object):
             self.factory.on_ready(_wrapper_callback)
 
     def run_event_loop(self):
-        """Kick-starts the main event loop of the ROS client.
-
-        The current implementation relies on Twisted Reactors
-        to control the event loop."""
-        reactor.run()
+        """Kick-starts the main event loop of the ROS client."""
+        self.factory.manager.run_forever()
 
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.
@@ -74,17 +65,14 @@ class Ros(object):
             delay (:obj:`int`): Number of seconds to wait before invoking the callback.
             callback (:obj:`callable`): Callable function to be invoked when ROS connection is ready.
         """
-        reactor.callLater(delay, callback)
+        self.factory.manager.call_later(delay, callback)
 
     def terminate(self):
         """Signals the termination of the main event loop."""
         if self.is_connected:
             self.close()
 
-        if reactor.running:
-            reactor.stop()
-
-        self._log_observer.stop()
+        self.factory.manager.terminate()
 
     def on(self, event_name, callback):
         """Add a callback to an arbitrary named event."""
@@ -109,7 +97,7 @@ class Ros(object):
         """
         def _wrapper_callback(proto):
             if run_in_thread:
-                reactor.callInThread(callback)
+                self.factory.manager.call_in_thread(callback)
             else:
                 callback()
 
