@@ -86,7 +86,7 @@ class Ros(object):
         """Trigger a named event."""
         self.factory.emit(event_name, *args)
 
-    def on_ready(self, callback, run_in_thread=False):
+    def on_ready(self, callback, run_in_thread=True):
         """Add a callback to be executed when the connection is established.
 
         If a connection to ROS is already available, the callback is executed immediately.
