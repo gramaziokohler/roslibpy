@@ -19,7 +19,9 @@ def run_topic_pubsub():
             ros_client.terminate()
 
     def start_sending():
-        message = Message({'data': 'test'})
+        # Give the listener thread time to start listening
+        time.sleep(0.5)
+        message = Message({'data': 'hello world'})
         publisher.publish(message)
         publisher.publish(message)
         publisher.publish(message)

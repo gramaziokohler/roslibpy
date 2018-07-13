@@ -44,7 +44,7 @@ class RosBridgeProtocol(object):
         """
         try:
             json_message = json.dumps(dict(message)).encode('utf8')
-            LOGGER.debug('Sending ROS message: %s', json_message)
+            LOGGER.debug('Sending ROS message|<pre>%s</pre>', json_message)
 
             self.send_message(json_message)
         except Exception as exception:

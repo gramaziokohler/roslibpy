@@ -28,7 +28,11 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         if isBinary:
             raise NotImplementedError('Add support for binary messages')
 
-        self.on_message(payload)
+        try:
+            self.on_message(payload)
+        except Exception:
+            LOGGER.exception('Exception on start_listening while trying to handle message received.' +
+                             'It could indicate a bug in user code on message handlers. Message skipped.')
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: Code=%d, Reason=%s', code, reason)
@@ -40,7 +44,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         self.sendClose()
 
 class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSocketClientFactory):
-    """Factory to construct instance of the ROS Bridge protocol."""
+    """Factory to create instances of the ROS Bridge protocol built on top of Autobahn/Twisted."""
     protocol = AutobahnRosBridgeProtocol
 
     def __init__(self, *args, **kwargs):
