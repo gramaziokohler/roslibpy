@@ -15,7 +15,7 @@ def run_topic_pubsub():
 
     def receive_message(message):
         context['counter'] += 1
-        assert(message['data'] == 'test')
+        assert(message['data'] == 'hello world')
 
         if context['counter'] == 3:
             ros_client.terminate()
