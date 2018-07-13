@@ -3,7 +3,7 @@ from __future__ import print_function
 import logging
 import math
 
-from System import Action, Array, ArraySegment, Byte, TimeSpan, Uri
+from System import Action, Array, ArraySegment, Byte, TimeSpan, Uri, UriBuilder
 from System.Net.WebSockets import ClientWebSocket, WebSocketCloseStatus, WebSocketMessageType, WebSocketReceiveResult, WebSocketState
 from System.Text import Encoding
 from System.Threading import CancellationToken, CancellationTokenSource, ManualResetEventSlim, SemaphoreSlim, Thread
@@ -208,7 +208,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         super(CliRosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._manager = CliEventLoopManager()
         self.proto = None
-        self.url = Uri(url)
+        self.url = url
 
     @property
     def is_connected(self):
@@ -250,6 +250,15 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
     def manager(self):
         """Get an instance of the event loop manager for this factory."""
         return self._manager
+
+    @classmethod
+    def create_url(cls, host, port=None, is_secure=False):
+        if port is None:
+            return Uri(host)
+        else:
+            scheme = 'wss' if is_secure else 'ws'
+            builder = UriBuilder(scheme, host, port)
+            return builder.Uri
 
 
 class CliEventLoopManager(object):

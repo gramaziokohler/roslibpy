@@ -3,6 +3,7 @@ from __future__ import print_function
 import logging
 
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
+from autobahn.websocket.util import create_url
 from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
@@ -99,6 +100,11 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
             self._manager = TwistedEventLoopManager()
 
         return self._manager
+
+    @classmethod
+    def create_url(cls, host, port=None, is_secure=False):
+        url = host if port is None else create_url(host, port, is_secure)
+        return url
 
 
 class TwistedEventLoopManager(object):

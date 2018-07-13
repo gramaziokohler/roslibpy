@@ -11,11 +11,10 @@ LOGGER = logging.getLogger('roslibpy')
 class Ros(object):
     """Connection manager to ROS server."""
 
-    def __init__(self, host, port):
-        scheme = 'ws'
+    def __init__(self, host, port=None, is_secure=False):
         self._id_counter = 0
-        self.factory = RosBridgeClientFactory(
-            u"%s://%s:%s" % (scheme, host, port))
+        url = RosBridgeClientFactory.create_url(host, port, is_secure)
+        self.factory = RosBridgeClientFactory(url)
         self.connect()
 
     @property
