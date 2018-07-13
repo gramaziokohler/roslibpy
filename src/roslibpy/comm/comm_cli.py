@@ -106,7 +106,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                     self.on_message(message_payload)
                 except Exception:
                     LOGGER.exception('Exception on start_listening while trying to handle message received.' +
-                                    'It could indicate a bug in user code on message handlers. Message skipped.')
+                                     'It could indicate a bug in user code on message handlers. Message skipped.')
         except Exception:
             LOGGER.exception(
                 'Exception on start_listening, processing will be aborted')

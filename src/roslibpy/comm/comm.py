@@ -108,4 +108,3 @@ class RosBridgeProtocol(object):
                 'Expected service name missing in service request')
 
         self.factory.emit(message['service'], message)
-

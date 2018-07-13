@@ -8,10 +8,10 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 
 from . import RosBridgeProtocol
-from .. import Message, ServiceResponse
 from ..event_emitter import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
+
 
 class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
     def __init__(self, *args, **kwargs):
@@ -42,6 +42,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
 
     def send_close(self):
         self.sendClose()
+
 
 class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSocketClientFactory):
     """Factory to create instances of the ROS Bridge protocol built on top of Autobahn/Twisted."""
