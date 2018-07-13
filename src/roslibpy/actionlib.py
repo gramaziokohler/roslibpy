@@ -246,6 +246,6 @@ if __name__ == '__main__':
     ros_client.on_ready(run_action_example, run_in_thread=True)
 
     try:
-        ros_client.run_event_loop()
+        ros_client.run_forever()
     except KeyboardInterrupt:
         ros_client.terminate()

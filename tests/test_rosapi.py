@@ -14,7 +14,7 @@ def run_rosapi_topics():
         ros_client.get_topics(callback)
 
     ros_client.on_ready(get_topics)
-    ros_client.run_event_loop()
+    ros_client.run_forever()
 
 
 def test_rosapi_topics():

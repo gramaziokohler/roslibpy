@@ -185,6 +185,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
+        self.factory.manager.trigger_disconnect()
 
         if self.factory.manager.cancellation_token_source:
             LOGGER.debug('Cancelling task token')
@@ -262,10 +263,16 @@ class CliEventLoopManager(object):
     def __init__(self):
         self.cancellation_token_source = CancellationTokenSource()
         self.cancellation_token = self.cancellation_token_source.Token
+        self._disconnect_event = ManualResetEventSlim(False)
 
     def run_forever(self):
-        """Kick-starts the main event loop of the ROS client."""
-        pass
+        """Kick-starts a blocking loop while the ROS client is connected."""
+        self._disconnect_event.Wait(self.cancellation_token)
+        LOGGER.debug('Received disconnect event on main loop')
+
+    def trigger_disconnect(self):
+        """Internal: used by the protocol to signal disconnection on the main loop."""
+        self._disconnect_event.Set()
 
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.

@@ -189,4 +189,4 @@ if __name__ == '__main__':
         ros_client.call_later(12, ros_client.terminate)
 
     run_tf_example()
-    ros_client.run_event_loop()
+    ros_client.run_forever()

@@ -54,9 +54,17 @@ class Ros(object):
 
             self.factory.on_ready(_wrapper_callback)
 
-    def run_event_loop(self):
-        """Kick-starts the main event loop of the ROS client."""
+    def run_forever(self):
+        """Kick-starts a blocking loop to wait for events.
+
+        Depending on the implementations, and the client applications,
+        running this might be required or not.
+        """
         self.factory.manager.run_forever()
+
+    def run_event_loop(self):
+        LOGGER.warn('Deprecation warning: use run_forever instead of run_event_loop ')
+        self.run_forever()
 
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.
@@ -250,4 +258,4 @@ if __name__ == '__main__':
     ros_client.call_later(3, ros_client.close)
     ros_client.call_later(5, ros_client.terminate)
 
-    ros_client.run_event_loop()
+    ros_client.run_forever()

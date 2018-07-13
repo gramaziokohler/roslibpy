@@ -31,7 +31,7 @@ def run_param_manipulation():
         ros_client.terminate()
 
     ros_client.call_later(1, verify)
-    ros_client.run_event_loop()
+    ros_client.run_forever()
 
 
 def test_param_manipulation():

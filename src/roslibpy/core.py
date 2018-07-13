@@ -439,4 +439,4 @@ if __name__ == '__main__':
         service.advertise(add_two_ints)
 
     run_server_example()
-    ros_client.run_event_loop()
+    ros_client.run_forever()

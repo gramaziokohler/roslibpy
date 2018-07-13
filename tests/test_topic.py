@@ -34,7 +34,7 @@ def run_topic_pubsub():
 
     ros_client.on_ready(start_receiving, run_in_thread=True)
     ros_client.on_ready(start_sending, run_in_thread=True)
-    ros_client.run_event_loop()
+    ros_client.run_forever()
 
 
 def test_topic_pubsub():
