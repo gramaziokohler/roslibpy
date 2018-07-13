@@ -36,3 +36,13 @@ def run_param_manipulation():
 
 def test_param_manipulation():
     helpers.run_as_process(run_param_manipulation)
+
+
+if __name__ == '__main__':
+    import logging
+
+    logging.basicConfig(
+        level=logging.DEBUG, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
+    LOGGER = logging.getLogger('test')
+
+    run_param_manipulation()

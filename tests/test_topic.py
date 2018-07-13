@@ -18,6 +18,7 @@ def run_topic_pubsub():
         assert(message['data'] == 'hello world')
 
         if context['counter'] == 3:
+            time.sleep(1)
             ros_client.terminate()
 
     def start_sending():
@@ -39,3 +40,12 @@ def run_topic_pubsub():
 
 def test_topic_pubsub():
     helpers.run_as_process(run_topic_pubsub)
+
+
+if __name__ == '__main__':
+    import logging
+
+    logging.basicConfig(level=logging.DEBUG, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
+    LOGGER = logging.getLogger('test')
+
+    run_topic_pubsub()
