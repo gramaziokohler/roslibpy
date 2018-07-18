@@ -36,7 +36,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
                              'It could indicate a bug in user code on message handlers. Message skipped.')
 
     def onClose(self, wasClean, code, reason):
-        LOGGER.info('WebSocket connection closed: Code=%d, Reason=%s', code, reason)
+        LOGGER.info('WebSocket connection closed: Code=%s, Reason=%s', str(code), reason)
 
     def send_message(self, payload):
         return self.sendMessage(payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False)
