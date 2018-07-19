@@ -130,7 +130,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
             # NOTE: Make sure reconnets are possible.
             # Reconnection needs to be handled on a higher layer.
-            close_task.ContinueWith(self.dispose)
             return close_task
 
     def send_chunk_async(self, task_result, message_data):
@@ -190,11 +189,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
-        self.factory.manager.trigger_disconnect()
-
-        if self.factory.manager.cancellation_token_source:
-            LOGGER.debug('Cancelling task token')
-            self.factory.manager.cancellation_token_source.Cancel()
+        self.factory.manager.terminate()
 
         if self.socket:
             self.socket.Dispose()
@@ -275,18 +270,19 @@ class CliEventLoopManager(object):
     """
 
     def __init__(self):
+        self._init_cancellation()
+        self._disconnect_event = ManualResetEventSlim(False)
+
+    def _init_cancellation(self):
+        """Initialize the cancellation source and token."""
         self.cancellation_token_source = CancellationTokenSource()
         self.cancellation_token = self.cancellation_token_source.Token
-        self._disconnect_event = ManualResetEventSlim(False)
+        self.cancellation_token.Register(lambda: LOGGER.debug('Started token cancelation'))
 
     def run_forever(self):
         """Kick-starts a blocking loop while the ROS client is connected."""
         self._disconnect_event.Wait(self.cancellation_token)
         LOGGER.debug('Received disconnect event on main loop')
-
-    def trigger_disconnect(self):
-        """Internal: used by the protocol to signal disconnection on the main loop."""
-        self._disconnect_event.Set()
 
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.
@@ -312,4 +308,10 @@ class CliEventLoopManager(object):
 
     def terminate(self):
         """Signals the termination of the main event loop."""
-        self.cancellation_token_source.Cancel(self.cancellation_token)
+        self._disconnect_event.Set()
+
+        if self.cancellation_token_source:
+            self.cancellation_token_source.Cancel()
+
+        # Renew to allow re-connects
+        self._init_cancellation()
