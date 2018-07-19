@@ -101,7 +101,11 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                     buffer=buffer, content=content, mre=mre))
 
                 LOGGER.debug('Waiting for messages...')
-                mre.Wait(self.factory.manager.cancellation_token)
+                try:
+                    mre.Wait(self.factory.manager.cancellation_token)
+                except SystemError:
+                    LOGGER.debug('Cancelation detected on listening thread, exiting...')
+                    break
 
                 try:
                     message_payload = ''.join(content)
