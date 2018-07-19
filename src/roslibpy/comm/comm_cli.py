@@ -127,7 +127,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         if self.socket:
             close_task = self.socket.CloseAsync(
                 WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)
-
+            self.factory.emit('close', self)
             # NOTE: Make sure reconnets are possible.
             # Reconnection needs to be handled on a higher layer.
             return close_task
