@@ -27,7 +27,11 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         super(CliRosBridgeProtocol, self).__init__(*args, **kwargs)
         self.factory = factory
         self.socket = socket
-        self.semaphore = SemaphoreSlim(1)
+        # According to docs, exactly one send and one receive is supported on each ClientWebSocket object in parallel.
+        # https://msdn.microsoft.com/en-us/library/system.net.websockets.clientwebsocket.receiveasync(v=vs.110).aspx
+        # So we configure the semaphore to allow for 2 concurrent requests
+        # User-code might still end up in a race if multiple requests are triggered from different threads
+        self.semaphore = SemaphoreSlim(2)
 
     def on_open(self, task):
         """Triggered when the socket connection has been established.
@@ -43,13 +47,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         try:
             if task_result:
                 result = task_result.Result
-
-                # NOTE: If we're not at the end of the message
-                # we will enter the lock (Semaphore), to make sure we're
-                # exclusively accessing the socket read/writes
-                if not result.EndOfMessage:
-                    self.semaphore.Wait(
-                        self.factory.manager.cancellation_token)
 
                 if result.MessageType == WebSocketMessageType.Close:
                     LOGGER.info('WebSocket connection closed: [Code=%s] Description=%s',
@@ -68,6 +65,12 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                         # And signal the manual reset event
                         context['mre'].Set()
                         return task_result
+
+            # NOTE: We will enter the lock (Semaphore) at the start of receive
+            # to make sure we're accessing the socket read/writes at most from
+            # two threads, one for receiving and one for sending
+            if not task_result:
+                self.semaphore.Wait(self.factory.manager.cancellation_token)
 
             receive_task = self.socket.ReceiveAsync(ArraySegment[Byte](
                 context['buffer']), self.factory.manager.cancellation_token)
@@ -111,12 +114,12 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             LOGGER.exception(
                 'Exception on start_listening, processing will be aborted')
             raise
+        finally:
+            LOGGER.debug('Leaving the listening thread')
 
     def send_close(self):
-        """Trigger the closure of the websocket indicating normal closing process.
+        """Trigger the closure of the websocket indicating normal closing process."""
 
-        This disposes the socket completely after disconnection,
-        assuming this is an user-requested disconnect."""
         if self.socket:
             close_task = self.socket.CloseAsync(
                 WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)
@@ -129,6 +132,9 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
     def send_chunk_async(self, task_result, message_data):
         """Send a message chuck asynchronously."""
         try:
+            if not task_result:
+                self.semaphore.Wait(self.factory.manager.cancellation_token)
+
             message_buffer, message_length, chunks_count, i = message_data
 
             offset = SEND_CHUNK_SIZE * i
@@ -151,7 +157,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             else:
                 # NOTE: If we've reached the last chunck of the message
                 # we can release the lock (Semaphore) again.
-                self.semaphore.Release()
+                task.ContinueWith(lambda _res: self.semaphore.Release())
 
             return task
         except Exception:
@@ -166,11 +172,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 'Connection is not open. Socket state: %s' % self.socket.State)
 
         try:
-            # NOTE: Before we start sending a message
-            # we will enter the lock (Semaphore), to make sure we're
-            # exclusively accessing the socket read/writes
-            self.semaphore.Wait(self.factory.manager.cancellation_token)
-
             message_buffer = Encoding.UTF8.GetBytes(payload)
             message_length = len(message_buffer)
             chunks_count = int(math.ceil(float(message_length) / SEND_CHUNK_SIZE))
