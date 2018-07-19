@@ -67,6 +67,10 @@ To install **roslibpy**, simply use ``pip``::
 
     pip install roslibpy
 
+For IronPython, the ``pip`` command is slightly different::
+
+    ipy -X:Frames -m pip install --user roslibpy
+
 Remember that you will need a working ROS setup including the
 **rosbridge server** and **TF2 web republisher** accessible within your network.
 
