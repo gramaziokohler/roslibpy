@@ -126,7 +126,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
         if self.socket:
             close_task = self.socket.CloseAsync(
-                WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)
+                WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
             self.factory.emit('close', self)
             # NOTE: Make sure reconnets are possible.
             # Reconnection needs to be handled on a higher layer.
