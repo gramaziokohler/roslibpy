@@ -10,28 +10,28 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ----------
 
-Added
-^^^^^
+**Added**
+
 * Add support for IronPython 2.7
 
-Changed
-^^^^^^^
+**Changed**
+
 * Handler ``on_ready`` now defaults to run the callback in thread
 
-Deprecated
-^^^^^^^^^^
+**Deprecated**
+
 * Rename ``run_event_loop`` to the more fitting ``run_forever``
 
 0.1.1
 ----------
 
-Fixed
-^^^^^
+**Fixed**
+
 * Minimal documentation fixes
 
 0.1.0
 ----------
 
-Added
-^^^^^
+**Added**
+
 * Initial version
