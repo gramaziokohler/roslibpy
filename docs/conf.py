@@ -36,6 +36,12 @@ extlinks = {
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 html_theme = 'alabaster'
+html_theme_options = {
+    "description": "Python ROS Bridge library",
+    "github_user": "gramaziokohler",
+    "github_repo": "roslibpy",
+    "fixed_sidebar": True,
+}
 
 html_use_smartypants = True
 html_last_updated_fmt = '%b %d, %Y'
