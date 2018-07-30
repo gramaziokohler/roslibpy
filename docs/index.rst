@@ -53,6 +53,7 @@ Contents
    :maxdepth: 2
 
    readme
+   examples
    reference/index
    contributing
    authors

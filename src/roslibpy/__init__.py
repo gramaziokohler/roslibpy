@@ -7,6 +7,7 @@ The `ROS bridge protocol <https://github.com/RobotWebTools/rosbridge_suite/blob/
 uses JSON as message transport to allow access to ROS functionality such as
 publishing, subscribing, service calls, actionlib, TF, etc.
 
+.. _ros-setup:
 
 ROS Setup
 =========
