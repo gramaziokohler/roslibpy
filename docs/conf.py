@@ -41,7 +41,7 @@ html_use_smartypants = True
 html_last_updated_fmt = '%b %d, %Y'
 html_split_index = False
 html_sidebars = {
-   '**': ['searchbox.html', 'globaltoc.html', 'sourcelink.html'],
+   '**': ['about.html', 'navigation.html', 'searchbox.html'],
 }
 html_short_title = '%s-%s' % (project, version)
 

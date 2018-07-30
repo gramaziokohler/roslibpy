@@ -2,11 +2,6 @@ from __future__ import print_function
 
 import logging
 
-from autobahn.twisted.websocket import connectWS
-from autobahn.websocket.util import create_url
-from twisted.internet import reactor
-from twisted.python import log
-
 from . import Message, Service, ServiceRequest
 from .comm import RosBridgeClientFactory
 
@@ -16,14 +11,10 @@ LOGGER = logging.getLogger('roslibpy')
 class Ros(object):
     """Connection manager to ROS server."""
 
-    def __init__(self, host, port=None):
+    def __init__(self, host, port=None, is_secure=False):
         self._id_counter = 0
-        self.connector = None
-        url = host if port is None else create_url(host, port)
+        url = RosBridgeClientFactory.create_url(host, port, is_secure)
         self.factory = RosBridgeClientFactory(url)
-        self._log_observer = log.PythonLoggingObserver()
-        self._log_observer.start()
-
         self.connect()
 
     @property
@@ -43,7 +34,7 @@ class Ros(object):
         Returns:
             bool: True if connected to ROS, False otherwise.
         """
-        return self.connector and self.connector.state == 'connected'
+        return self.factory.is_connected
 
     def connect(self):
         """Connect to ROS master."""
@@ -51,23 +42,28 @@ class Ros(object):
         if self.is_connected:
             return
 
-        self.connector = connectWS(self.factory)
+        self.factory.connect()
 
     def close(self):
         """Disconnect from ROS master."""
-        if self.connector:
+        if self.is_connected:
             def _wrapper_callback(proto):
-                proto.sendClose()
+                proto.send_close()
                 return proto
 
             self.factory.on_ready(_wrapper_callback)
 
-    def run_event_loop(self):
-        """Kick-starts the main event loop of the ROS client.
+    def run_forever(self):
+        """Kick-starts a blocking loop to wait for events.
 
-        The current implementation relies on Twisted Reactors
-        to control the event loop."""
-        reactor.run()
+        Depending on the implementations, and the client applications,
+        running this might be required or not.
+        """
+        self.factory.manager.run_forever()
+
+    def run_event_loop(self):
+        LOGGER.warn('Deprecation warning: use run_forever instead of run_event_loop ')
+        self.run_forever()
 
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.
@@ -76,17 +72,14 @@ class Ros(object):
             delay (:obj:`int`): Number of seconds to wait before invoking the callback.
             callback (:obj:`callable`): Callable function to be invoked when ROS connection is ready.
         """
-        reactor.callLater(delay, callback)
+        self.factory.manager.call_later(delay, callback)
 
     def terminate(self):
         """Signals the termination of the main event loop."""
         if self.is_connected:
             self.close()
 
-        if reactor.running:
-            reactor.stop()
-
-        self._log_observer.stop()
+        self.factory.manager.terminate()
 
     def on(self, event_name, callback):
         """Add a callback to an arbitrary named event."""
@@ -100,7 +93,7 @@ class Ros(object):
         """Trigger a named event."""
         self.factory.emit(event_name, *args)
 
-    def on_ready(self, callback, run_in_thread=False):
+    def on_ready(self, callback, run_in_thread=True):
         """Add a callback to be executed when the connection is established.
 
         If a connection to ROS is already available, the callback is executed immediately.
@@ -111,7 +104,7 @@ class Ros(object):
         """
         def _wrapper_callback(proto):
             if run_in_thread:
-                reactor.callInThread(callback)
+                self.factory.manager.call_in_thread(callback)
             else:
                 callback()
 
@@ -264,4 +257,4 @@ if __name__ == '__main__':
     ros_client.call_later(3, ros_client.close)
     ros_client.call_later(5, ros_client.terminate)
 
-    ros_client.run_event_loop()
+    ros_client.run_forever()

@@ -31,8 +31,18 @@ def run_add_two_ints_service():
 
     service.advertise(add_two_ints)
     ros_client.call_later(1, invoke_service)
-    ros_client.run_event_loop()
+    ros_client.run_forever()
 
 
 def test_add_two_ints_service():
     helpers.run_as_process(run_add_two_ints_service)
+
+
+if __name__ == '__main__':
+    import logging
+
+    logging.basicConfig(
+        level=logging.DEBUG, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
+    LOGGER = logging.getLogger('test')
+
+    run_add_two_ints_service()

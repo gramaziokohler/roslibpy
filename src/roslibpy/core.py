@@ -82,12 +82,21 @@ class Topic(object):
 
     @property
     def is_advertised(self):
-        """Indicate if the topic if current adversited or not.
+        """Indicate if the topic is currently advertised or not.
 
         Returns:
             bool: True if advertised as publisher of this topic, False otherwise.
         """
         return self._advertise_id is not None
+
+    @property
+    def is_subscribed(self):
+        """Indicate if the topic is currently subscribed or not.
+
+        Returns:
+            bool: True if subscribed to this topic, False otherwise.
+        """
+        return self._subscribe_id is not None
 
     def subscribe(self, callback):
         """Register a subscription to the topic.
@@ -439,4 +448,4 @@ if __name__ == '__main__':
         service.advertise(add_two_ints)
 
     run_server_example()
-    ros_client.run_event_loop()
+    ros_client.run_forever()

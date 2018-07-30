@@ -34,8 +34,9 @@ roslibpy: ROS Bridge library
 
 .. end-badges
 
-**Python ROS Bridge library** allows to use Python to interact with `ROS <http://www.ros.org>`_,
-the open-source robotic middleware. It uses WebSockets to connect to
+**Python ROS Bridge library** allows to use Python and IronPython to interact
+with `ROS <http://www.ros.org>`_, the open-source robotic middleware.
+It uses WebSockets to connect to
 `rosbridge 2.0 <http://wiki.ros.org/rosbridge_suite>`_ and provides publishing,
 subscribing, service calls, actionlib, TF, and other essential ROS functionality.
 
@@ -56,7 +57,7 @@ Main features
 * Actionlib support for interfacing with preemptable tasks.
 * TF Client via the ``tf2_web_republisher``.
 
-**Roslibpy** runs on Python 2.7 and 3.x.
+**Roslibpy** runs on Python 2.7 and 3.x and IronPython 2.7.
 
 
 Installation
@@ -65,6 +66,10 @@ Installation
 To install **roslibpy**, simply use ``pip``::
 
     pip install roslibpy
+
+For IronPython, the ``pip`` command is slightly different::
+
+    ipy -X:Frames -m pip install --user roslibpy
 
 Remember that you will need a working ROS setup including the
 **rosbridge server** and **TF2 web republisher** accessible within your network.

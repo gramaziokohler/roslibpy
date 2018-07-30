@@ -4,6 +4,7 @@ from __future__ import absolute_import, print_function
 
 import io
 import re
+import sys
 from glob import glob
 from os.path import abspath, basename, dirname, join, splitext
 
@@ -11,10 +12,14 @@ from setuptools import find_packages, setup
 
 here = abspath(dirname(__file__))
 
-requirements = [
-    'autobahn>=17.10',
-    'twisted>=17.9'
-]
+# If IronPython, we don't require autobahn/twisted
+if sys.platform == "cli":
+    requirements = []
+else:
+    requirements = [
+        'autobahn>=17.10',
+        'twisted>=17.9'
+    ]
 
 
 def read(*names, **kwargs):
@@ -61,6 +66,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: IronPython',
         'Topic :: Scientific/Engineering',
     ],
     keywords=['ros', 'ros-bridge', 'robotics', 'websockets'],
