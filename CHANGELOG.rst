@@ -10,6 +10,10 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ----------
 
+**Fixed**
+
+* Fix JSON serialization error on TF Client (on Python 3.x)
+
 0.2.0
 ----------
 
