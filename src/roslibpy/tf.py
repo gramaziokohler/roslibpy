@@ -80,7 +80,7 @@ class TFClient(object):
 
     def update_goal(self):
         """Send a new service request to the tf2_web_republisher based on the current list of TFs."""
-        message = dict(source_frames=self.frame_info.keys(),
+        message = dict(source_frames=list(self.frame_info.keys()),
                        target_frame=self.fixed_frame,
                        angular_thres=self.angular_threshold,
                        trans_thres=self.translation_threshold,
