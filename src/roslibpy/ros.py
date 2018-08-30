@@ -95,8 +95,8 @@ class Ros(object):
 
         Args:
             event_name (:obj:`str`): Name of the event from which to unsubscribe.
-            callback: Callable function or `` None``. If ``None``,
-                all callbacks on the event will be removed.
+            callback: Callable function. If ``None``, all callbacks of the event
+                will be removed.
         """
         if callback:
             self.factory.off(event_name, callback)
