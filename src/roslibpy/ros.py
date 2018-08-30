@@ -82,12 +82,26 @@ class Ros(object):
         self.factory.manager.terminate()
 
     def on(self, event_name, callback):
-        """Add a callback to an arbitrary named event."""
+        """Add a callback to an arbitrary named event.
+
+        Args:
+            event_name (:obj:`str`): Name of the event to which to subscribe.
+            callback: Callable function to be executed when the event is triggered.
+        """
         self.factory.on(event_name, callback)
 
-    def off(self, event_name, callback):
-        """Remove a callback from an arbitrary named event."""
-        self.factory.off(event_name, callback)
+    def off(self, event_name, callback=None):
+        """Remove a callback from an arbitrary named event.
+
+        Args:
+            event_name (:obj:`str`): Name of the event from which to unsubscribe.
+            callback: Callable function or `` None``. If ``None``,
+                all callbacks on the event will be removed.
+        """
+        if callback:
+            self.factory.off(event_name, callback)
+        else:
+            self.factory.remove_all_listeners(event_name)
 
     def emit(self, event_name, *args):
         """Trigger a named event."""

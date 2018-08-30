@@ -18,8 +18,10 @@ def run_topic_pubsub():
         assert message['data'] == 'hello world', 'Unexpected message content'
 
         if context['counter'] == 3:
-            time.sleep(1)
-            ros_client.terminate()
+            listener.unsubscribe()
+            # Give it a bit of time, just to make sure that unsubscribe
+            # really unsubscribed and counter stays at the asserted value
+            ros_client.call_later(2, ros_client.terminate)
 
     def start_sending():
         while True:

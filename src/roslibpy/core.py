@@ -125,16 +125,12 @@ class Topic(object):
             'queue_length': self.queue_length
         }))
 
-    def unsubscribe(self, callback):
-        """Unregister from a subscribed the topic.
-
-        Args:
-            callback: Function to unregister.
-        """
+    def unsubscribe(self):
+        """Unregister from a subscribed the topic."""
         if not self._subscribe_id:
             return
 
-        self.ros.off(self.name, callback)
+        self.ros.off(self.name)
         self.ros.send_on_ready(Message({
             'op': 'unsubscribe',
             'id': self._subscribe_id,

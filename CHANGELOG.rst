@@ -10,6 +10,10 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ----------
 
+**Changed**
+
+* Unsubscribing from a listener no longer requires the original callback to be passed.
+
 0.2.1
 ----------
 
