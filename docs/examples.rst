@@ -67,3 +67,63 @@ Now run it from the command line typing::
 
 The program will run, print once we are connected and wait there forever.
 To interrupt and return to the console, please ``ctrl+c``.
+
+Controlling the event loop
+--------------------------
+
+In the previous examples, we have always used a call to ``run_forever()``
+to kick start the event loop and block there until the connection is terminated.
+This works fine in many scenarios, in particular, console applications, but
+if you want to use a ROS client from an application that controls the event
+loop already, you want to use the ``run()`` function instead.
+
+Using ``run()`` starts the event processing just as ``run_forever()`` but
+does not block the calling thread.
+
+Hello World: Topics
+-------------------
+
+The ``Hello world`` of ROS is to start two nodes that communicate using
+topic subscription/publishing. The nodes (a talker and a listener) are
+extremely simple but they exemplify a distributed system with communication
+between two processes over the ROS infrastructure.
+
+Writing the talker node
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The following example starts a ROS node and begins to publish
+messages in loop (to terminate, press ``ctrl+c``):
+
+.. literalinclude :: files/ros-hello-world-talker.py
+   :language: python
+
+Writing the listener node
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now let's move on to the listener side:
+
+.. literalinclude :: files/ros-hello-world-listener.py
+   :language: python
+
+Running the example
+^^^^^^^^^^^^^^^^^^^
+
+Open a command prompt and start the talker:
+
+::
+
+    python ros-hello-world-talker.py
+
+
+Now open a second command prompt and start the listener:
+
+::
+
+    python ros-hello-world-listener.py
+
+
+.. note::
+
+    It is not relevant where the files are located. They can be in different
+    folders or even in different computers as long as the ROS master is the same.
+

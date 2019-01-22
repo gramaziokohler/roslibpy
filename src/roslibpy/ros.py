@@ -53,6 +53,10 @@ class Ros(object):
 
             self.factory.on_ready(_wrapper_callback)
 
+    def run(self):
+        """Kick-starts a non-blocking event loop."""
+        self.factory.manager.run()
+
     def run_forever(self):
         """Kick-starts a blocking loop to wait for events.
 
