@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import logging
+import threading
 
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
 from autobahn.websocket.util import create_url
@@ -119,6 +120,15 @@ class TwistedEventLoopManager(object):
     def __init__(self):
         self._log_observer = log.PythonLoggingObserver()
         self._log_observer.start()
+
+    def run(self):
+        """Kick-starts a non-blocking event loop.
+
+        This implementation starts the Twisted Reactor
+        on a separate thread to avoid blocking."""
+        self._thread = threading.Thread(target=reactor.run, args=(False,))
+        self._thread.daemon = True
+        self._thread.start()
 
     def run_forever(self):
         """Kick-starts the main event loop of the ROS client.

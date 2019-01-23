@@ -279,6 +279,12 @@ class CliEventLoopManager(object):
         self.cancellation_token = self.cancellation_token_source.Token
         self.cancellation_token.Register(lambda: LOGGER.debug('Started token cancelation'))
 
+    def run(self):
+        """Kick-starts a non-blocking event loop.
+
+        In this implementation, this is a no-op."""
+        pass
+
     def run_forever(self):
         """Kick-starts a blocking loop while the ROS client is connected."""
         self._disconnect_event.Wait(self.cancellation_token)
