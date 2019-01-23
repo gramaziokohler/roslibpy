@@ -20,13 +20,8 @@ roslibpy: ROS Bridge library
     :target: https://pypi.python.org/pypi/roslibpy
     :alt: PyPI Package latest release
 
-.. image:: https://img.shields.io/pypi/wheel/roslibpy.svg
-    :target: https://pypi.python.org/pypi/roslibpy
-    :alt: PyPI Wheel
-
-.. image:: https://img.shields.io/pypi/pyversions/roslibpy.svg
-    :target: https://pypi.python.org/pypi/roslibpy
-    :alt: Supported versions
+.. image:: https://anaconda.org/conda-forge/roslibpy/badges/version.svg
+    :target: https://anaconda.org/conda-forge/roslibpy
 
 .. image:: https://img.shields.io/pypi/implementation/roslibpy.svg
     :target: https://pypi.python.org/pypi/roslibpy
