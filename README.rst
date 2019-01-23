@@ -12,7 +12,7 @@ roslibpy: ROS Bridge library
     :target: https://travis-ci.org/gramaziokohler/roslibpy
     :alt: Travis-CI Build Status
 
-.. image:: https://img.shields.io/pypi/l/roslibpy.svg
+.. image:: https://img.shields.io/github/license/gramaziokohler/roslibpy.svg
     :target: https://pypi.python.org/pypi/roslibpy
     :alt: License
 
