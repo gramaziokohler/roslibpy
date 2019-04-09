@@ -15,6 +15,7 @@ class Ros(object):
         self._id_counter = 0
         url = RosBridgeClientFactory.create_url(host, port, is_secure)
         self.factory = RosBridgeClientFactory(url)
+        self.is_connecting = False
         self.connect()
 
     @property
@@ -39,9 +40,15 @@ class Ros(object):
     def connect(self):
         """Connect to ROS master."""
         # Don't try to reconnect if already connected.
-        if self.is_connected:
+        if self.is_connected or self.is_connecting:
             return
 
+        self.is_connecting = True
+
+        def _unset_connecting_flag(*args):
+            self.is_connecting = False
+
+        self.factory.on_ready(_unset_connecting_flag)
         self.factory.connect()
 
     def close(self):

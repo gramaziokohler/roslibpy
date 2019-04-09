@@ -6,6 +6,7 @@ import threading
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
 from autobahn.websocket.util import create_url
 from twisted.internet import reactor
+from twisted.internet.error import ConnectionDone
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 
@@ -86,7 +87,11 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
     def clientConnectionLost(self, connector, reason):
         LOGGER.debug('Lost connection. Reason: %s', reason)
         self.emit('close', self._proto)
-        ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+
+        # Do not try to reconnect if the connection was closed cleanl
+        if reason.type is not ConnectionDone:
+            ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+
         self._proto = None
 
     def clientConnectionFailed(self, connector, reason):
@@ -126,6 +131,11 @@ class TwistedEventLoopManager(object):
 
         This implementation starts the Twisted Reactor
         on a separate thread to avoid blocking."""
+
+        if reactor.running:
+            LOGGER.warn('Twisted reactor is already running')
+            return
+
         self._thread = threading.Thread(target=reactor.run, args=(False,))
         self._thread.daemon = True
         self._thread.start()
