@@ -2,6 +2,8 @@ graft docs
 graft src
 graft tests
 
+prune docker
+
 include .bumpversion.cfg
 include .editorconfig
 
