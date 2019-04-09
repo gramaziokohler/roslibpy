@@ -8,8 +8,8 @@ roslibpy: ROS Bridge library
     :target: https://readthedocs.org/projects/roslibpy
     :alt: Documentation Status
 
-.. image:: https://travis-ci.org/gramaziokohler/roslibpy.svg?branch=master
-    :target: https://travis-ci.org/gramaziokohler/roslibpy
+.. image:: https://travis-ci.com/gramaziokohler/roslibpy.svg?branch=master
+    :target: https://travis-ci.com/gramaziokohler/roslibpy
     :alt: Travis-CI Build Status
 
 .. image:: https://img.shields.io/github/license/gramaziokohler/roslibpy.svg
