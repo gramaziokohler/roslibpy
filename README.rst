@@ -5,8 +5,12 @@ roslibpy: ROS Bridge library
 .. start-badges
 
 .. image:: https://readthedocs.org/projects/roslibpy/badge/?style=flat
-    :target: https://readthedocs.org/projects/roslibpy
+    :target: https://roslibpy.readthedocs.io/en/latest/
     :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/docs-%E4%B8%AD%E6%96%87-brightgreen.svg
+    :target: https://roslibpy-docs-zh.readthedocs.io
+    :alt: Documentation: Chinese translation
 
 .. image:: https://travis-ci.com/gramaziokohler/roslibpy.svg?branch=master
     :target: https://travis-ci.com/gramaziokohler/roslibpy
