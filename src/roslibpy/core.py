@@ -249,6 +249,8 @@ class Service(object):
         This turns the instance from a client into a server. The callback will be
         invoked with every request that is made to the service.
 
+        If the service is already advertised, this call does nothing.
+
         Args:
             callback: Callback invoked on every service call. It should accept two parameters: `service_request` and
                 `service_response`. It should return `True` if executed correctly, otherwise `False`.
