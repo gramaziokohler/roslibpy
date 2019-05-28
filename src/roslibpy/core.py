@@ -410,7 +410,7 @@ if __name__ == '__main__':
 
         listener.subscribe(print_message)
 
-        ros_client.call_later(5, lambda: listener.unsubscribe(print_message))
+        ros_client.call_later(5, lambda: listener.unsubscribe())
         ros_client.call_later(10, lambda: listener.subscribe(print_message))
 
     def run_publisher_example():

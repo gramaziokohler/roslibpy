@@ -104,7 +104,7 @@ class TFClient(object):
         LOGGER.info('Received response from TF Republisher service interface')
 
         if self.current_topic:
-            self.current_topic.unsubscribe(self._process_tf_array)
+            self.current_topic.unsubscribe()
 
         self.current_topic = Topic(
             self.ros, response['topic_name'], 'tf2_web_republisher/TFArray')

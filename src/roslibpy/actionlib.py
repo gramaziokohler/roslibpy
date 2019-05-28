@@ -210,11 +210,11 @@ class ActionClient(EventEmitterMixin):
         self.cancel_topic.unadvertise()
 
         if not self.omit_status:
-            self.status_listener.unsubscribe(self._on_status_message)
+            self.status_listener.unsubscribe()
         if not self.omit_feedback:
-            self.feedback_listener.unsubscribe(self._on_feedback_message)
+            self.feedback_listener.unsubscribe()
         if not self.omit_result:
-            self.result_listener.unsubscribe(self._on_result_message)
+            self.result_listener.unsubscribe()
 
 
 if __name__ == '__main__':
