@@ -277,7 +277,6 @@ class Service(object):
 
         return call_results['result']
 
-
     def advertise(self, callback):
         """Start advertising the service.
 

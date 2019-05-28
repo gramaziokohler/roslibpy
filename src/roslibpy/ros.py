@@ -75,7 +75,6 @@ class Ros(object):
         self.factory.on_ready(lambda _: wait_connect.set())
         wait_connect.wait(timeout)
 
-
     def run_forever(self):
         """Kick-starts a blocking loop to wait for events.
 
