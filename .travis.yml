@@ -14,7 +14,7 @@ before_install:
   - docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge /bin/bash -c "roslaunch /integration-tests.launch"
   - docker ps -a
 
-  install:
+install:
   - pip install -r requirements-dev.txt
 
 script:
