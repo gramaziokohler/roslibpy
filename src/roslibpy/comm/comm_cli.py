@@ -3,14 +3,28 @@ from __future__ import print_function
 import logging
 import math
 
-from System import Action, Array, ArraySegment, Byte, TimeSpan, Uri, UriBuilder
-from System.Net.WebSockets import ClientWebSocket, WebSocketCloseStatus, WebSocketMessageType, WebSocketReceiveResult, WebSocketState
+from System import Action
+from System import Array
+from System import ArraySegment
+from System import Byte
+from System import TimeSpan
+from System import Uri
+from System import UriBuilder
+from System.Net.WebSockets import ClientWebSocket
+from System.Net.WebSockets import WebSocketCloseStatus
+from System.Net.WebSockets import WebSocketMessageType
+from System.Net.WebSockets import WebSocketReceiveResult
+from System.Net.WebSockets import WebSocketState
 from System.Text import Encoding
-from System.Threading import CancellationToken, CancellationTokenSource, ManualResetEventSlim, SemaphoreSlim, Thread
+from System.Threading import CancellationToken
+from System.Threading import CancellationTokenSource
+from System.Threading import ManualResetEventSlim
+from System.Threading import SemaphoreSlim
+from System.Threading import Thread
 from System.Threading.Tasks import Task
 
-from . import RosBridgeException, RosBridgeProtocol
 from ..event_emitter import EventEmitterMixin
+from . import RosBridgeException, RosBridgeProtocol
 
 LOGGER = logging.getLogger('roslibpy')
 RECEIVE_CHUNK_SIZE = 1024
@@ -77,10 +91,11 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             receive_task.ContinueWith.Overloads[Action[Task[WebSocketReceiveResult], object], object](
                 self.receive_chunk_async, context)
 
-        except Exception:
-            LOGGER.exception('Exception on receive_chunk_async, processing will be aborted')
-            if task_result and task_result.Exception:
-                LOGGER.debug('Inner exception: %s', task_result.Exception)
+        except:
+            error_message = 'Exception on receive_chunk_async, processing will be aborted'
+            if task_result:
+                error_message += '; Task status: {}, Inner exception: {}'.format(task_result.Status, task_result.Exception)
+            LOGGER.exception(error_message)
             raise
 
     def start_listening(self):
