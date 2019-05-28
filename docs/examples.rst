@@ -22,34 +22,12 @@ And we initialize the connection with::
     >>> ros.run()
 
 Easy, right?
-
-The previous lines start connecting but do not block, i.e. the connection is
-established in the background but the functions returns the control to the
-program immediately.
-
 Let's check the status::
 
     >>> ros.is_connected
     True
 
 **Yay! Our first connection to ROS!**
-
-Waiting for connection
-----------------------
-
-The previous example works fine because we are typing it on the interpreter and
-that is -usually- slow enough for the connection to be established, but
-when writing a script you will want to make sure that your code reacts
-when the connection is really ready.
-
-For that we will use the :meth:`roslibpy.Ros.on_ready` method and pass a function
-(or a lambda) that we want to be invoked when the connection is ready.
-
-Here we will simply print whether we are connected, but you can do any
-other ROS operation in there, such as subscribing to a topic,
-or calling services, etc::
-
-    ros.on_ready(lambda: print('Is ROS connected?', ros.is_connected))
 
 Putting it all together
 -----------------------
@@ -64,8 +42,7 @@ Now run it from the command line typing::
 
     $ python ros-hello-world.py
 
-The program will run, print once we are connected and wait there forever.
-To interrupt and return to the console, please ``ctrl+c``.
+The program will run, print once we are connected and terminate the connection.
 
 Controlling the event loop
 --------------------------
@@ -74,8 +51,12 @@ In the previous examples, we started the ROS connection with a call to ``run()``
 but sometimes we want to let ``roslibpy`` take care of the main
 event loop. In those cases, it is easier to call ``run_forever()`` instead.
 
+In that case, we need to setup the connection before we start the event loop.
+For that purpose, we will use the :meth:`roslibpy.Ros.on_ready` method and pass
+a function (or a lambda) that will be invoked when the connection is ready.
+
 The following snippet shows the same connection example above but
-using ``run_forever()``:
+using ``run_forever()`` and ``on_ready``:
 
 .. literalinclude :: files/ros-hello-world-run-forever.py
    :language: python

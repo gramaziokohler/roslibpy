@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import logging
+import threading
 
 from . import Message, Service, ServiceRequest
 from .comm import RosBridgeClientFactory
@@ -60,9 +61,18 @@ class Ros(object):
 
             self.factory.on_ready(_wrapper_callback)
 
-    def run(self):
-        """Kick-starts a non-blocking event loop."""
+    def run(self, timeout=None):
+        """Kick-starts a non-blocking event loop.
+
+        Args:
+            timeout: Timeout to wait until connection is ready.
+        """
         self.factory.manager.run()
+
+        wait_connect = threading.Event()
+        self.factory.on_ready(lambda _: wait_connect.set())
+        wait_connect.wait(timeout)
+
 
     def run_forever(self):
         """Kick-starts a blocking loop to wait for events.
