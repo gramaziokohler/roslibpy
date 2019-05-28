@@ -3,7 +3,9 @@ from __future__ import print_function
 import logging
 import threading
 
-from . import Message, Service, ServiceRequest
+from . import Message
+from . import Service
+from . import ServiceRequest
 from .comm import RosBridgeClientFactory
 
 LOGGER = logging.getLogger('roslibpy')

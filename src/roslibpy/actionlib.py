@@ -21,7 +21,8 @@ from __future__ import print_function
 import random
 import time
 
-from . import Message, Topic
+from . import Message
+from . import Topic
 from .event_emitter import EventEmitterMixin
 
 

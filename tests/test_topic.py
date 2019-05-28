@@ -4,7 +4,9 @@ import time
 
 import helpers
 
-from roslibpy import Message, Ros, Topic
+from roslibpy import Message
+from roslibpy import Ros
+from roslibpy import Topic
 
 
 def run_topic_pubsub():

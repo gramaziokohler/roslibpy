@@ -3,7 +3,8 @@ from __future__ import print_function
 import json
 import logging
 
-from .. import Message, ServiceResponse
+from .. import Message
+from .. import ServiceResponse
 
 LOGGER = logging.getLogger('roslibpy')
 

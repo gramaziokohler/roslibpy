@@ -1,6 +1,7 @@
 import helpers
 
-from roslibpy import Param, Ros
+from roslibpy import Param
+from roslibpy import Ros
 
 
 def run_param_manipulation():

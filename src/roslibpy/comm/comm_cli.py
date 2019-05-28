@@ -23,8 +23,9 @@ from System.Threading import SemaphoreSlim
 from System.Threading import Thread
 from System.Threading.Tasks import Task
 
+from . import RosBridgeException
+from . import RosBridgeProtocol
 from ..event_emitter import EventEmitterMixin
-from . import RosBridgeException, RosBridgeProtocol
 
 LOGGER = logging.getLogger('roslibpy')
 RECEIVE_CHUNK_SIZE = 1024
@@ -91,7 +92,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             receive_task.ContinueWith.Overloads[Action[Task[WebSocketReceiveResult], object], object](
                 self.receive_chunk_async, context)
 
-        except:
+        except Exception:
             error_message = 'Exception on receive_chunk_async, processing will be aborted'
             if task_result:
                 error_message += '; Task status: {}, Inner exception: {}'.format(task_result.Status, task_result.Exception)

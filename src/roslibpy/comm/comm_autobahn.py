@@ -3,7 +3,9 @@ from __future__ import print_function
 import logging
 import threading
 
-from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol, connectWS
+from autobahn.twisted.websocket import WebSocketClientFactory
+from autobahn.twisted.websocket import WebSocketClientProtocol
+from autobahn.twisted.websocket import connectWS
 from autobahn.websocket.util import create_url
 from twisted.internet import reactor
 from twisted.internet.error import ConnectionDone

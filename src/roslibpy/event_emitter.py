@@ -37,7 +37,8 @@ except ImportError:
     iscoroutine = None
     ensure_future = None
 
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
+from collections import defaultdict
 from threading import RLock
 
 __all__ = ['EventEmitterMixin', 'EventEmitterException']

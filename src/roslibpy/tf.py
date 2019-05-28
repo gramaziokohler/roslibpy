@@ -18,7 +18,9 @@ from __future__ import print_function
 import logging
 import math
 
-from . import Service, ServiceRequest, Topic
+from . import Service
+from . import ServiceRequest
+from . import Topic
 
 LOGGER = logging.getLogger('roslibpy.tf')
 

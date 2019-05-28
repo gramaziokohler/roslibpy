@@ -4,7 +4,9 @@ import time
 
 import helpers
 
-from roslibpy import Ros, Service, ServiceRequest
+from roslibpy import Ros
+from roslibpy import Service
+from roslibpy import ServiceRequest
 
 
 def run_add_two_ints_service():
@@ -29,7 +31,6 @@ def run_add_two_ints_service():
     service.unadvertise()
     time.sleep(2)
     service.ros.terminate()
-
 
 
 def run_empty_service():
