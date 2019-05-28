@@ -10,6 +10,18 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ----------
 
+**Changed**
+
+* The non-blocking event loop runner now waits for the connection to be established in order to minimize the need for ``on_ready`` handlers.
+
+**Added**
+
+* Support blocking and non-blocking service calls.
+
+**Fixed**
+
+* Fixed an internal unsubscribing issue.
+
 0.4.1
 ----------
 
