@@ -48,7 +48,7 @@ def test_topic_pubsub():
 if __name__ == '__main__':
     import logging
 
-    logging.basicConfig(level=logging.DEBUG, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
+    logging.basicConfig(level=logging.INFO, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
     LOGGER = logging.getLogger('test')
 
     run_topic_pubsub()

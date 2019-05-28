@@ -1,4 +1,3 @@
-from __future__ import print_function
 import roslibpy
 
 ros = roslibpy.Ros(host='localhost', port=9090)

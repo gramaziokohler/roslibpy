@@ -1,3 +1,5 @@
+.. _ros-api-reference:
+
 API Reference
 =============
 

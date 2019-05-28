@@ -48,12 +48,14 @@ Controlling the event loop
 --------------------------
 
 In the previous examples, we started the ROS connection with a call to ``run()``,
-but sometimes we want to let ``roslibpy`` take care of the main
-event loop. In those cases, it is easier to call ``run_forever()`` instead.
+which starts the event loop in the background. In some case, we want handle the
+main event loop more explicitely in the foreground.
 
-In that case, we need to setup the connection before we start the event loop.
-For that purpose, we will use the :meth:`roslibpy.Ros.on_ready` method and pass
-a function (or a lambda) that will be invoked when the connection is ready.
+:class:`roslibpy.Ros` provides the method ``run_forever()`` for this purpose.
+
+If we use this method to start the event loop, we need to setup all connection handlers
+before hand. We will use the :meth:`roslibpy.Ros.on_ready` method to do this.
+We will pass a function to it, that will be invoked when the connection is ready.
 
 The following snippet shows the same connection example above but
 using ``run_forever()`` and ``on_ready``:
@@ -127,7 +129,43 @@ Another way for nodes to communicate between each other is through ROS Services.
 Services require the definition of request and response types so the following
 example shows how to use an existing service called ``get_loggers``:
 
-.. literalinclude :: files/ros-service-caller.py
+.. literalinclude :: files/ros-service-call-logger.py
    :language: python
 
-* :download:`ros-service-caller.py <files/ros-service-caller.py>`
+* :download:`ros-service-call-logger.py <files/ros-service-call-logger.py>`
+
+Creating services
+-----------------
+
+It is also possible to create new services, as long as the service type
+definition is present in your ROS environment.
+
+The following example shows how to create a simple service that uses
+one of the standard service types defined in ROS (``std_srvs/SetBool``):
+
+.. literalinclude :: files/ros-service.py
+   :language: python
+
+* :download:`ros-service.py <files/ros-service.py>`
+
+Download it and run it from the command line typing::
+
+    $ python ros-service.py
+
+The service will be active while the program is running (to terminate,
+press ``ctrl+c``).
+
+Leave this service running and download and run the following service calling
+code example to verify the service is working:
+
+* :download:`ros-service-call-set-bool.py <files/ros-service-call-set-bool.py>`
+
+Download it and run it from the command line typing::
+
+    $ python ros-service-call-set-bool.py
+
+
+.. note::
+
+    Now that you have a grasp of the basics of ``roslibpy``,
+    check out more details in the :ref:`ros-api-reference`.
