@@ -165,7 +165,7 @@ class TFClient(object):
     def dispose(self):
         """Unsubscribe and unadvertise all topics associated with this instance."""
         if self.current_topic:
-            self.current_topic.unsubscribe(self._process_tf_array)
+            self.current_topic.unsubscribe()
 
 
 if __name__ == '__main__':
