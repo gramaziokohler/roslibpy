@@ -285,8 +285,6 @@ class Ros(object):
 
 
 if __name__ == '__main__':
-    import logging
-
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 

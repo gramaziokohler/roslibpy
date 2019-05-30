@@ -172,7 +172,6 @@ class TFClient(object):
 
 
 if __name__ == '__main__':
-    import logging
     from roslibpy import Ros
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
