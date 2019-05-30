@@ -276,7 +276,8 @@ class Service(object):
 
         self.ros.send_service_request(message, inner_callback, inner_errback)
 
-        wait_event.wait(timeout)
+        if not wait_event.wait(timeout):
+            raise Exception('No service response received')
 
         if 'exception' in call_results:
             raise Exception(call_results['exception'])

@@ -14,6 +14,10 @@ Unreleased
 
 * For consistency, ``timeout`` parameters of ``Goal.send()`` and ``ActionClient()`` are now expressed in **seconds**, instead of milliseconds.
 
+**Fixed**
+
+* Raise exceptions when timeouts expire on ROS connection or service calls.
+
 0.5.0
 ----------
 
