@@ -169,3 +169,58 @@ Download it and run it from the command prompt typing::
 
     Now that you have a grasp of the basics of ``roslibpy``,
     check out more details in the :ref:`ros-api-reference`.
+
+Actions
+-------
+
+Besides Topics and Services, ROS provides **Actions**, which are intended for
+long-running tasks, such as navigation, because they are non-blocking and allow
+the cancellation (preempting) of an action while it is executing.
+
+``roslibpy`` supports both consuming actions (i.e. action clients) and also
+providing actions, through the :class:`roslibpy.actionlib.SimpleActionServer`.
+
+The following examples use the **Fibonacci** action, which is defined in the
+`actionlib_tutorials <http://wiki.ros.org/actionlib_tutorials>`_.
+
+Action servers
+^^^^^^^^^^^^^^
+
+Let's start with the definition of the fibonacci server:
+
+.. literalinclude :: files/ros-action-server.py
+   :language: python
+
+* :download:`ros-action-server.py <files/ros-action-server.py>`
+
+Download it and run it from the command prompt typing::
+
+    $ python ros-action-server.py
+
+The action server will be active while the program is running (to terminate,
+press ``ctrl+c``).
+
+Leave this window running if you want to test it with the next example.
+
+Action clients
+^^^^^^^^^^^^^^
+
+Now let's see how to write an action client for our newly created server.
+
+The following program shows a simple action client:
+
+.. literalinclude :: files/ros-action-client.py
+   :language: python
+
+* :download:`ros-action-client.py <files/ros-action-client.py>`
+
+Download it and run it from the command prompt typing::
+
+    $ python ros-action-client.py
+
+You will immediately see all the intermediate calculations of our action server,
+followed by a line indicating the resulting fibonacci sequence.
+
+This example is very simplified and uses the :meth:`roslibpy.actionlib.Goal.wait`
+function to make the code easier to read as an example. A more robust way to handle
+results is to hook up to the ``result`` event with a callback.

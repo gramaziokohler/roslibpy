@@ -25,6 +25,7 @@ Unreleased
 **Added**
 
 * Support for calling a function in a thread from the Ros client.
+* Added implementation of a Simple Action Server.
 
 0.5.0
 ----------
