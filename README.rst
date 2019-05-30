@@ -127,3 +127,12 @@ Ready to release a new version **roslibpy**? Here's how to do it:
     invoke release [patch|minor|major]
 
 * Profit!
+
+
+Credits
+-------
+
+This library is based on `roslibjs <http://wiki.ros.org/roslibjs>`_ and to a
+large extent, it is a line-by-line port to Python, changing only where a more
+idiomatic form makes sense, so a huge part of the credit goes to the
+`roslibjs authors <https://github.com/RobotWebTools/roslibjs/blob/develop/AUTHORS.md>`_.
