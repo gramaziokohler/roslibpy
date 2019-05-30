@@ -76,7 +76,7 @@ class Goal(EventEmitterMixin):
         """Send goal to the action server.
 
         Args:
-            timeout (:obj:`int`): Timeout for the goal's result expressed in milliseconds.
+            timeout (:obj:`int`): Timeout for the goal's result expressed in seconds.
             callback (:obj:`callable`): Function to be called when a result is received. It is a shorthand for hooking on the ``result`` event.
         """
         if result_callback:
@@ -84,7 +84,7 @@ class Goal(EventEmitterMixin):
 
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
-            self.action_client.ros.call_later(timeout / 1000., self._trigger_timeout)
+            self.action_client.ros.call_later(timeout, self._trigger_timeout)
 
     def cancel(self):
         """Cancel the current goal."""
@@ -120,7 +120,7 @@ class ActionClient(EventEmitterMixin):
         ros (:class:`.Ros`): Instance of the ROS connection.
         server_name (:obj:`str`): Action server name, e.g. ``/fibonacci``.
         action_name (:obj:`str`): Action message name, e.g. ``actionlib_tutorials/FibonacciAction``.
-        timeout (:obj:`int`): Connection timeout.
+        timeout (:obj:`int`): Connection timeout, expressed in seconds.
     """
 
     def __init__(self, ros, server_name, action_name, timeout=None,
@@ -163,7 +163,7 @@ class ActionClient(EventEmitterMixin):
 
         # If timeout specified, emit a 'timeout' event if the action server does not respond
         if self.timeout:
-            self.ros.call_later(self.timeout / 1000., self._trigger_timeout)
+            self.ros.call_later(self.timeout, self._trigger_timeout)
 
     def _on_status_message(self, message):
         self._received_status = True
@@ -244,7 +244,7 @@ if __name__ == '__main__':
         goal.on('timeout', lambda: print('TIMEOUT'))
         action_client.on('timeout', lambda: print('CLIENT TIMEOUT'))
 
-        goal.send(60000)
+        goal.send(60)
 
     ros_client.on_ready(run_action_example, run_in_thread=True)
 
