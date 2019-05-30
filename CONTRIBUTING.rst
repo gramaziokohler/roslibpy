@@ -35,7 +35,7 @@ We love pull requests from everyone! Here's a quick guide to improve the code:
 
 
 During development, use `pyinvoke <http://docs.pyinvoke.org/>`_ tasks on the
-command line to ease recurring operations:
+command prompt to ease recurring operations:
 
 * ``invoke clean``: Clean all generated artifacts.
 * ``invoke check``: Run various code and documentation style checks.

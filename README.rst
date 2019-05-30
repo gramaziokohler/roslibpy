@@ -97,7 +97,7 @@ Make sure you setup your local development environment correctly:
 **You're ready to start coding!**
 
 During development, use `pyinvoke <http://docs.pyinvoke.org/>`_ tasks on the
-command line to ease recurring operations:
+command prompt to ease recurring operations:
 
 * ``invoke clean``: Clean all generated artifacts.
 * ``invoke check``: Run various code and documentation style checks.

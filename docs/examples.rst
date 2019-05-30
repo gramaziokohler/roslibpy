@@ -38,7 +38,7 @@ Let's build a full example into a python file. Create a file named
 .. literalinclude :: files/ros-hello-world.py
    :language: python
 
-Now run it from the command line typing::
+Now run it from the command prompt typing::
 
     $ python ros-hello-world.py
 
@@ -148,7 +148,7 @@ one of the standard service types defined in ROS (``std_srvs/SetBool``):
 
 * :download:`ros-service.py <files/ros-service.py>`
 
-Download it and run it from the command line typing::
+Download it and run it from the command prompt typing::
 
     $ python ros-service.py
 
@@ -160,7 +160,7 @@ code example to verify the service is working:
 
 * :download:`ros-service-call-set-bool.py <files/ros-service-call-set-bool.py>`
 
-Download it and run it from the command line typing::
+Download it and run it from the command prompt typing::
 
     $ python ros-service-call-set-bool.py
 
