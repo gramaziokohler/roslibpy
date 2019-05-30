@@ -12,7 +12,11 @@ Unreleased
 
 **Changed**
 
-* For consistency, ``timeout`` parameters of ``Goal.send()`` and ``ActionClient()`` are now expressed in **seconds**, instead of milliseconds.
+* For consistency, ``timeout`` parameter of ``Goal.send()`` is now expressed in **seconds**, instead of milliseconds.
+
+**Deprecated**
+
+* The ``timeout`` parameter of ``ActionClient()`` is ignored in favor of blocking until the connection is established.
 
 **Fixed**
 

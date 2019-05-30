@@ -18,14 +18,18 @@ updates from the action server. There are four events emmitted: **status**, **re
 """
 from __future__ import print_function
 
+import logging
 import random
 import time
+import threading
 
 from . import Message
 from . import Topic
 from .event_emitter import EventEmitterMixin
 
 __all__ = ['Goal', 'ActionClient']
+LOGGER = logging.getLogger('roslibpy')
+DEFAULT_CONNECTION_TIMEOUT = 3  # in seconds
 
 
 class Goal(EventEmitterMixin):
@@ -120,23 +124,19 @@ class ActionClient(EventEmitterMixin):
         ros (:class:`.Ros`): Instance of the ROS connection.
         server_name (:obj:`str`): Action server name, e.g. ``/fibonacci``.
         action_name (:obj:`str`): Action message name, e.g. ``actionlib_tutorials/FibonacciAction``.
-        timeout (:obj:`int`): Connection timeout, expressed in seconds.
+        timeout (:obj:`int`): **Deprecated.** Connection timeout, expressed in seconds.
     """
 
     def __init__(self, ros, server_name, action_name, timeout=None,
                  omit_feedback=False, omit_status=False, omit_result=False):
         super(ActionClient, self).__init__()
-
         self.ros = ros
         self.server_name = server_name
         self.action_name = action_name
-        self.timeout = timeout
         self.omit_feedback = omit_feedback
         self.omit_status = omit_status
         self.omit_result = omit_result
         self.goals = {}
-
-        self._received_status = False
 
         # Create the topics associated with actionlib
         self.feedback_listener = Topic(ros, server_name + '/feedback', action_name + 'Feedback')
@@ -161,12 +161,17 @@ class ActionClient(EventEmitterMixin):
         if not self.omit_result:
             self.result_listener.subscribe(self._on_result_message)
 
-        # If timeout specified, emit a 'timeout' event if the action server does not respond
-        if self.timeout:
-            self.ros.call_later(self.timeout, self._trigger_timeout)
+        if timeout:
+            LOGGER.warn(
+                'Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant.')
+
+        self.wait_status = threading.Event()
+
+        if not self.wait_status.wait(DEFAULT_CONNECTION_TIMEOUT):
+            raise Exception('Action client failed to connect, no status received.')
 
     def _on_status_message(self, message):
-        self._received_status = True
+        self.wait_status.set()
 
         for status in message['status_list']:
             goal_id = status['goal_id']['id']
@@ -190,10 +195,6 @@ class ActionClient(EventEmitterMixin):
         if goal:
             goal.emit('status', message['status'])
             goal.emit('result', message['result'])
-
-    def _trigger_timeout(self):
-        if not self._received_status:
-            self.emit('timeout')
 
     def add_goal(self, goal):
         """Add a goal to this action client.
@@ -236,13 +237,12 @@ if __name__ == '__main__':
         client.ros.call_later(2, client.ros.close)
 
     def run_action_example():
-        action_client = ActionClient(ros_client, '/fibonacci', 'actionlib_tutorials/FibonacciAction', timeout=3000)
+        action_client = ActionClient(ros_client, '/fibonacci', 'actionlib_tutorials/FibonacciAction')
         goal = Goal(action_client, Message({'order': 6}))
 
         goal.on('result', lambda result: handle_result(result, action_client))
         goal.on('feedback', lambda feedback: print(feedback))
         goal.on('timeout', lambda: print('TIMEOUT'))
-        action_client.on('timeout', lambda: print('CLIENT TIMEOUT'))
 
         goal.send(60)
 
