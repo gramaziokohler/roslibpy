@@ -22,6 +22,8 @@ from . import Service
 from . import ServiceRequest
 from . import Topic
 
+__all__ = ['TFClient']
+
 LOGGER = logging.getLogger('roslibpy.tf')
 
 
@@ -99,7 +101,8 @@ class TFClient(object):
         self.republisher_update_requested = False
 
     def _process_error(self, response):
-        LOGGER.error('The TF republisher service interface returned an error. %s', str(response))
+        LOGGER.error(
+            'The TF republisher service interface returned an error. %s', str(response))
 
     def _process_response(self, response):
         """Process the service response and subscribe to the tf republisher topic."""

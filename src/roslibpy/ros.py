@@ -8,6 +8,8 @@ from . import Service
 from . import ServiceRequest
 from .comm import RosBridgeClientFactory
 
+__all__ = ['Ros']
+
 LOGGER = logging.getLogger('roslibpy')
 
 
@@ -84,7 +86,8 @@ class Ros(object):
         self.factory.manager.run_forever()
 
     def run_event_loop(self):
-        LOGGER.warn('Deprecation warning: use run_forever instead of run_event_loop ')
+        LOGGER.warn(
+            'Deprecation warning: use run_forever instead of run_event_loop ')
         self.run_forever()
 
     def call_later(self, delay, callback):

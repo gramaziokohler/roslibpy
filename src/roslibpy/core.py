@@ -12,6 +12,12 @@ except ImportError:
 
 LOGGER = logging.getLogger('roslibpy')
 
+__all__ = ['Message',
+           'ServiceRequest',
+           'ServiceResponse',
+           'Topic',
+           'Service',
+           'Param']
 
 class Message(UserDict):
     """Message objects used for publishing and subscribing to/from topics.

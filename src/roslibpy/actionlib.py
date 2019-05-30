@@ -25,6 +25,8 @@ from . import Message
 from . import Topic
 from .event_emitter import EventEmitterMixin
 
+__all__ = ['Goal', 'ActionClient']
+
 
 class Goal(EventEmitterMixin):
     """Goal for an action server.
