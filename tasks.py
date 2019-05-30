@@ -7,7 +7,8 @@ import os
 import sys
 from shutil import rmtree
 
-from invoke import Collection, Exit, task
+from invoke import Exit
+from invoke import task
 
 try:
     input = raw_input
