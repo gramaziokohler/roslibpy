@@ -22,6 +22,10 @@ Unreleased
 
 * Raise exceptions when timeouts expire on ROS connection or service calls.
 
+**Added**
+
+* Support for calling a function in a thread from the Ros client.
+
 0.5.0
 ----------
 

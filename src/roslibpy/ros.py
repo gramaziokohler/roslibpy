@@ -92,6 +92,16 @@ class Ros(object):
             'Deprecation warning: use run_forever instead of run_event_loop ')
         self.run_forever()
 
+    def call_in_thread(self, callback):
+        """Call the given function in a thread.
+
+        The threading implementation is deferred to the factory.
+
+        Args:
+            callback (:obj:`callable`): Callable function to be invoked.
+        """
+        self.factory.manager.call_in_thread(callback)
+
     def call_later(self, delay, callback):
         """Call the given function after a certain period of time has passed.
 
