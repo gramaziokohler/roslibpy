@@ -25,8 +25,8 @@ from __future__ import print_function
 import logging
 import math
 import random
-import time
 import threading
+import time
 
 from . import Message
 from . import Topic
@@ -271,6 +271,7 @@ class ActionClient(EventEmitterMixin):
         if not self.omit_result:
             self.result_listener.unsubscribe()
 
+
 class SimpleActionServer(EventEmitterMixin):
     """Implementation of the simple action server.
 
@@ -399,7 +400,7 @@ class SimpleActionServer(EventEmitterMixin):
                 if self.current_goal:
                     will_cancel = True
 
-            else: # treat id and stamp independently
+            else:  # treat id and stamp independently
                 if self.current_goal and message_id == self.current_goal['goal_id']['id']:
                     will_cancel = True
                 elif self.next_goal and message_id == self.next_goal['goal_id']['id']:

@@ -19,6 +19,7 @@ __all__ = ['Message',
            'Service',
            'Param']
 
+
 class Message(UserDict):
     """Message objects used for publishing and subscribing to/from topics.
 

@@ -42,7 +42,7 @@ subscribing, service calls, actionlib, TF, and other essential ROS functionality
 Unlike the `rospy <http://wiki.ros.org/rospy>`_ library, this does not require a
 local ROS environment, allowing usage from platforms other than Linux.
 
-The API of **roslibpy** is modeled to closely match that of `roslibjs <http://wiki.ros.org/roslibjs>`_.
+The API of **roslibpy** is modeled to closely match that of `roslibjs`_.
 
 
 Main features
@@ -132,7 +132,9 @@ Ready to release a new version **roslibpy**? Here's how to do it:
 Credits
 -------
 
-This library is based on `roslibjs <http://wiki.ros.org/roslibjs>`_ and to a
+This library is based on `roslibjs`_ and to a
 large extent, it is a line-by-line port to Python, changing only where a more
 idiomatic form makes sense, so a huge part of the credit goes to the
 `roslibjs authors <https://github.com/RobotWebTools/roslibjs/blob/develop/AUTHORS.md>`_.
+
+.. _roslibjs: http://wiki.ros.org/roslibjs
