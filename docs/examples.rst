@@ -48,13 +48,12 @@ Controlling the event loop
 --------------------------
 
 In the previous examples, we started the ROS connection with a call to ``run()``,
-which starts the event loop in the background. In some case, we want handle the
-main event loop more explicitely in the foreground.
-
-:class:`roslibpy.Ros` provides the method ``run_forever()`` for this purpose.
+which starts the event loop in the background. In some cases, we want to handle the
+main event loop more explicitely in the foreground. :class:`roslibpy.Ros` provides
+the method ``run_forever()`` for this purpose.
 
 If we use this method to start the event loop, we need to setup all connection handlers
-before hand. We will use the :meth:`roslibpy.Ros.on_ready` method to do this.
+beforehand. We will use the :meth:`roslibpy.Ros.on_ready` method to do this.
 We will pass a function to it, that will be invoked when the connection is ready.
 
 The following snippet shows the same connection example above but
