@@ -11,6 +11,7 @@ from .comm import RosBridgeClientFactory
 __all__ = ['Ros']
 
 LOGGER = logging.getLogger('roslibpy')
+CONNECTION_TIMEOUT = 10
 
 
 class Ros(object):
@@ -65,7 +66,7 @@ class Ros(object):
 
             self.factory.on_ready(_wrapper_callback)
 
-    def run(self, timeout=None):
+    def run(self, timeout=CONNECTION_TIMEOUT):
         """Kick-starts a non-blocking event loop.
 
         Args:
