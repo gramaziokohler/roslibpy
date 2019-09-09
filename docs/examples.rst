@@ -45,7 +45,7 @@ Now run it from the command prompt typing::
 The program will run, print once we are connected and terminate the connection.
 
 Controlling the event loop
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the previous examples, we started the ROS connection with a call to ``run()``,
 which starts the event loop in the background. In some cases, we want to handle the
@@ -223,3 +223,61 @@ followed by a line indicating the resulting fibonacci sequence.
 This example is very simplified and uses the :meth:`roslibpy.actionlib.Goal.wait`
 function to make the code easier to read as an example. A more robust way to handle
 results is to hook up to the ``result`` event with a callback.
+
+Querying ROS API
+----------------
+
+ROS provides an API to inspect topics, services, nodes and much more. This API can be
+used programmatically from Python code, and also be invoked from the command line.
+
+Usage from the command-line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The command line mimics closely that of ROS itself.
+
+The following commands are available::
+
+    $ roslibpy topic list
+    $ roslibpy topic type /rosout
+    $ roslibpy topic find std_msgs/Int32
+    $ roslibpy msg info rosgraph_msgs/Log
+
+    $ roslibpy service list
+    $ roslibpy service type /rosout/get_loggers
+    $ roslibpy service find roscpp/GetLoggers
+    $ roslibpy srv info roscpp/GetLoggers
+
+    $ roslibpy param list
+    $ roslibpy param set /foo "[\"1\", 1, 1.0]"
+    $ roslibpy param get /foo
+    $ roslibpy param delete /foo
+
+Usage from Python code
+^^^^^^^^^^^^^^^^^^^^^^
+
+And conversely, the following methods allow to query the ROS API from Python code.
+
+Topics
+""""""
+
+* :meth:`roslibpy.Ros.get_topics`
+* :meth:`roslibpy.Ros.get_topic_type`
+* :meth:`roslibpy.Ros.get_topics_for_type`
+* :meth:`roslibpy.Ros.get_message_details`
+
+Services
+""""""""
+
+* :meth:`roslibpy.Ros.get_services`
+* :meth:`roslibpy.Ros.get_service_type`
+* :meth:`roslibpy.Ros.get_services_for_type`
+* :meth:`roslibpy.Ros.get_service_request_details`
+* :meth:`roslibpy.Ros.get_service_response_details`
+
+Params
+""""""
+
+* :meth:`roslibpy.Ros.get_params`
+* :meth:`roslibpy.Ros.get_param`
+* :meth:`roslibpy.Ros.set_param`
+* :meth:`roslibpy.Ros.delete_param`

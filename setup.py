@@ -80,5 +80,9 @@ setup(
     keywords=['ros', 'ros-bridge', 'robotics', 'websockets'],
     install_requires=requirements,
     extras_require={},
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'roslibpy=roslibpy.__main__:main'
+        ]
+    },
 )

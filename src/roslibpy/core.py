@@ -230,10 +230,11 @@ class Service(object):
     def call(self, request, callback=None, errback=None, timeout=None):
         """Start a service call.
 
-        The service can be used either as blocking or non-blocking.
-        If the ``callback`` parameter is ``None``, then the call will
-        block until receiving a response. Otherwise, the service response
-        will be returned in the callback.
+        Note:
+            The service can be used either as blocking or non-blocking.
+            If the ``callback`` parameter is ``None``, then the call will
+            block until receiving a response. Otherwise, the service response
+            will be returned in the callback.
 
         Args:
             request (:class:`.ServiceRequest`): Service request.
@@ -243,7 +244,6 @@ class Service(object):
 
         Returns:
             object: Service response if used as a blocking call, otherwise ``None``.
-
         """
         if self.is_advertised:
             return
@@ -353,45 +353,70 @@ class Param(object):
         self.ros = ros
         self.name = name
 
-    def get(self, callback=None, errback=None):
+    def get(self, callback=None, errback=None, timeout=None):
         """Fetch the current value of the parameter.
+
+        Note:
+            This method can be used either as blocking or non-blocking.
+            If the ``callback`` parameter is ``None``, the call will
+            block and return the parameter value. Otherwise, the parameter
+            value will be passed on to the callback.
 
         Args:
             callback: Callable function to be invoked when the operation is completed.
             errback: Callback invoked on error.
+            timeout: Timeout for the operation, in seconds. Only used if blocking.
+
+        Returns:
+            object: Parameter value if used as a blocking call, otherwise ``None``.
         """
         client = Service(self.ros, '/rosapi/get_param', 'rosapi/GetParam')
         request = ServiceRequest({'name': self.name})
 
-        client.call(request, lambda result: callback(
-            json.loads(result['value'])), errback)
+        if not callback:
+            result = client.call(request, timeout=timeout)
+            return json.loads(result['value'])
+        else:
+            client.call(request, lambda result: callback(
+                json.loads(result['value'])), errback)
 
-    def set(self, value, callback=None, errback=None):
+    def set(self, value, callback=None, errback=None, timeout=None):
         """Set a new value to the parameter.
 
+        Note:
+            This method can be used either as blocking or non-blocking.
+            If the ``callback`` parameter is ``None``, the call will
+            block until completion.
+
         Args:
-            value: Value to set the parameter to.
             callback: Callable function to be invoked when the operation is completed.
             errback: Callback invoked on error.
+            timeout: Timeout for the operation, in seconds. Only used if blocking.
         """
         client = Service(self.ros, '/rosapi/set_param', 'rosapi/SetParam')
         request = ServiceRequest(
             {'name': self.name, 'value': json.dumps(value)})
 
-        client.call(request, callback, errback)
+        client.call(request, callback, errback, timeout=timeout)
 
-    def delete(self, callback=None, errback=None):
+    def delete(self, callback=None, errback=None, timeout=None):
         """Delete the parameter.
+
+        Note:
+            This method can be used either as blocking or non-blocking.
+            If the ``callback`` parameter is ``None``, the call will
+            block until completion.
 
         Args:
             callback: Callable function to be invoked when the operation is completed.
             errback: Callback invoked on error.
+            timeout: Timeout for the operation, in seconds. Only used if blocking.
         """
         client = Service(self.ros, '/rosapi/delete_param',
                          'rosapi/DeleteParam')
         request = ServiceRequest({'name': self.name})
 
-        client.call(request, callback, errback)
+        client.call(request, callback, errback, timeout=timeout)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ import logging
 import threading
 
 from . import Message
+from . import Param
 from . import Service
 from . import ServiceRequest
 from .comm import RosBridgeClientFactory
@@ -12,6 +13,7 @@ __all__ = ['Ros']
 
 LOGGER = logging.getLogger('roslibpy')
 CONNECTION_TIMEOUT = 10
+ROSAPI_TIMEOUT = 3
 
 
 class Ros(object):
@@ -203,54 +205,248 @@ class Ros(object):
 
         self.send_on_ready(level_message)
 
+    def get_topics(self, callback=None, errback=None):
+        """Retrieve list of topics in ROS.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            list: List of topics if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/topics', 'rosapi/Topics')
+
+        result = service.call(ServiceRequest(), callback,
+                              errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'topics' in result
+        return result['topics']
+
+    def get_topic_type(self, topic, callback=None, errback=None):
+        """Retrieve the type of a topic in ROS.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            str: Topic type if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/topic_type',
+                          'rosapi/TopicType')
+
+        result = service.call(ServiceRequest({'topic': topic}),
+                              callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'type' in result
+        return result['type']
+
+    def get_topics_for_type(self, topic_type, callback=None, errback=None):
+        """Retrieve list of topics in ROS matching the specified type.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            list: List of topics matching the specified type if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/topics_for_type',
+                          'rosapi/TopicsForType')
+
+        result = service.call(ServiceRequest({'type': topic_type}),
+                              callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'topics' in result
+        return result['topics']
+
+    def get_services(self, callback=None, errback=None):
+        """Retrieve list of active service names in ROS.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            list: List of services if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/services',
+                          'rosapi/Services')
+
+        result = service.call(ServiceRequest(), callback,
+                              errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'services' in result
+        return result['services']
+
+    def get_service_type(self, service_name, callback=None, errback=None):
+        """Retrieve the type of a service in ROS.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            str: Service type if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/service_type',
+                          'rosapi/ServiceType')
+
+        result = service.call(ServiceRequest(
+            {'service': service_name}), callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'type' in result
+        return result['type']
+
+    def get_services_for_type(self, service_type, callback=None, errback=None):
+        """Retrieve list of services in ROS matching the specified type.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            list: List of services matching the specified type if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/services_for_type',
+                          'rosapi/ServicesForType')
+
+        result = service.call(ServiceRequest({'type': service_type}),
+                              callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'services' in result
+        return result['services']
+
+    def get_service_request_details(self, type, callback=None, errback=None):
+        """Retrieve details of a ROS Service Request.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            Service Request details if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/service_request_details',
+                          'rosapi/ServiceRequestDetails')
+
+        result = service.call(ServiceRequest({'type': type}),
+                              callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        return result
+
+    def get_service_response_details(self, type, callback=None, errback=None):
+        """Retrieve details of a ROS Service Response.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            Service Response details if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/service_response_details',
+                          'rosapi/ServiceResponseDetails')
+
+        result = service.call(ServiceRequest({'type': type}),
+                              callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        return result
+
+    def get_message_details(self, message_type, callback=None, errback=None):
+        """Retrieve details of a message type in ROS.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            Message type details if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/message_details',
+                          'rosapi/MessageDetails')
+
+        result = service.call(ServiceRequest(
+            {'type': message_type}), callback, errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        return result
+
+    def get_params(self, callback=None, errback=None):
+        """Retrieve list of param names from the ROS Parameter Server.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            list: List of parameters if blocking, otherwise ``None``.
+        """
+        service = Service(self, '/rosapi/get_param_names',
+                          'rosapi/GetParamNames')
+
+        result = service.call(ServiceRequest(), callback,
+                              errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'names' in result
+        return result['names']
+
+    def get_param(self, name, callback=None, errback=None):
+        """Get the value of a parameter from the ROS Parameter Server.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            Parameter value if blocking, otherwise ``None``.
+        """
+        param = Param(self, name)
+        return param.get(callback, errback, timeout=ROSAPI_TIMEOUT)
+
+    def set_param(self, name, value, callback=None, errback=None):
+        """Set the value of a parameter from the ROS Parameter Server.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+        """
+        param = Param(self, name)
+        param.set(value, callback, errback, timeout=ROSAPI_TIMEOUT)
+
+    def delete_param(self, name, callback=None, errback=None):
+        """Delete parameter from the ROS Parameter Server.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+        """
+        param = Param(self, name)
+        param.delete(callback, errback, timeout=ROSAPI_TIMEOUT)
+
     def get_action_servers(self, callback, errback=None):
         """Retrieve list of action servers in ROS."""
         service = Service(self, '/rosapi/action_servers',
                           'rosapi/GetActionServers')
 
         service.call(ServiceRequest(), callback, errback)
-
-    def get_topics(self, callback, errback=None):
-        """Retrieve list of topics in ROS."""
-        service = Service(self, '/rosapi/topics',
-                          'rosapi/Topics')
-
-        service.call(ServiceRequest(), callback, errback)
-
-    def get_topics_for_type(self, topic_type, callback, errback=None):
-        """Retrieve list of topics in ROS matching the specified type."""
-        service = Service(self, '/rosapi/topics_for_type',
-                          'rosapi/TopicsForType')
-
-        service.call(ServiceRequest({'type': topic_type}), callback, errback)
-
-    def get_services(self, callback, errback=None):
-        """Retrieve list of active service names in ROS."""
-        service = Service(self, '/rosapi/services',
-                          'rosapi/Services')
-
-        service.call(ServiceRequest(), callback, errback)
-
-    def get_services_for_type(self, service_type, callback, errback=None):
-        """Retrieve list of services in ROS matching the specified type."""
-        service = Service(self, '/rosapi/services_for_type',
-                          'rosapi/ServicesForType')
-
-        service.call(ServiceRequest({'type': service_type}), callback, errback)
-
-    def get_service_request_details(self, type, callback, errback=None):
-        """Retrieve details of a ROS Service Request."""
-        service = Service(self, '/rosapi/service_request_details',
-                          'rosapi/ServiceRequestDetails')
-
-        service.call(ServiceRequest({'type': type}), callback, errback)
-
-    def get_service_response_details(self, type, callback, errback=None):
-        """Retrieve details of a ROS Service Response."""
-        service = Service(self, '/rosapi/service_response_details',
-                          'rosapi/ServiceResponseDetails')
-
-        service.call(ServiceRequest({'type': type}), callback, errback)
 
     def get_nodes(self, callback, errback=None):
         """Retrieve list of active node names in ROS."""
@@ -265,36 +461,6 @@ class Ros(object):
                           'rosapi/NodeDetails')
 
         service.call(ServiceRequest({'node': node}), callback, errback)
-
-    def get_params(self, callback, errback=None):
-        """Retrieve list of param names from the ROS Parameter Server."""
-        service = Service(self, '/rosapi/get_param_names',
-                          'rosapi/GetParamNames')
-
-        service.call(ServiceRequest(), callback, errback)
-
-    def get_topic_type(self, topic, callback, errback=None):
-        """Retrieve the type of a topic in ROS."""
-        service = Service(self, '/rosapi/topic_type',
-                          'rosapi/TopicType')
-
-        service.call(ServiceRequest({'topic': topic}), callback, errback)
-
-    def get_service_type(self, service_name, callback, errback=None):
-        """Retrieve the type of a service in ROS."""
-        service = Service(self, '/rosapi/service_type',
-                          'rosapi/ServiceType')
-
-        service.call(ServiceRequest(
-            {'service': service_name}), callback, errback)
-
-    def get_message_details(self, message_type, callback, errback=None):
-        """Retrieve details of a message type in ROS."""
-        service = Service(self, '/rosapi/message_details',
-                          'rosapi/MessageDetails')
-
-        service.call(ServiceRequest(
-            {'type': message_type}), callback, errback)
 
 
 if __name__ == '__main__':

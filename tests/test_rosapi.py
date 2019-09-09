@@ -25,8 +25,23 @@ def run_rosapi_topics(*args, **kwargs):
     ros_client.run_forever()
 
 
+def run_rosapi_topics_blocking(*args, **kwargs):
+    ros_client = Ros(*args, **kwargs)
+    ros_client.run()
+    topic_list = ros_client.get_topics()
+
+    print(topic_list)
+    assert('/rosout' in topic_list)
+
+    ros_client.terminate()
+
+
 def test_rosapi_topics():
     helpers.run_as_process(run_rosapi_topics, host, port)
+
+
+def test_rosapi_topics_blocking():
+    helpers.run_as_process(run_rosapi_topics_blocking, host, port)
 
 
 def test_rosapi_topics_url():

@@ -14,6 +14,13 @@ Unreleased
 
 * The non-blocking event loop runner ``run()`` now defaults to 10 seconds timeout before raising an exception.
 
+**Added**
+
+* Added blocking behavior to ROS API methods, e.g. ``ros.get_topics``.
+* Added command-line mode to ROS API, e.g. ``roslibpy topic list``.
+* Added blocking behavior to the ``Param`` class.
+* Added parameter manipulation methods to ``Ros`` class: ``get_param``, ``set_param``, ``delete_param``.
+
 0.6.0
 ----------
 
