@@ -23,9 +23,9 @@ from System.Threading import SemaphoreSlim
 from System.Threading import Thread
 from System.Threading.Tasks import Task
 
+from ..event_emitter import EventEmitterMixin
 from . import RosBridgeException
 from . import RosBridgeProtocol
-from ..event_emitter import EventEmitterMixin
 
 LOGGER = logging.getLogger('roslibpy')
 RECEIVE_CHUNK_SIZE = 1024

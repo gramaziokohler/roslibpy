@@ -12,8 +12,8 @@ from twisted.internet.error import ConnectionDone
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 
-from . import RosBridgeProtocol
 from ..event_emitter import EventEmitterMixin
+from . import RosBridgeProtocol
 
 LOGGER = logging.getLogger('roslibpy')
 
