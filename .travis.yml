@@ -18,6 +18,7 @@ install:
   - pip install -r requirements-dev.txt
 
 script:
+  - isort --check-only --diff --recursive src tests setup.py
   - pytest
 
 after_script:
