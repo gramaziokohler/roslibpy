@@ -131,7 +131,7 @@ def test(ctx, checks=True):
     if checks:
         check(ctx)
 
-    ctx.run('pytest --doctest-module')
+    ctx.run('pytest --doctest-modules')
 
 @task(help={
       'release_type': 'Type of release follows semver rules. Must be one of: major, minor, patch.'})
