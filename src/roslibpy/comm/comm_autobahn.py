@@ -7,7 +7,9 @@ from autobahn.twisted.websocket import WebSocketClientFactory
 from autobahn.twisted.websocket import WebSocketClientProtocol
 from autobahn.twisted.websocket import connectWS
 from autobahn.websocket.util import create_url
+from twisted.internet import defer
 from twisted.internet import reactor
+from twisted.internet import threads
 from twisted.internet.error import ConnectionDone
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
@@ -165,6 +167,61 @@ class TwistedEventLoopManager(object):
             callback (:obj:`callable`): Callable function to be invoked in a thread.
         """
         reactor.callInThread(callback)
+
+    def blocking_call_from_thread(self, callback, timeout):
+        """Call the given function from a thread, and wait for the result synchronously
+        for as long as the timeout will allow.
+
+        Args:
+            callback: Callable function to be invoked from the thread.
+            timeout (:obj: int): Number of seconds to wait for the response before
+                raising an exception.
+
+        Returns:
+            The results from the callback, or a timeout exception.
+        """
+        result_placeholder = defer.Deferred()
+        if timeout:
+            result_placeholder.addTimeout(timeout, reactor, onTimeoutCancel=self.raise_timeout_exception)
+        return threads.blockingCallFromThread(reactor, callback, result_placeholder)
+
+    def raise_timeout_exception(self, _result=None, _timeout=None):
+        """Callback called on timeout.
+
+        Args:
+            _result: Unused--required by Twister.
+            _timeout: Unused--required by Twister.
+
+        Raises:
+            An exception.
+        """
+        raise Exception('No service response received')
+
+    def get_inner_callback(self, result_placeholder):
+        """Get the callback which, when called, provides result_placeholder with the result.
+
+        Args:
+            result_placeholder: (:obj: Deferred): Object in which to store the result.
+
+        Returns:
+            A callable which provides result_placeholder with the result in the case of success.
+        """
+        def inner_callback(result):
+            result_placeholder.callback({'result': result})
+        return inner_callback
+
+    def get_inner_errback(self, result_placeholder):
+        """Get the errback which, when called, provides result_placeholder with the error.
+
+        Args:
+            result_placeholder: (:obj: Deferred): Object in which to store the result.
+
+        Returns:
+            A callable which provides result_placeholder with the error in the case of failure.
+        """
+        def inner_errback(error):
+            result_placeholder.callback({'exception': error})
+        return inner_errback
 
     def terminate(self):
         """Signals the termination of the main event loop."""

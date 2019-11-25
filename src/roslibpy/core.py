@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import json
 import logging
-import threading
 
 # Python 2/3 compatibility import list
 try:
@@ -264,22 +263,7 @@ class Service(object):
             return
 
         # Blocking mode
-        wait_event = threading.Event()
-        call_results = {}
-
-        def inner_callback(result):
-            call_results['result'] = result
-            wait_event.set()
-
-        def inner_errback(error):
-            call_results['exception'] = error
-            wait_event.set()
-
-        self.ros.send_service_request(message, inner_callback, inner_errback)
-
-        if not wait_event.wait(timeout):
-            raise Exception('No service response received')
-
+        call_results = self.ros.make_blocking_service_request(message, timeout)
         if 'exception' in call_results:
             raise Exception(call_results['exception'])
 

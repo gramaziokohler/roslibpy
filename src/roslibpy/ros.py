@@ -180,6 +180,57 @@ class Ros(object):
 
         self.factory.on_ready(_send_internal)
 
+    def blocking_call_from_thread(self, callback, timeout):
+        """Call the given function from a thread, and wait for the result synchronously
+        for as long as the timeout will allow.
+
+        Args:
+            callback: Callable function to be invoked from the thread.
+            timeout (:obj: int): Number of seconds to wait for the response before
+                raising an exception.
+
+        Returns:
+            The results from the callback, or a timeout exception.
+        """
+        return self.factory.manager.blocking_call_from_thread(callback, timeout)
+
+    def get_service_request_callback(self, message):
+        """Get the callback which, when called, sends the service request.
+
+        Args:
+            message (:class:`.Message`): ROS Bridge Message containing the request.
+
+        Returns:
+            A callable which makes the service request.
+        """
+        def get_call_results(result_placeholder):
+
+            inner_callback = self.factory.manager.get_inner_callback(result_placeholder)
+
+            inner_errback = self.factory.manager.get_inner_errback(result_placeholder)
+
+            self.send_service_request(message, inner_callback, inner_errback)
+
+            return result_placeholder
+
+        return get_call_results
+
+    def make_blocking_service_request(self, message, timeout):
+        """Send a blocking service request to the ROS Master once the connection is established,
+        waiting for the result to be return.
+
+        If a connection to ROS is already available, the request is sent immediately.
+
+        Args:
+            message (:class:`.Message`): ROS Bridge Message containing the request.
+            timeout (:obj: int): Number of seconds to wait for the response before
+                raising an exception.
+        Returns:
+            Either returns the service request results or raises a timeout exception.
+        """
+        get_call_results = self.get_service_request_callback(message)
+        return self.blocking_call_from_thread(get_call_results, timeout)
+
     def send_service_request(self, message, callback, errback):
         """Send a service request to the ROS Master once the connection is established.
 

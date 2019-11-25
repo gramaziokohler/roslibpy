@@ -16,11 +16,14 @@ from System.Net.WebSockets import WebSocketMessageType
 from System.Net.WebSockets import WebSocketReceiveResult
 from System.Net.WebSockets import WebSocketState
 from System.Text import Encoding
+from System.Threading import AutoResetEvent
 from System.Threading import CancellationToken
 from System.Threading import CancellationTokenSource
 from System.Threading import ManualResetEventSlim
 from System.Threading import SemaphoreSlim
 from System.Threading import Thread
+from System.Threading import ThreadPool
+from System.Threading import WaitCallback
 from System.Threading.Tasks import Task
 
 from ..event_emitter import EventEmitterMixin
@@ -144,7 +147,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             close_task = self.socket.CloseAsync(
                 WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
             self.factory.emit('close', self)
-            # NOTE: Make sure reconnets are possible.
+            # NOTE: Make sure reconnects are possible.
             # Reconnection needs to be handled on a higher layer.
             return close_task
 
@@ -174,7 +177,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 task.ContinueWith(self.send_chunk_async, [
                     message_buffer, message_length, chunks_count, i + 1])
             else:
-                # NOTE: If we've reached the last chunck of the message
+                # NOTE: If we've reached the last chunk of the message
                 # we can release the lock (Semaphore) again.
                 task.ContinueWith(lambda _res: self.semaphore.Release())
 
@@ -293,7 +296,7 @@ class CliEventLoopManager(object):
         """Initialize the cancellation source and token."""
         self.cancellation_token_source = CancellationTokenSource()
         self.cancellation_token = self.cancellation_token_source.Token
-        self.cancellation_token.Register(lambda: LOGGER.debug('Started token cancelation'))
+        self.cancellation_token.Register(lambda: LOGGER.debug('Started token cancellation'))
 
     def run(self):
         """Kick-starts a non-blocking event loop.
@@ -327,6 +330,65 @@ class CliEventLoopManager(object):
             callback (:obj:`callable`): Callable function to be invoked in a thread.
         """
         Task.Factory.StartNew(callback, self.cancellation_token)
+
+    def blocking_call_from_thread(self, callback, timeout):
+        """Call the given function from a thread, and wait for the result synchronously
+        for as long as the timeout will allow.
+
+        Args:
+            callback: Callable function to be invoked from the thread.
+            timeout (:obj: int): Number of seconds to wait for the response before
+                raising an exception.
+
+        Returns:
+            The results from the callback, or a timeout exception.
+        """
+        auto_event = AutoResetEvent(False)
+        result_placeholder = {'auto_event': auto_event}
+        ThreadPool.QueueUserWorkItem(WaitCallback(callback), result_placeholder)
+        if timeout and auto_event.WaitOne(timeout * 1000) or not timeout and auto_event.WaitOne():
+            return result_placeholder
+        self.raise_timeout_exception()
+
+    def raise_timeout_exception(self, _result=None, _timeout=None):
+        """Callback called on timeout.
+
+        Args:
+            _result: Unused--required by Twister.
+            _timeout: Unused--required by Twister.
+
+        Raises:
+            An exception.
+        """
+        raise Exception('No service response received')
+
+    def get_inner_callback(self, result_placeholder):
+        """Get the callback which, when called, provides result_placeholder with the result.
+
+        Args:
+            result_placeholder: (:obj: dict): Object in which to store the result.
+
+        Returns:
+            A callable which provides result_placeholder with the result in the case of success.
+        """
+        def inner_callback(result):
+            result_placeholder['result'] = result
+            result_placeholder['auto_event'].Set()
+        return inner_callback
+
+    def get_inner_errback(self, result_placeholder):
+        """Get the errback which, when called, provides result_placeholder with the error.
+
+        Args:
+            result_placeholder: (:obj: dict): Object in which to store the result.
+
+        Returns:
+            A callable which provides result_placeholder with the error in the case of failure.
+        """
+        def inner_errback(error):
+            result_placeholder['exception'] = error
+            result_placeholder['auto_event'].Set()
+        return inner_errback
 
     def terminate(self):
         """Signals the termination of the main event loop."""
