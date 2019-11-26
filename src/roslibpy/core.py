@@ -259,11 +259,11 @@ class Service(object):
 
         # Non-blocking mode
         if callback:
-            self.ros.send_service_request(message, callback, errback)
+            self.ros.call_async_service(message, callback, errback)
             return
 
         # Blocking mode
-        call_results = self.ros.make_blocking_service_request(message, timeout)
+        call_results = self.ros.call_sync_service(message, timeout)
         if 'exception' in call_results:
             raise Exception(call_results['exception'])
 

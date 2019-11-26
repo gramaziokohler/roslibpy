@@ -16,7 +16,6 @@ from System.Net.WebSockets import WebSocketMessageType
 from System.Net.WebSockets import WebSocketReceiveResult
 from System.Net.WebSockets import WebSocketState
 from System.Text import Encoding
-from System.Threading import AutoResetEvent
 from System.Threading import CancellationToken
 from System.Threading import CancellationTokenSource
 from System.Threading import ManualResetEventSlim
@@ -343,10 +342,14 @@ class CliEventLoopManager(object):
         Returns:
             The results from the callback, or a timeout exception.
         """
-        auto_event = AutoResetEvent(False)
-        result_placeholder = {'auto_event': auto_event}
+        manual_event = ManualResetEventSlim(False)
+        result_placeholder = {'manual_event': manual_event}
         ThreadPool.QueueUserWorkItem(WaitCallback(callback), result_placeholder)
-        if timeout and auto_event.WaitOne(timeout * 1000) or not timeout and auto_event.WaitOne():
+        if (
+            timeout and manual_event.Wait(timeout * 1000, self.cancellation_token)
+            or
+            not timeout and manual_event.Wait(self.cancellation_token)
+        ):
             return result_placeholder
         self.raise_timeout_exception()
 
@@ -373,7 +376,7 @@ class CliEventLoopManager(object):
         """
         def inner_callback(result):
             result_placeholder['result'] = result
-            result_placeholder['auto_event'].Set()
+            result_placeholder['manual_event'].Set()
         return inner_callback
 
     def get_inner_errback(self, result_placeholder):
@@ -387,7 +390,7 @@ class CliEventLoopManager(object):
         """
         def inner_errback(error):
             result_placeholder['exception'] = error
-            result_placeholder['auto_event'].Set()
+            result_placeholder['manual_event'].Set()
         return inner_errback
 
     def terminate(self):

@@ -209,13 +209,13 @@ class Ros(object):
 
             inner_errback = self.factory.manager.get_inner_errback(result_placeholder)
 
-            self.send_service_request(message, inner_callback, inner_errback)
+            self.call_async_service(message, inner_callback, inner_errback)
 
             return result_placeholder
 
         return get_call_results
 
-    def make_blocking_service_request(self, message, timeout):
+    def call_sync_service(self, message, timeout):
         """Send a blocking service request to the ROS Master once the connection is established,
         waiting for the result to be return.
 
@@ -231,7 +231,7 @@ class Ros(object):
         get_call_results = self.get_service_request_callback(message)
         return self.blocking_call_from_thread(get_call_results, timeout)
 
-    def send_service_request(self, message, callback, errback):
+    def call_async_service(self, message, callback, errback):
         """Send a service request to the ROS Master once the connection is established.
 
         If a connection to ROS is already available, the request is sent immediately.
