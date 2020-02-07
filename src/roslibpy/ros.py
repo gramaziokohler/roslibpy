@@ -506,13 +506,23 @@ class Ros(object):
 
         service.call(ServiceRequest(), callback, errback)
 
+        if callback:
+            return
+
+        assert 'nodes' in result
+        return result['nodes']        
+
     def get_node_details(self, node, callback, errback=None):
         """Retrieve list subscribed topics, publishing topics and services of a specific node name."""
         service = Service(self, '/rosapi/node_details',
                           'rosapi/NodeDetails')
 
-        service.call(ServiceRequest({'node': node}), callback, errback)
-
+        result = service.call(ServiceRequest({'node': node}), callback, errback)
+        if callback:
+            return
+        
+        output= {'services': result['services'], 'subscribing':  result['subscribing'], 'publishing':result['publishing'] }
+        return output
 
 if __name__ == '__main__':
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
