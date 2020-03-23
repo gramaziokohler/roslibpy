@@ -235,7 +235,10 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         Returns:
             bool: True if WebSocket is connected, False otherwise.
         """
-        return self.proto and self.proto.socket and self.proto.socket.State == WebSocketState.Open
+        if self.proto and self.proto.socket:
+            return self.proto.socket.State == WebSocketState.Open
+
+        return False
 
     def connect(self):
         """Establish WebSocket connection to the ROS server defined for this factory.
