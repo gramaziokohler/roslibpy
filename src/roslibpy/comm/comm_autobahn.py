@@ -84,6 +84,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
             self.once('ready', callback)
 
     def ready(self, proto):
+        self.resetDelay()
         self._proto = proto
         self.emit('ready', proto)
 
