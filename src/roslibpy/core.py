@@ -60,11 +60,12 @@ class Topic(object):
         queue_size (:obj:`int`): Queue size created at bridge side for re-publishing webtopics.
         latch (:obj:`bool`): True to latch the topic when publishing, False otherwise.
         queue_length (:obj:`int`): Queue length at bridge side used when subscribing.
+        reconnect_on_close (:obj:`bool`): Reconnect the topic (both for publisher and subscribers) if a reconnection is detected.
     """
     SUPPORTED_COMPRESSION_TYPES = ('png', 'none')
 
     def __init__(self, ros, name, message_type, compression=None, latch=False, throttle_rate=0,
-                 queue_size=100, queue_length=0):
+                 queue_size=100, queue_length=0, reconnect_on_close=True):
         self.ros = ros
         self.name = name
         self.message_type = message_type
@@ -84,8 +85,7 @@ class Topic(object):
             raise ValueError(
                 'Unsupported compression type. Must be one of: ' + str(self.SUPPORTED_COMPRESSION_TYPES))
 
-        # TODO: Implement the following options
-        # self.reconnect_on_close = options.reconnect_on_close || true;
+        self.reconnect_on_close = reconnect_on_close
 
     @property
     def is_advertised(self):
@@ -122,7 +122,7 @@ class Topic(object):
             self.name, self.ros.id_counter)
 
         self.ros.on(self.name, callback)
-        self.ros.send_on_ready(Message({
+        self._connect_topic(Message({
             'op': 'subscribe',
             'id': self._subscribe_id,
             'type': self.message_type,
@@ -136,6 +136,10 @@ class Topic(object):
         """Unregister from a subscribed the topic."""
         if not self._subscribe_id:
             return
+
+        # Do not try to reconnect when manually unsubscribing
+        if self.reconnect_on_close:
+            self.ros.off('close', self._reconnect_topic)
 
         self.ros.off(self.name)
         self.ros.send_on_ready(Message({
@@ -170,7 +174,7 @@ class Topic(object):
         self._advertise_id = 'advertise:%s:%d' % (
             self.name, self.ros.id_counter)
 
-        self.ros.send_on_ready(Message({
+        self._connect_topic(Message({
             'op': 'advertise',
             'id': self._advertise_id,
             'type': self.message_type,
@@ -179,12 +183,33 @@ class Topic(object):
             'queue_size': self.queue_size
         }))
 
-        # TODO: Set _advertise_id=None on disconnect (if not reconnecting)
+        if not self.reconnect_on_close:
+            self.ros.on('close', self._reset_advertise_id)
+
+    def _reset_advertise_id(self, _proto):
+        self._advertise_id = None
+
+    def _connect_topic(self, message):
+        self._connect_message = message
+        self.ros.send_on_ready(message)
+
+        if self.reconnect_on_close:
+            self.ros.on('close', self._reconnect_topic)
+
+    def _reconnect_topic(self, _proto):
+        # Delay a bit the event hookup because
+        #  1) _proto is not yet nullified, and
+        #  2) reconnect anyway takes a few seconds
+        self.ros.call_later(1, lambda: self.ros.send_on_ready(self._connect_message))
 
     def unadvertise(self):
         """Unregister as a publisher for the topic."""
         if not self.is_advertised:
             return
+
+        # Do not try to reconnect when manually unadvertising
+        if self.reconnect_on_close:
+            self.ros.off('close', self._reconnect_topic)
 
         self.ros.send_on_ready(Message({
             'op': 'unadvertise',
