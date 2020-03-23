@@ -24,8 +24,7 @@ if sys.platform == "cli":
 else:
     requirements = [
         'autobahn>=17.10',
-        'twisted>=17.9',
-        'attrs>=19.2.0'
+        'twisted>=17.9'
     ]
 
 
