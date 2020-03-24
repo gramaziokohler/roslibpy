@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import threading
 import time
 
 import helpers
@@ -13,8 +14,10 @@ def run_reconnect_does_not_trigger_on_client_close():
 
     assert ros.is_connected == True, "ROS initially connected"
     time.sleep(0.5)
+    event = threading.Event()
+    ros.on('close', lambda m: event.set())
     ros.close()
-    time.sleep(0.5)
+    event.wait(5)
 
     assert ros.is_connected == False, "Successful disconnect"
     assert ros.is_connecting == False, "Not trying to re-connect"
