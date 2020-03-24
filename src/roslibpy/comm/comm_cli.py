@@ -92,7 +92,19 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 if result.MessageType == WebSocketMessageType.Close:
                     LOGGER.info('WebSocket connection closed: [Code=%s] Description=%s',
                                 result.CloseStatus, result.CloseStatusDescription)
-                    return self._socket_close_frame_async()
+
+                    try:
+                        # Socket might be already disposed or nullified
+                        if not self.socket:
+                            return
+
+                        # If not, we try to be good citizens and finalize the close handshake
+                        return self.socket.CloseOutputAsync(result.CloseStatus,
+                            result.CloseStatusDescription, CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+                    except:
+                        # But it could also fail (eg. the socket was just disposed) we just warn and return then
+                        LOGGER.warn('Unable to send close output. Socket might be already disposed.')
+                        return
                 else:
                     chunk = Encoding.UTF8.GetString(context['buffer'], 0, result.Count)
                     context['content'].append(chunk)
@@ -162,18 +174,20 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         finally:
             LOGGER.debug('Leaving the listening thread')
 
-    def _socket_close_frame_async(self):
-        err_code = WebSocketCloseStatus.NormalClosure
-        err_desc = ''
-        close_task = self.socket.CloseAsync(err_code, err_desc, CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
-        self.factory.client_connection_lost(self, err_code, err_desc)
-        return close_task
-
     def send_close(self):
         """Trigger the closure of the websocket indicating normal closing process."""
         self._manual_disconect = True
-        if self.socket:
-            return self._socket_close_frame_async()
+
+        err_desc = ''
+        err_code = WebSocketCloseStatus.NormalClosure
+
+        close_task = self.socket.CloseAsync(err_code,
+            err_desc, CancellationToken.None) if self.socket else None  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+
+        self.factory.client_connection_lost(self, err_code, err_desc)
+
+        return close_task
+
 
     def send_chunk_async(self, task, message_data):
         """Send a message chuck asynchronously."""
