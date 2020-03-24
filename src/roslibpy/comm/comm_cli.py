@@ -232,8 +232,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
-        self.factory.manager.terminate()
-
         if self.socket:
             self.socket.Dispose()
             self.socket = None
