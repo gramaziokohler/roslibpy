@@ -279,7 +279,6 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         """
         LOGGER.debug('Started to connect...')
         socket = ClientWebSocket()
-        socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(5)
         connect_task = socket.ConnectAsync(
             self.url, self.manager.cancellation_token)
 
