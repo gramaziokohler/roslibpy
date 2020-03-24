@@ -10,9 +10,19 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ----------
 
+**Changed**
+
+* Changed behavior: Topics automatically reconnect when websockets is reconnected
+
 **Added**
 
 * Added blocking behavior to more ROS API methods: ``ros.get_nodes`` and ``ros.get_node_details``.
+* Added reconnection support to IronPython implementation of websockets
+* Added automatic topic reconnection support for both subscribers and publishers
+
+**Fixed**
+
+* Fixed reconnection issues on the Twisted/Autobahn-based implementation of websockets
 
 0.7.1
 ----------
