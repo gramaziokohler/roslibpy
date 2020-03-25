@@ -423,12 +423,16 @@ class CliEventLoopManager(object):
         manual_event = ManualResetEventSlim(False)
         result_placeholder = {'manual_event': manual_event}
         ThreadPool.QueueUserWorkItem(WaitCallback(callback), result_placeholder)
-        if (
-            timeout and manual_event.Wait(timeout * 1000, self.cancellation_token)
-            or
-            not timeout and manual_event.Wait(self.cancellation_token)
-        ):
+
+        # Wait with timeout results bool indicating success/failure
+        if timeout and manual_event.Wait(timeout * 1000, self.cancellation_token):
             return result_placeholder
+
+        # Wait without timeouts raises in case of failure triggered by cancellation
+        if not timeout:
+            manual_event.Wait(self.cancellation_token)
+            return result_placeholder
+
         self.raise_timeout_exception()
 
     def raise_timeout_exception(self, _result=None, _timeout=None):
