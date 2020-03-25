@@ -140,7 +140,7 @@ def release(ctx, release_type):
     if release_type not in ('patch', 'minor', 'major'):
         raise Exit('The release type parameter is invalid.\nMust be one of: major, minor, patch')
 
-    ctx.run('bumpversion %s --verbose' % release_type)
+    ctx.run('bump2version %s --verbose' % release_type)
     ctx.run('invoke docs test')
     ctx.run('python setup.py clean --all sdist bdist_wheel')
 
