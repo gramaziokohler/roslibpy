@@ -1,5 +1,5 @@
 attrs>=19.2.0
-bump2version >=1.0
+bump2version
 check-manifest>=0.36
 flake8
 invoke>=0.14
