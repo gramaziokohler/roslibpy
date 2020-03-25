@@ -259,7 +259,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 class CliRosBridgeClientFactory(EventEmitterMixin):
     """Factory to create instances of the ROS Bridge protocol built on top of .NET WebSockets."""
 
-    max_delay = 3600
+    max_delay = 3600.0
     initial_delay = 1.0
 
     # NOTE: The following factor was taken from Twisted's reconnecting factory:
