@@ -29,7 +29,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
 
     def onOpen(self):
         LOGGER.info('Connection to ROS MASTER ready.')
-        self._manual_disconect = False
+        self._manual_disconnect = False
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
@@ -49,7 +49,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         return self.sendMessage(payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False)
 
     def send_close(self):
-        self._manual_disconect = True
+        self._manual_disconnect = True
         self.sendClose()
 
 
@@ -95,7 +95,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         LOGGER.debug('Lost connection. Reason: %s', reason)
         self.emit('close', self._proto)
 
-        if not self._proto or (self._proto and self._proto._manual_disconect == False):
+        if not self._proto or (self._proto and self._proto._manual_disconnect == False):
             ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
         self._proto = None
 

@@ -73,7 +73,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             return
 
         LOGGER.info('Connection to ROS MASTER ready.')
-        self._manual_disconect = False
+        self._manual_disconnect = False
         self.factory.ready(self)
         self.factory.manager.call_in_thread(self.start_listening)
 
@@ -157,7 +157,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 try:
                     mre.Wait(self.factory.manager.cancellation_token)
                 except SystemError:
-                    LOGGER.debug('Cancelation detected on listening thread, exiting...')
+                    LOGGER.debug('Cancellation detected on listening thread, exiting...')
                     break
 
                 try:
@@ -176,7 +176,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def send_close(self):
         """Trigger the closure of the websocket indicating normal closing process."""
-        self._manual_disconect = True
+        self._manual_disconnect = True
 
         err_desc = ''
         err_code = WebSocketCloseStatus.NormalClosure
@@ -308,7 +308,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         self.delay = self.initial_delay
 
     def _reconnect_if_needed(self):
-        if self.proto and self.proto._manual_disconect:
+        if self.proto and self.proto._manual_disconnect:
             return
 
         self.delay = min(self.delay * self.factor, self.max_delay)
