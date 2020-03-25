@@ -10,7 +10,6 @@ from autobahn.websocket.util import create_url
 from twisted.internet import defer
 from twisted.internet import reactor
 from twisted.internet import threads
-from twisted.internet.error import ConnectionDone
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 

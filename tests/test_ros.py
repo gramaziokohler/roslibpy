@@ -12,15 +12,15 @@ def run_reconnect_does_not_trigger_on_client_close():
     ros = Ros('127.0.0.1', 9090)
     ros.run()
 
-    assert ros.is_connected == True, "ROS initially connected"
+    assert ros.is_connected, "ROS initially connected"
     time.sleep(0.5)
     event = threading.Event()
     ros.on('close', lambda m: event.set())
     ros.close()
     event.wait(5)
 
-    assert ros.is_connected == False, "Successful disconnect"
-    assert ros.is_connecting == False, "Not trying to re-connect"
+    assert not ros.is_connected, "Successful disconnect"
+    assert not ros.is_connecting, "Not trying to re-connect"
 
 
 def test_reconnect_does_not_trigger_on_client_close():
