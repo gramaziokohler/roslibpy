@@ -94,7 +94,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         LOGGER.debug('Lost connection. Reason: %s', reason)
         self.emit('close', self._proto)
 
-        if not self._proto or (self._proto and self._proto._manual_disconnect == False):
+        if not self._proto or (self._proto and not self._proto._manual_disconnect):
             ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
         self._proto = None
 

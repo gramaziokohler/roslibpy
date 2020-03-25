@@ -35,7 +35,6 @@ RECEIVE_CHUNK_SIZE = 1024
 SEND_CHUNK_SIZE = 1024
 
 
-
 def _unwrap_exception(task):
     exception = task.Exception
     if exception.InnerException:
@@ -101,7 +100,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                         # If not, we try to be good citizens and finalize the close handshake
                         return self.socket.CloseOutputAsync(result.CloseStatus,
                             result.CloseStatusDescription, CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
-                    except:
+                    except:  # noqa: E722
                         # But it could also fail (eg. the socket was just disposed) we just warn and return then
                         LOGGER.warn('Unable to send close output. Socket might be already disposed.')
                         return
@@ -188,7 +187,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
         return close_task
 
-
     def send_chunk_async(self, task, message_data):
         """Send a message chuck asynchronously."""
         try:
@@ -264,7 +262,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
 
     # NOTE: The following factor was taken from Twisted's reconnecting factory:
     # https://github.com/twisted/twisted/blob/6ac66416c0238f403a8dc1d42924fb3ba2a2a686/src/twisted/internet/protocol.py#L369
-    factor = 2.7182818284590451 # (math.e)
+    factor = 2.7182818284590451  # (math.e)
 
     def __init__(self, url, *args, **kwargs):
         super(CliRosBridgeClientFactory, self).__init__(*args, **kwargs)
