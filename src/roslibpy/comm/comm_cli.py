@@ -12,6 +12,7 @@ from System import Uri
 from System import UriBuilder
 from System.Net.WebSockets import ClientWebSocket
 from System.Net.WebSockets import WebSocketCloseStatus
+from System.Net.WebSockets import WebSocketError
 from System.Net.WebSockets import WebSocketMessageType
 from System.Net.WebSockets import WebSocketReceiveResult
 from System.Net.WebSockets import WebSocketState
@@ -34,6 +35,18 @@ RECEIVE_CHUNK_SIZE = 1024
 SEND_CHUNK_SIZE = 1024
 
 
+
+def _unwrap_exception(task):
+    exception = task.Exception
+    if exception.InnerException:
+        exception = exception.InnerException
+
+    if hasattr(exception, 'WebSocketErrorCode'):
+        return (exception.WebSocketErrorCode, exception.Message)
+
+    return (None, exception.Message)
+
+
 class CliRosBridgeProtocol(RosBridgeProtocol):
     """Implements the ROS Bridge protocol on top of CLI WebSockets.
 
@@ -54,21 +67,44 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         """Triggered when the socket connection has been established.
 
         This will kick-start the listening thread."""
-        LOGGER.info('Connection to ROS MASTER ready.')
+        if task.IsFaulted:
+            err_code, err_desc = _unwrap_exception(task)
+            self.factory.client_connection_failed(self, err_code, err_desc)
+            return
 
+        LOGGER.info('Connection to ROS MASTER ready.')
+        self._manual_disconnect = False
         self.factory.ready(self)
         self.factory.manager.call_in_thread(self.start_listening)
 
-    def receive_chunk_async(self, task_result, context):
+    def receive_chunk_async(self, task, context):
         """Handle the reception of a message chuck asynchronously."""
         try:
-            if task_result:
-                result = task_result.Result
+            if task:
+
+                if task.IsFaulted:
+                    err_code, err_desc = _unwrap_exception(task)
+                    self.factory.client_connection_lost(self, err_code, err_desc)
+                    return
+
+                result = task.Result
 
                 if result.MessageType == WebSocketMessageType.Close:
                     LOGGER.info('WebSocket connection closed: [Code=%s] Description=%s',
                                 result.CloseStatus, result.CloseStatusDescription)
-                    return self.send_close()
+
+                    try:
+                        # Socket might be already disposed or nullified
+                        if not self.socket:
+                            return
+
+                        # If not, we try to be good citizens and finalize the close handshake
+                        return self.socket.CloseOutputAsync(result.CloseStatus,
+                            result.CloseStatusDescription, CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+                    except:
+                        # But it could also fail (eg. the socket was just disposed) we just warn and return then
+                        LOGGER.warn('Unable to send close output. Socket might be already disposed.')
+                        return
                 else:
                     chunk = Encoding.UTF8.GetString(context['buffer'], 0, result.Count)
                     context['content'].append(chunk)
@@ -81,23 +117,22 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
                         # And signal the manual reset event
                         context['mre'].Set()
-                        return task_result
+                        return task
 
             # NOTE: We will enter the lock (Semaphore) at the start of receive
             # to make sure we're accessing the socket read/writes at most from
             # two threads, one for receiving and one for sending
-            if not task_result:
+            if not task:
                 self.semaphore.Wait(self.factory.manager.cancellation_token)
 
             receive_task = self.socket.ReceiveAsync(ArraySegment[Byte](
                 context['buffer']), self.factory.manager.cancellation_token)
             receive_task.ContinueWith.Overloads[Action[Task[WebSocketReceiveResult], object], object](
                 self.receive_chunk_async, context)
-
         except Exception:
             error_message = 'Exception on receive_chunk_async, processing will be aborted'
-            if task_result:
-                error_message += '; Task status: {}, Inner exception: {}'.format(task_result.Status, task_result.Exception)
+            if task:
+                error_message += '; Task status: {}, Inner exception: {}'.format(task.Status, task.Exception)
             LOGGER.exception(error_message)
             raise
 
@@ -122,7 +157,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 try:
                     mre.Wait(self.factory.manager.cancellation_token)
                 except SystemError:
-                    LOGGER.debug('Cancelation detected on listening thread, exiting...')
+                    LOGGER.debug('Cancellation detected on listening thread, exiting...')
                     break
 
                 try:
@@ -141,19 +176,23 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def send_close(self):
         """Trigger the closure of the websocket indicating normal closing process."""
+        self._manual_disconnect = True
 
-        if self.socket:
-            close_task = self.socket.CloseAsync(
-                WebSocketCloseStatus.NormalClosure, '', CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
-            self.factory.emit('close', self)
-            # NOTE: Make sure reconnects are possible.
-            # Reconnection needs to be handled on a higher layer.
-            return close_task
+        err_desc = ''
+        err_code = WebSocketCloseStatus.NormalClosure
 
-    def send_chunk_async(self, task_result, message_data):
+        close_task = self.socket.CloseAsync(err_code,
+            err_desc, CancellationToken.None) if self.socket else None  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+
+        self.factory.client_connection_lost(self, err_code, err_desc)
+
+        return close_task
+
+
+    def send_chunk_async(self, task, message_data):
         """Send a message chuck asynchronously."""
         try:
-            if not task_result:
+            if not task:
                 self.semaphore.Wait(self.factory.manager.cancellation_token)
 
             message_buffer, message_length, chunks_count, i = message_data
@@ -207,8 +246,6 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
-        self.factory.manager.terminate()
-
         if self.socket:
             self.socket.Dispose()
             self.socket = None
@@ -222,11 +259,19 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 class CliRosBridgeClientFactory(EventEmitterMixin):
     """Factory to create instances of the ROS Bridge protocol built on top of .NET WebSockets."""
 
+    max_delay = 3600.0
+    initial_delay = 1.0
+
+    # NOTE: The following factor was taken from Twisted's reconnecting factory:
+    # https://github.com/twisted/twisted/blob/6ac66416c0238f403a8dc1d42924fb3ba2a2a686/src/twisted/internet/protocol.py#L369
+    factor = 2.7182818284590451 # (math.e)
+
     def __init__(self, url, *args, **kwargs):
         super(CliRosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._manager = CliEventLoopManager()
         self.proto = None
         self.url = url
+        self.delay = self.initial_delay
 
     @property
     def is_connected(self):
@@ -235,7 +280,10 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         Returns:
             bool: True if WebSocket is connected, False otherwise.
         """
-        return self.proto and self.proto.socket and self.proto.socket.State == WebSocketState.Open
+        if self.proto and self.proto.socket:
+            return self.proto.socket.State == WebSocketState.Open
+
+        return False
 
     def connect(self):
         """Establish WebSocket connection to the ROS server defined for this factory.
@@ -245,7 +293,6 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         """
         LOGGER.debug('Started to connect...')
         socket = ClientWebSocket()
-        socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(5)
         connect_task = socket.ConnectAsync(
             self.url, self.manager.cancellation_token)
 
@@ -254,8 +301,41 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
 
         return connect_task
 
+    def reset_delay(self):
+        """
+        Call this method after a successful connection to reset the delay.
+        """
+        self.delay = self.initial_delay
+
+    def _reconnect_if_needed(self):
+        if self.proto and self.proto._manual_disconnect:
+            return
+
+        self.delay = min(self.delay * self.factor, self.max_delay)
+        LOGGER.info('Connection manager will retry in {} seconds'.format(int(self.delay)))
+
+        self.manager.call_later(self.delay, self.connect)
+
+    def client_connection_lost(self, connector, reason_code, reason_description):
+        LOGGER.debug('Lost connection. Code: %s, Reason: %s', reason_code, reason_description)
+        self.emit('close', self.proto)
+        self._reconnect_if_needed()
+
+        if self.proto:
+            self.proto.dispose()
+            self.proto = None
+
+    def client_connection_failed(self, connector, reason_code, reason_description):
+        LOGGER.debug('Connection failed. Reason: %s', reason_description)
+        self._reconnect_if_needed()
+
+        if self.proto:
+            self.proto.dispose()
+            self.proto = None
+
     def ready(self, proto):
         self.proto = proto
+        self.reset_delay()
         self.emit('ready', proto)
 
     def on_ready(self, callback):

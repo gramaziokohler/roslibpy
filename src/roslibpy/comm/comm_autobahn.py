@@ -10,7 +10,6 @@ from autobahn.websocket.util import create_url
 from twisted.internet import defer
 from twisted.internet import reactor
 from twisted.internet import threads
-from twisted.internet.error import ConnectionDone
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 
@@ -29,6 +28,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
 
     def onOpen(self):
         LOGGER.info('Connection to ROS MASTER ready.')
+        self._manual_disconnect = False
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
@@ -48,6 +48,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         return self.sendMessage(payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False)
 
     def send_close(self):
+        self._manual_disconnect = True
         self.sendClose()
 
 
@@ -82,6 +83,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
             self.once('ready', callback)
 
     def ready(self, proto):
+        self.resetDelay()
         self._proto = proto
         self.emit('ready', proto)
 
@@ -92,10 +94,8 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         LOGGER.debug('Lost connection. Reason: %s', reason)
         self.emit('close', self._proto)
 
-        # Do not try to reconnect if the connection was closed cleanl
-        if reason.type is not ConnectionDone:
+        if not self._proto or (self._proto and self._proto._manual_disconnect == False):
             ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
-
         self._proto = None
 
     def clientConnectionFailed(self, connector, reason):
