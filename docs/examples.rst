@@ -68,6 +68,28 @@ using ``run_forever()`` and ``on_ready``:
     starts the event processing in a separate thread, while the latter
     blocks the calling thread.
 
+Disconnecting
+-------------
+
+Once your task is done, you should disconnect cleanly from ``rosbridge``. There are two related methods available for this:
+
+ - :meth:`roslibpy.Ros.close`: Disconnect the websocket connection. Once the connection is closed,
+   it is still possible to reconnect by calling :meth:`roslibpy.Ros.connect`: again.
+ - :meth:`roslibpy.Ros.terminate`: Terminate the main event loop. If the connection is still open,
+   it will first close it.
+
+.. note::
+
+  Terminating the event loop is an irreversible action when using the ``twisted/authbahn`` loop because ``twisted``
+  reactors cannot be restarted. This operation should be reserved to be executed at the very end of your program.
+
+Reconnecting
+------------
+
+If ``rosbridge`` is not responsive when the connection is started or if an established connection drops uncleanly, ``roslibpy``
+will try to reconnect automatically, and re-subscribe/re-adversise topics using the connection. Reconnect will be retried
+with an exponential back-off.
+
 Hello World: Topics
 -------------------
 
@@ -281,3 +303,16 @@ Params
 * :meth:`roslibpy.Ros.get_param`
 * :meth:`roslibpy.Ros.set_param`
 * :meth:`roslibpy.Ros.delete_param`
+
+Advanced examples
+-----------------
+
+The following list is a compilation of more elaborate examples of the usage of ``roslibpy``.
+
+We encourage everyone to submit suggestions for new examples, either send a pull request or request it via the issue tracker.
+
+.. toctree::
+    :maxdepth: 2
+    :glob:
+
+    examples/*
