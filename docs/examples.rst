@@ -87,7 +87,7 @@ Reconnecting
 ------------
 
 If ``rosbridge`` is not responsive when the connection is started or if an established connection drops uncleanly, ``roslibpy``
-will try to reconnect automatically, and re-subscribe/re-adversise topics using the connection. Reconnect will be retried
+will try to reconnect automatically, and reconnect subscriber and publisher topics as well. Reconnect will be retried
 with an exponential back-off.
 
 Hello World: Topics
