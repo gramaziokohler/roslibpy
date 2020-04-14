@@ -259,6 +259,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
 
     max_delay = 3600.0
     initial_delay = 1.0
+    max_retries = None
 
     # NOTE: The following factor was taken from Twisted's reconnecting factory:
     # https://github.com/twisted/twisted/blob/6ac66416c0238f403a8dc1d42924fb3ba2a2a686/src/twisted/internet/protocol.py#L369
@@ -270,6 +271,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         self.proto = None
         self.url = url
         self.delay = self.initial_delay
+        self.retries = 0
 
     @property
     def is_connected(self):
@@ -309,6 +311,11 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         if self.proto and self.proto._manual_disconnect:
             return
 
+        if self.max_retries is not None and (self.retries >= self.max_retries):
+            LOGGER.info('Abandonning after {} retries'.format(self.retries))
+            return
+
+        self.retries += 1
         self.delay = min(self.delay * self.factor, self.max_delay)
         LOGGER.info('Connection manager will retry in {} seconds'.format(int(self.delay)))
 
@@ -375,6 +382,16 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         """
         LOGGER.debug('Updating initial delay to {} seconds'.format(max_delay))
         cls.initial_delay = initial_delay
+
+    @classmethod
+    def set_max_retries(cls, max_retries):
+        """Set the maximum number or connection retries when the rosbridge connection is lost (no limit by default).
+
+        Args:
+            max_retries: The new maximum number of retries.
+        """
+        LOGGER.debug('Updating max retries to {}'.format(max_retries))
+        cls.max_retries = max_retries
 
 
 class CliEventLoopManager(object):

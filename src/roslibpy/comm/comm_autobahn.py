@@ -139,6 +139,17 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
         cls.initialDelay = initial_delay
 
+    @classmethod
+    def set_max_retries(cls, max_retries):
+        """Set the maximum number or connection retries when the rosbridge connection is lost (no limit by default).
+
+        Args:
+            max_retries: The new maximum number of retries.
+        """
+        LOGGER.debug('Updating max retries to {}'.format(max_retries))
+        # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
+        cls.maxRetries = max_retries
+
 
 class TwistedEventLoopManager(object):
     """Manage the main event loop using Twisted reactor.
