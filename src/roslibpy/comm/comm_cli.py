@@ -356,6 +356,26 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
             builder = UriBuilder(scheme, host, port)
             return builder.Uri
 
+    @classmethod
+    def set_max_delay(cls, max_delay):
+        """Set the maximum delay in seconds for reconnecting to rosbridge (3600 seconds by default).
+
+        Args:
+            max_delay: The new maximum delay, in seconds.
+        """
+        LOGGER.debug('Updating max delay to {} seconds'.format(max_delay))
+        cls.max_delay = max_delay
+
+    @classmethod
+    def set_initial_delay(cls, initial_delay):
+        """Set the initial delay in seconds for reconnecting to rosbridge (1 second by default).
+
+        Args:
+            initial_delay: The new initial delay, in seconds.
+        """
+        LOGGER.debug('Updating initial delay to {} seconds'.format(max_delay))
+        cls.initial_delay = initial_delay
+
 
 class CliEventLoopManager(object):
     """Manage the main event loop using .NET threads.

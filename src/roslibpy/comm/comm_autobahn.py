@@ -117,6 +117,28 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         url = host if port is None else create_url(host, port, is_secure)
         return url
 
+    @classmethod
+    def set_max_delay(cls, max_delay):
+        """Set the maximum delay in seconds for reconnecting to rosbridge (3600 seconds by default).
+
+        Args:
+            max_delay: The new maximum delay, in seconds.
+        """
+        LOGGER.debug('Updating max delay to {} seconds'.format(max_delay))
+        # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
+        cls.maxDelay = max_delay
+
+    @classmethod
+    def set_initial_delay(cls, initial_delay):
+        """Set the initial delay in seconds for reconnecting to rosbridge (1 second by default).
+
+        Args:
+            initial_delay: The new initial delay, in seconds.
+        """
+        LOGGER.debug('Updating initial delay to {} seconds'.format(initial_delay))
+        # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
+        cls.initialDelay = initial_delay
+
 
 class TwistedEventLoopManager(object):
     """Manage the main event loop using Twisted reactor.
