@@ -69,6 +69,7 @@ class Ros(object):
         """Disconnect from ROS master."""
         if self.is_connected:
             def _wrapper_callback(proto):
+                self.emit('closing')
                 proto.send_close()
                 return proto
 

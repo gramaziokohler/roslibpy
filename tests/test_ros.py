@@ -37,3 +37,24 @@ def test_url_connection():
     ros.run()
     assert ros.is_connected
     ros.close()
+
+
+def test_closing_event():
+    ros = Ros(url)
+    ros.run()
+    ctx = dict(closing_event_called=False, was_still_connected=False)
+
+    def handle_closing():
+        ctx['closing_event_called'] = True
+        ctx['was_still_connected'] = ros.is_connected
+        time.sleep(1.5)
+
+    ts_start = time.time()
+    ros.on('closing', handle_closing)
+    ros.close()
+    ts_end = time.time()
+    closing_was_handled_synchronously_before_close = ts_end - ts_start >= 1.5
+
+    assert ctx['closing_event_called']
+    assert ctx['was_still_connected']
+    assert closing_was_handled_synchronously_before_close

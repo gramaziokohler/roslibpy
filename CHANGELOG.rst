@@ -13,6 +13,7 @@ Unreleased
 **Added**
 
 * Added ``set_initial_delay``, ``set_max_delay`` and ``set_max_retries``  to ``RosBridgeClientFactory`` to control reconnection parameters.
+* Added ``closing`` event to ``Ros`` class that gets triggered right before closing the connection.
 
 1.0.0
 ----------
