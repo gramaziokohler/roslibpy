@@ -3,13 +3,15 @@ from __future__ import print_function
 import threading
 import time
 
-import helpers
-
 from roslibpy import Ros
 
+host = '127.0.0.1'
+port = 9090
+url = u'ws://%s:%d' % (host, port)
 
-def run_reconnect_does_not_trigger_on_client_close():
-    ros = Ros('127.0.0.1', 9090)
+
+def test_reconnect_does_not_trigger_on_client_close():
+    ros = Ros(host, port)
     ros.run()
 
     assert ros.is_connected, "ROS initially connected"
@@ -23,14 +25,36 @@ def run_reconnect_does_not_trigger_on_client_close():
     assert not ros.is_connecting, "Not trying to re-connect"
 
 
-def test_reconnect_does_not_trigger_on_client_close():
-    helpers.run_as_process(run_reconnect_does_not_trigger_on_client_close)
+def test_connection():
+    ros = Ros(host, port)
+    ros.run()
+    assert ros.is_connected
+    ros.close()
 
 
-if __name__ == '__main__':
-    import logging
+def test_url_connection():
+    ros = Ros(url)
+    ros.run()
+    assert ros.is_connected
+    ros.close()
 
-    logging.basicConfig(level=logging.INFO, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
-    LOGGER = logging.getLogger('test')
 
-    run_reconnect_does_not_trigger_on_client_close()
+def test_closing_event():
+    ros = Ros(url)
+    ros.run()
+    ctx = dict(closing_event_called=False, was_still_connected=False)
+
+    def handle_closing():
+        ctx['closing_event_called'] = True
+        ctx['was_still_connected'] = ros.is_connected
+        time.sleep(1.5)
+
+    ts_start = time.time()
+    ros.on('closing', handle_closing)
+    ros.close()
+    ts_end = time.time()
+    closing_was_handled_synchronously_before_close = ts_end - ts_start >= 1.5
+
+    assert ctx['closing_event_called']
+    assert ctx['was_still_connected']
+    assert closing_was_handled_synchronously_before_close

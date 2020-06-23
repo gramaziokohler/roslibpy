@@ -101,10 +101,14 @@ def main():
     parser = argparse.ArgumentParser(description='roslibpy command-line utility')
 
     commands = parser.add_subparsers(help='commands')
+    commands.dest = 'command'
+    commands.required = True
 
     # Command: topic
     topic_command = commands.add_parser('topic', help='ROS Topics')
     topic_subcommands = topic_command.add_subparsers(help='ROS topic commands')
+    topic_subcommands.dest = 'subcommand'
+    topic_subcommands.required = True
 
     topic_list_parser = topic_subcommands.add_parser('list', help='List available ROS topics')
     topic_list_parser.set_defaults(func=rostopic_list)
@@ -120,6 +124,8 @@ def main():
     # Command: msg
     msg_command = commands.add_parser('msg', help='ROS Message type information')
     msg_subcommands = msg_command.add_subparsers(help='ROS Message type commands')
+    msg_subcommands.dest = 'subcommand'
+    msg_subcommands.required = True
 
     msg_info_parser = msg_subcommands.add_parser('info', help='ROS message type information')
     msg_info_parser.add_argument('type', action='store', type=str, help='Message type')
@@ -128,6 +134,8 @@ def main():
     # Command: service
     service_command = commands.add_parser('service', help='ROS Services')
     service_subcommands = service_command.add_subparsers(help='ROS service commands')
+    service_subcommands.dest = 'subcommand'
+    service_subcommands.required = True
 
     service_list_parser = service_subcommands.add_parser('list', help='List available ROS services')
     service_list_parser.set_defaults(func=rosservice_list)
@@ -147,6 +155,8 @@ def main():
     # Command: srv
     srv_command = commands.add_parser('srv', help='ROS Service type information')
     srv_subcommands = srv_command.add_subparsers(help='ROS service type commands')
+    srv_subcommands.dest = 'subcommand'
+    srv_subcommands.required = True
 
     srv_info_parser = srv_subcommands.add_parser('info', help='ROS service type information')
     srv_info_parser.add_argument('type', action='store', type=str, help='Service type')
@@ -155,6 +165,8 @@ def main():
     # Command: param
     param_command = commands.add_parser('param', help='ROS Params')
     param_subcommands = param_command.add_subparsers(help='ROS parameter commands')
+    param_subcommands.dest = 'subcommand'
+    param_subcommands.required = True
 
     param_list_parser = param_subcommands.add_parser('list', help='List available ROS parameters')
     param_list_parser.set_defaults(func=rosparam_list)
@@ -173,11 +185,11 @@ def main():
     param_delete_parser.set_defaults(func=rosparam_delete)
 
     # Invoke
+    args = parser.parse_args()
     ros = roslibpy.Ros('localhost', 9090)
+
     try:
         ros.run()
-
-        args = parser.parse_args()
         args.func(ros, **vars(args))
     finally:
         ros.terminate()

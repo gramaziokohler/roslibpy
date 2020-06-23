@@ -1,35 +1,26 @@
-import helpers
+import threading
 
 from roslibpy import Ros
 from roslibpy.tf import TFClient
 
 
-def run_tf_test():
-    context = {'counter': 0}
-    ros_client = Ros('127.0.0.1', 9090)
-    tf_client = TFClient(ros_client, fixed_frame='world')
+def test_tf_test():
+    context = dict(wait=threading.Event(), counter=0)
+    ros = Ros('127.0.0.1', 9090)
+    ros.run()
+
+    tf_client = TFClient(ros, fixed_frame='world')
 
     def callback(message):
-        assert message['translation'] == dict(x=0.0, y=0.0, z=0.0), 'Unexpected translation received'
-        assert message['rotation'] == dict(x=0.0, y=0.0, z=0.0, w=1.0), 'Unexpected rotation received'
+        context['message'] = message
         context['counter'] += 1
-        ros_client.terminate()
+        context['wait'].set()
 
     tf_client.subscribe(frame_id='/world', callback=callback)
+    if not context['wait'].wait(5):
+        raise Exception
 
-    ros_client.call_later(2, ros_client.terminate)
-    ros_client.run_forever()
     assert context['counter'] > 0
-
-
-def test_tf_test():
-    helpers.run_as_process(run_tf_test)
-
-
-if __name__ == '__main__':
-    import logging
-
-    logging.basicConfig(
-        level=logging.INFO, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
-
-    run_tf_test()
+    assert context['message']['translation'] == dict(x=0.0, y=0.0, z=0.0), 'Unexpected translation received'
+    assert context['message']['rotation'] == dict(x=0.0, y=0.0, z=0.0, w=1.0), 'Unexpected rotation received'
+    ros.close()

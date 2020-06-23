@@ -170,7 +170,6 @@ class TwistedEventLoopManager(object):
         on a separate thread to avoid blocking."""
 
         if reactor.running:
-            LOGGER.warn('Twisted reactor is already running')
             return
 
         self._thread = threading.Thread(target=reactor.run, args=(False,))

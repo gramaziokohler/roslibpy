@@ -17,7 +17,13 @@ ROSAPI_TIMEOUT = 3
 
 
 class Ros(object):
-    """Connection manager to ROS server."""
+    """Connection manager to ROS server.
+
+    Args:
+        host (:obj:`str`): Name or IP address of the ROS bridge host, e.g. ``127.0.0.1``.
+        port (:obj:`int`): ROS bridge port, e.g. ``9090``.
+        is_secure (:obj:`bool`): ``True`` to use a secure web sockets connection, otherwise ``False``.
+    """
 
     def __init__(self, host, port=None, is_secure=False):
         self._id_counter = 0
@@ -63,6 +69,7 @@ class Ros(object):
         """Disconnect from ROS master."""
         if self.is_connected:
             def _wrapper_callback(proto):
+                self.emit('closing')
                 proto.send_close()
                 return proto
 
