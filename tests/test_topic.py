@@ -1,19 +1,21 @@
 from __future__ import print_function
 
+import threading
 import time
-
-import helpers
 
 from roslibpy import Message
 from roslibpy import Ros
 from roslibpy import Topic
 
 
-def run_topic_pubsub():
-    context = {'counter': 0}
-    ros_client = Ros('127.0.0.1', 9090)
-    listener = Topic(ros_client, '/chatter', 'std_msgs/String')
-    publisher = Topic(ros_client, '/chatter', 'std_msgs/String')
+def test_topic_pubsub():
+    context = dict(wait=threading.Event(), counter=0)
+
+    ros = Ros('127.0.0.1', 9090)
+    ros.run()
+
+    listener = Topic(ros, '/chatter', 'std_msgs/String')
+    publisher = Topic(ros, '/chatter', 'std_msgs/String')
 
     def receive_message(message):
         context['counter'] += 1
@@ -21,13 +23,11 @@ def run_topic_pubsub():
 
         if context['counter'] == 3:
             listener.unsubscribe()
-            # Give it a bit of time, just to make sure that unsubscribe
-            # really unsubscribed and counter stays at the asserted value
-            ros_client.call_later(2, ros_client.terminate)
+            context['wait'].set()
 
     def start_sending():
         while True:
-            if not ros_client.is_connected:
+            if context['counter'] >= 3:
                 break
             publisher.publish(Message({'data': 'hello world'}))
             time.sleep(0.1)
@@ -36,21 +36,17 @@ def run_topic_pubsub():
     def start_receiving():
         listener.subscribe(receive_message)
 
-    ros_client.on_ready(start_receiving, run_in_thread=True)
-    ros_client.on_ready(start_sending, run_in_thread=True)
-    ros_client.run_forever()
+    t1 = threading.Thread(target=start_receiving)
+    t2 = threading.Thread(target=start_sending)
+
+    t1.start()
+    t2.start()
+
+    if not context['wait'].wait(10):
+        raise Exception
+
+    t1.join()
+    t2.join()
 
     assert context['counter'] >= 3, 'Expected at least 3 messages but got ' + str(context['counter'])
-
-
-def test_topic_pubsub():
-    helpers.run_as_process(run_topic_pubsub)
-
-
-if __name__ == '__main__':
-    import logging
-
-    logging.basicConfig(level=logging.INFO, format='[%(thread)03d] %(asctime)-15s [%(levelname)s] %(message)s')
-    LOGGER = logging.getLogger('test')
-
-    run_topic_pubsub()
+    ros.close()
