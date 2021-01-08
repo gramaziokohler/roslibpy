@@ -50,6 +50,8 @@ model.
 
 .. autoclass:: Message
    :members:
+.. autoclass:: Header
+   :members:
 .. autoclass:: Topic
    :members:
 
@@ -76,6 +78,14 @@ can be accessed via the :class:`Param` class.
 .. autoclass:: Param
    :members:
 
+Time
+----
+
+To represent time, there is the concept of ROS time primitive type, which consists of two integers: seconds since epoch and nanoseconds since seconds.
+
+.. autoclass:: Time
+   :members:
+
 """
 
 from .__version__ import __author__
@@ -86,13 +96,15 @@ from .__version__ import __license__
 from .__version__ import __title__
 from .__version__ import __url__
 from .__version__ import __version__
+from .core import Header
 from .core import Message
 from .core import Param
 from .core import Service
 from .core import ServiceRequest
 from .core import ServiceResponse
+from .core import Time
 from .core import Topic
 from .ros import Ros
 
-__all__ = ['Ros', 'Message', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic', '__author__',
+__all__ = ['Ros', 'Message', 'Header', 'Time', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic', '__author__',
            '__author__', '__author_email__', '__copyright__', '__description__', '__license__', '__title__', '__url__', '__version__']

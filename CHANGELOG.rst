@@ -14,6 +14,8 @@ Unreleased
 
 **Added**
 
+* Added ``Header`` and ``Time`` data types.
+
 **Fixed**
 
 1.1.0
