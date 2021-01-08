@@ -3,8 +3,9 @@ from __future__ import print_function
 import json
 import logging
 
-from .. import Message
-from .. import ServiceResponse
+from roslibpy.core import Message
+from roslibpy.core import MessageEncoder
+from roslibpy.core import ServiceResponse
 
 LOGGER = logging.getLogger('roslibpy')
 
@@ -44,7 +45,7 @@ class RosBridgeProtocol(object):
             message (:class:`.Message`): ROS Bridge Message to send.
         """
         try:
-            json_message = json.dumps(dict(message)).encode('utf8')
+            json_message = json.dumps(dict(message), cls=MessageEncoder).encode('utf8')
             LOGGER.debug('Sending ROS message|<pre>%s</pre>', json_message)
 
             self.send_message(json_message)
@@ -77,7 +78,7 @@ class RosBridgeProtocol(object):
         request_id = message['id']
         self._pending_service_requests[request_id] = (callback, errback)
 
-        json_message = json.dumps(dict(message)).encode('utf8')
+        json_message = json.dumps(dict(message), cls=MessageEncoder).encode('utf8')
         LOGGER.debug('Sending ROS service request: %s', json_message)
 
         self.send_message(json_message)
