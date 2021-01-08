@@ -7,6 +7,7 @@ from . import Message
 from . import Param
 from . import Service
 from . import ServiceRequest
+from . import Time
 from .comm import RosBridgeClientFactory
 
 __all__ = ['Ros']
@@ -262,6 +263,26 @@ class Ros(object):
         })
 
         self.send_on_ready(level_message)
+
+    def get_time(self, callback=None, errback=None):
+        """Retrieve the current ROS time.
+
+        Note:
+            To make this a blocking call, pass ``None`` to the ``callback`` parameter .
+
+        Returns:
+            :class:`.Time`: An instance of ROS Time.
+        """
+        service = Service(self, '/rosapi/get_time', 'rosapi/GetTime')
+
+        result = service.call(ServiceRequest(), callback,
+                              errback, timeout=ROSAPI_TIMEOUT)
+
+        if callback:
+            return
+
+        assert 'time' in result
+        return Time(result['time']['secs'], result['time']['nsecs'])
 
     def get_topics(self, callback=None, errback=None):
         """Retrieve list of topics in ROS.

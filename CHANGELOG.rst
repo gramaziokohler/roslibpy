@@ -15,6 +15,7 @@ Unreleased
 **Added**
 
 * Added ``Header`` and ``Time`` data types.
+* Added ROS API method to retrieve current ROS time: ``ros.get_time``.
 
 **Fixed**
 
