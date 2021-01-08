@@ -99,7 +99,8 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
                         # If not, we try to be good citizens and finalize the close handshake
                         return self.socket.CloseOutputAsync(result.CloseStatus,
-                            result.CloseStatusDescription, CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+                                                            result.CloseStatusDescription,
+                                                            CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
                     except:  # noqa: E722
                         # But it could also fail (eg. the socket was just disposed) we just warn and return then
                         LOGGER.warn('Unable to send close output. Socket might be already disposed.')
@@ -180,8 +181,12 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         err_desc = ''
         err_code = WebSocketCloseStatus.NormalClosure
 
-        close_task = self.socket.CloseAsync(err_code,
-            err_desc, CancellationToken.None) if self.socket else None  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+        if self.socket:
+            close_task = self.socket.CloseAsync(err_code,
+                                                err_desc,
+                                                CancellationToken.None)  # noqa: E999 (disable flake8 error, which incorrectly parses None as the python keyword)
+        else:
+            close_task = None
 
         self.factory.client_connection_lost(self, err_code, err_desc)
 
