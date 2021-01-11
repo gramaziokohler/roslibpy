@@ -52,7 +52,7 @@ class TFClient(object):
 
         seconds = topic_timeout / 1000.
         secs = math.floor(seconds)
-        nsecs = math.floor((seconds - secs) * 1000000000)
+        nsecs = math.floor((seconds - secs) * int(1e9))
         self.topic_timeout = dict(secs=secs, nsecs=nsecs)
         self.repub_service_name = repub_service_name
 

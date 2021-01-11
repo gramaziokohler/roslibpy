@@ -65,17 +65,17 @@ class Time(UserDict):
         """Return time as nanoseconds from epoch."""
         stamp_secs = self.data['secs']
         stamp_nsecs = self.data['nsecs']
-        return stamp_secs * 1000000000 + stamp_nsecs
+        return stamp_secs * int(1e9) + stamp_nsecs
 
     def to_sec(self):
         """Return time as float seconds representation (same as ``time.time()``)."""
-        return float(self.data['secs']) + float(self.data['nsecs']) / 1000000000
+        return float(self.data['secs']) + float(self.data['nsecs']) / int(1e9)
 
     @staticmethod
     def from_sec(float_secs):
         """Create new Time instance from a float seconds representation (e.g. ``time.time()``)."""
         secs = int(float_secs)
-        nsecs = int((float_secs - secs) * 1000000000)
+        nsecs = int((float_secs - secs) * int(1e9))
         return Time(secs, nsecs)
 
     @staticmethod
