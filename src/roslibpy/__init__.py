@@ -81,7 +81,8 @@ can be accessed via the :class:`Param` class.
 Time
 ----
 
-To represent time, there is the concept of ROS time primitive type, which consists of two integers: seconds since epoch and nanoseconds since seconds.
+To represent time, there is the concept of ROS time primitive type, which consists of
+two integers: seconds since epoch and nanoseconds since seconds.
 
 .. autoclass:: Time
    :members:

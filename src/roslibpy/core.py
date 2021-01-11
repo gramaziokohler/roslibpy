@@ -105,6 +105,8 @@ class ServiceResponse(UserDict):
 class MessageEncoder(json.JSONEncoder):
     """Internal class to serialize some of the core data types into json."""
     def default(self, o):
+        if isinstance(o, Header):
+            return dict(o)
         if isinstance(o, Time):
             return dict(o)
 
