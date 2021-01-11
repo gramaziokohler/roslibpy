@@ -22,7 +22,7 @@ def test_to_sec():
 
 def test_is_zero():
     assert Time(0, 0).is_zero()
-    assert Time(1, 0).is_zero() == False
+    assert Time(1, 0).is_zero() is False
 
 
 def test_header_ctor_supports_time():
