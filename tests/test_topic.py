@@ -5,8 +5,8 @@ import time
 
 from roslibpy import Header
 from roslibpy import Message
-from roslibpy import Time
 from roslibpy import Ros
+from roslibpy import Time
 from roslibpy import Topic
 
 

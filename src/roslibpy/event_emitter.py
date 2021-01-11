@@ -32,7 +32,8 @@ It supports both synchronous callbacks and asyncio coroutines.
 """
 
 try:
-    from asyncio import iscoroutine, ensure_future
+    from asyncio import ensure_future
+    from asyncio import iscoroutine
 except ImportError:
     iscoroutine = None
     ensure_future = None
