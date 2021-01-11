@@ -12,9 +12,9 @@ roslibpy: ROS Bridge library
     :target: https://roslibpy-docs-zh.readthedocs.io
     :alt: Documentation: Chinese translation
 
-.. image:: https://travis-ci.com/gramaziokohler/roslibpy.svg?branch=master
-    :target: https://travis-ci.com/gramaziokohler/roslibpy
-    :alt: Travis-CI Build Status
+.. image:: https://github.com/gramaziokohler/roslibpy/workflows/build/badge.svg
+    :target: https://github.com/gramaziokohler/roslibpy/actions
+    :alt: Github Actions CI Build Status
 
 .. image:: https://img.shields.io/github/license/gramaziokohler/roslibpy.svg
     :target: https://pypi.python.org/pypi/roslibpy
