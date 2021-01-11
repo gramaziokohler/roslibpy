@@ -1,0 +1,53 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-cpython:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [
+          "ubuntu-py37",
+          "ubuntu-py36",
+        ]
+        include:
+          - name: "ubuntu-py37"
+            os: ubuntu-latest
+            python-version: 3.7
+          - name: "ubuntu-py36"
+            os: ubuntu-latest
+            python-version: 3.6
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install wheel
+      - name: Install
+        run: |
+          python -m pip install --no-cache-dir -r requirements-dev.txt
+      - name: Set up docker containers
+        run: |
+          docker build -t gramaziokohler/rosbridge ./docker
+          docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge /bin/bash -c "roslaunch /integration-tests.launch"
+          docker ps -a
+      - name: Run linter
+        run: |
+          invoke check
+      - name: Run tests
+        run: |
+          pytest
+      - name: Tear down docker containers
+        run: |
+          docker rm -f rosbridge

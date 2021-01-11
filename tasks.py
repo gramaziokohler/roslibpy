@@ -121,7 +121,7 @@ def check(ctx):
     ctx.run('flake8 src tests setup.py')
 
     log.write('Checking python imports...')
-    ctx.run('isort --check-only --diff --recursive src tests setup.py')
+    ctx.run('isort --check-only --diff src tests setup.py')
 
 
 @task(help={

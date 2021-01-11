@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import json
 import logging
+import time
 
 # Python 2/3 compatibility import list
 try:
@@ -30,6 +31,59 @@ class Message(UserDict):
             self.update(values)
 
 
+class Header(UserDict):
+    """Represents a message header of the ROS type std_msgs/Header."""
+    def __init__(self, seq=None, stamp=None, frame_id=None):
+        self.data = {}
+        self.data['seq'] = seq
+        self.data['stamp'] = Time(stamp['secs'], stamp['nsecs']) if stamp else None
+        self.data['frame_id'] = frame_id
+
+
+class Time(UserDict):
+    """Represents ROS time with two integers: seconds since epoch and nanoseconds since seconds."""
+    def __init__(self, secs, nsecs):
+        self.data = {}
+        self.data['secs'] = secs
+        self.data['nsecs'] = nsecs
+
+    @property
+    def secs(self):
+        """Seconds since epoch."""
+        return self.data['secs']
+
+    @property
+    def nsecs(self):
+        """Nanoseconds since seconds."""
+        return self.data['nsecs']
+
+    def is_zero(self):
+        """Return ``True`` if zero (secs and nsecs) otherwise ``False``."""
+        return self.data['secs'] == 0 and self.data['nsecs'] == 0
+
+    def to_nsec(self):
+        """Return time as nanoseconds from epoch."""
+        stamp_secs = self.data['secs']
+        stamp_nsecs = self.data['nsecs']
+        return stamp_secs * int(1e9) + stamp_nsecs
+
+    def to_sec(self):
+        """Return time as float seconds representation (same as ``time.time()``)."""
+        return float(self.data['secs']) + float(self.data['nsecs']) / int(1e9)
+
+    @staticmethod
+    def from_sec(float_secs):
+        """Create new Time instance from a float seconds representation (e.g. ``time.time()``)."""
+        secs = int(float_secs)
+        nsecs = int((float_secs - secs) * int(1e9))
+        return Time(secs, nsecs)
+
+    @staticmethod
+    def now():
+        """Create new Time instance from the current system time (not ROS time)."""
+        return Time.from_sec(time.time())
+
+
 class ServiceRequest(UserDict):
     """Request for a service call."""
 
@@ -46,6 +100,17 @@ class ServiceResponse(UserDict):
         self.data = {}
         if values is not None:
             self.update(values)
+
+
+class MessageEncoder(json.JSONEncoder):
+    """Internal class to serialize some of the core data types into json."""
+    def default(self, o):
+        if isinstance(o, Header):
+            return dict(o)
+        if isinstance(o, Time):
+            return dict(o)
+
+        return super(MessageEncoder, self).default(o)
 
 
 class Topic(object):
@@ -430,7 +495,6 @@ class Param(object):
 
 if __name__ == '__main__':
 
-    import time
     from . import Ros
 
     FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'

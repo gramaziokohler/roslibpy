@@ -12,9 +12,9 @@ roslibpy: ROS Bridge library
     :target: https://roslibpy-docs-zh.readthedocs.io
     :alt: Documentation: Chinese translation
 
-.. image:: https://travis-ci.com/gramaziokohler/roslibpy.svg?branch=master
-    :target: https://travis-ci.com/gramaziokohler/roslibpy
-    :alt: Travis-CI Build Status
+.. image:: https://github.com/gramaziokohler/roslibpy/workflows/build/badge.svg
+    :target: https://github.com/gramaziokohler/roslibpy/actions
+    :alt: Github Actions CI Build Status
 
 .. image:: https://img.shields.io/github/license/gramaziokohler/roslibpy.svg
     :target: https://pypi.python.org/pypi/roslibpy
@@ -56,7 +56,7 @@ Main features
 * Actionlib support for interfacing with preemptable tasks.
 * TF Client via the ``tf2_web_republisher``.
 
-**Roslibpy** runs on Python 2.7 and 3.x and IronPython 2.7.
+**Roslibpy** runs on Python 3.x and IronPython 2.7.
 
 
 Installation
