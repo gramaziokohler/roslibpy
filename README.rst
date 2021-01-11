@@ -56,7 +56,7 @@ Main features
 * Actionlib support for interfacing with preemptable tasks.
 * TF Client via the ``tf2_web_republisher``.
 
-**Roslibpy** runs on Python 2.7 and 3.x and IronPython 2.7.
+**Roslibpy** runs on Python 3.x and IronPython 2.7.
 
 
 Installation
