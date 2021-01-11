@@ -1,7 +1,6 @@
 # Installation:
 #
 #   $ ipy -X:Frames -m ensurepip
-#   $ ipy -X:Frames -m pip install --no-deps compas roslibpy
 #   $ ipy -X:Frames -m pip install ironpython-pytest
 #
 # Usage:
