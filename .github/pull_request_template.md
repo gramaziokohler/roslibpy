@@ -16,6 +16,5 @@ _Put an `x` in the boxes that apply. You can also fill these out after creating 
 - [ ] I added a line to the `CHANGELOG.rst` file in the `Unreleased` section under the most fitting heading (e.g. `Added`, `Changed`, `Removed`).
 - [ ] I ran all tests on my computer and it's all green (i.e. `invoke test`).
 - [ ] I ran lint on my computer and there are no errors (i.e. `invoke lint`).
-- [ ] I added new functions/classes and made them available on a second-level import, e.g. `compas_fab.robots.Configuration`.
 - [ ] I have added tests that prove my fix is effective or that my feature works.
 - [ ] I have added necessary documentation (if appropriate)
