@@ -297,13 +297,14 @@ class Service(object):
         service_type (:obj:`str`): Service type, e.g. ``rospy_tutorials/AddTwoInts``.
     """
 
-    def __init__(self, ros, name, service_type):
+    def __init__(self, ros, name, service_type, reconnect_on_close=True):
         self.ros = ros
         self.name = name
         self.service_type = service_type
 
         self._service_callback = None
         self._is_advertised = False
+        self.reconnect_on_close = reconnect_on_close
 
     @property
     def is_advertised(self):
@@ -379,17 +380,39 @@ class Service(object):
 
         self._service_callback = callback
         self.ros.on(self.name, self._service_response_handler)
-        self.ros.send_on_ready(Message({
+        self._connect_service(Message({
             'op': 'advertise_service',
             'type': self.service_type,
             'service': self.name
         }))
         self._is_advertised = True
+        if not self.reconnect_on_close:
+            self.ros.on('close', self._reset_advertise_id)
+
+    def _reset_advertise_id(self, _proto):
+        self._is_advertised = False
+
+    def _connect_service(self, message):
+        self._connect_message = message
+        self.ros.send_on_ready(message)
+
+        if self.reconnect_on_close:
+            self.ros.on('close', self._reconnect_service)
+
+    def _reconnect_service(self, _proto):
+        # Delay a bit the event hookup because
+        #  1) _proto is not yet nullified, and
+        #  2) reconnect anyway takes a few seconds
+        self.ros.call_later(1, lambda: self.ros.send_on_ready(self._connect_message))
 
     def unadvertise(self):
         """Unregister as a service server."""
         if not self.is_advertised:
             return
+
+        # Do not try to reconnect when manually unadvertising
+        if self.reconnect_on_close:
+            self.ros.off('close', self._reconnect_service)
 
         self.ros.send_on_ready(Message({
             'op': 'unadvertise_service',
