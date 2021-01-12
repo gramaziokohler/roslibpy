@@ -304,6 +304,11 @@ Params
 * :meth:`roslibpy.Ros.set_param`
 * :meth:`roslibpy.Ros.delete_param`
 
+Time
+""""
+
+* :meth:`roslibpy.Ros.get_time`
+
 Advanced examples
 -----------------
 
