@@ -12,6 +12,8 @@ Unreleased
 
 **Changed**
 
+* Changed behavior: Advertising services automatically reconnect when websockets is reconnected
+
 **Added**
 
 * Added ``Header`` and ``Time`` data types.
