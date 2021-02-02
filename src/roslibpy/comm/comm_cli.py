@@ -71,7 +71,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             self.factory.client_connection_failed(self, err_code, err_desc)
             return
 
-        LOGGER.info('Connection to ROS MASTER ready.')
+        LOGGER.info('Connection to roscore ready.')
         self._manual_disconnect = False
         self.factory.ready(self)
         self.factory.manager.call_in_thread(self.start_listening)

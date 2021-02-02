@@ -27,7 +27,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         LOGGER.debug('Server connected: %s', response.peer)
 
     def onOpen(self):
-        LOGGER.info('Connection to ROS MASTER ready.')
+        LOGGER.info('Connection to roscore ready.')
         self._manual_disconnect = False
         self.factory.ready(self)
 
