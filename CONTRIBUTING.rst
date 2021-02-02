@@ -16,22 +16,34 @@ We love pull requests from everyone! Here's a quick guide to improve the code:
 
     pip install -r requirements-dev.txt
 
-4. Make sure all tests pass:
+4.  Run the docker container:
+
+::
+
+    docker run -d -p 9090:9090 --name roslibpy_integration_tests gramaziokohler/integration-tests-bridge /bin/bash -c "roslaunch /integration-tests.launch"
+
+5. Make sure all tests pass:
 
 ::
 
     invoke test
 
-5. Start making your changes to the **main** branch (or branch off of it).
-6. Make sure all tests still pass:
+6. Start making your changes to the **main** branch (or branch off of it).
+7. Make sure all tests still pass:
 
 ::
 
     invoke test
 
-7. Add yourself to ``AUTHORS.rst``.
-8. Commit your changes and push your branch to GitHub.
-9. Create a `pull request <https://help.github.com/articles/about-pull-requests/>`_ through the GitHub website.
+8. Stop your docker container:
+
+::
+
+    docker stop roslibpy_integration_tests
+
+9. Add yourself to ``AUTHORS.rst``.
+10. Commit your changes and push your branch to GitHub.
+11. Create a `pull request <https://help.github.com/articles/about-pull-requests/>`_ through the GitHub website.
 
 
 During development, use `pyinvoke <http://docs.pyinvoke.org/>`_ tasks on the
