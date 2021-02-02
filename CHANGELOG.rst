@@ -12,7 +12,8 @@ Unreleased
 
 **Changed**
 
-* Changed behavior: Advertising services automatically reconnect when websockets is reconnected
+* Changed behavior: Advertising services automatically reconnect when websockets is reconnected.
+* References to ROS master change to ROS.
 
 **Added**
 

@@ -28,7 +28,8 @@ We love pull requests from everyone! Here's a quick guide to improve the code:
 
     invoke test
 
-6. Start making your changes to the **master** branch (or branch off of it).
+
+6. Start making your changes to the **main** branch (or branch off of it).
 7. Make sure all tests still pass:
 
 ::

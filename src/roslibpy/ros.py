@@ -53,7 +53,7 @@ class Ros(object):
         return self.factory.is_connected
 
     def connect(self):
-        """Connect to ROS master."""
+        """Connect to ROS."""
         # Don't try to reconnect if already connected.
         if self.is_connected or self.is_connecting:
             return
@@ -67,7 +67,7 @@ class Ros(object):
         self.factory.connect()
 
     def close(self):
-        """Disconnect from ROS master."""
+        """Disconnect from ROS."""
         if self.is_connected:
             def _wrapper_callback(proto):
                 self.emit('closing')
@@ -175,7 +175,7 @@ class Ros(object):
         self.factory.on_ready(_wrapper_callback)
 
     def send_on_ready(self, message):
-        """Send message to the ROS Master once the connection is established.
+        """Send message to ROS once the connection is established.
 
         If a connection to ROS is already available, the message is sent immediately.
 
@@ -224,7 +224,7 @@ class Ros(object):
         return get_call_results
 
     def call_sync_service(self, message, timeout):
-        """Send a blocking service request to the ROS Master once the connection is established,
+        """Send a blocking service request to ROS once the connection is established,
         waiting for the result to be return.
 
         If a connection to ROS is already available, the request is sent immediately.
@@ -240,7 +240,7 @@ class Ros(object):
         return self.blocking_call_from_thread(get_call_results, timeout)
 
     def call_async_service(self, message, callback, errback):
-        """Send a service request to the ROS Master once the connection is established.
+        """Send a service request to ROS once the connection is established.
 
         If a connection to ROS is already available, the request is sent immediately.
 
