@@ -7,7 +7,7 @@ you have ROS and `rosbridge` running (see :ref:`ros-setup`).
 
 These examples assume ROS is running on the same computer where you run the examples.
 If that is not the case, change the ``host`` argument from ``'localhost'``
-to the *IP Address* of your roscore node.
+to the *IP Address* of your ROS instance.
 
 First connection
 ----------------
@@ -139,7 +139,7 @@ Now open a second command prompt and start the listener:
 .. note::
 
     It is not relevant where the files are located. They can be in different
-    folders or even in different computers as long as the roscore node is the same.
+    folders or even in different computers as long as the ROS instance is the same.
 
 
 Using services
