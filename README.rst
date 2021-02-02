@@ -107,6 +107,15 @@ command prompt to ease recurring operations:
 
 For more details, check the *Contributor's Guide* available as part of `the documentation <https://roslibpy.readthedocs.io/>`_.
 
+The default branch was recently renamed to `main`. If you've already cloned this repository,
+you'll need to update your local repository structure with the following lines:
+
+::
+
+    git branch -m master main
+    git fetch origin
+    git branch -u origin/main main
+
 
 Releasing this project
 ----------------------
