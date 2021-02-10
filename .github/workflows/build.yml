@@ -53,28 +53,3 @@ jobs:
       - name: Tear down docker containers
         run: |
           docker rm -f rosbridge
-  publish-release:
-    name: build and deploy docs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: 🔗 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install wheel
-      - name: 💎 Install
-        run: |
-          python -m pip install --no-cache-dir -r requirements-dev.txt
-      - name: 💃 Build release
-        if: success() && startsWith(github.ref, 'refs/tags')
-        run: |
-          python setup.py clean --all sdist bdist_wheel
-      - name: 📦 Publish release to PyPI
-        if: success() && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-            password: ${{ secrets.pypi_password }}
