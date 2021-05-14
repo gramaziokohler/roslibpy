@@ -16,6 +16,8 @@ Unreleased
 
 **Fixed**
 
+* Fixed blocking issues on the Twisted/Autobahn-based implementation of websockets
+
 **Deprecated**
 
 **Removed**
