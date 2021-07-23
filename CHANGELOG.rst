@@ -12,6 +12,8 @@ Unreleased
 
 **Added**
 
+* Added function to set the default timeout value.
+
 **Changed**
 
 **Fixed**
@@ -29,7 +31,7 @@ Unreleased
 
 **Fixed**
 
-* Fixed blocking issues on the Twisted/Autobahn-based implementation of websockets
+* Fixed blocking issues on the Twisted/Autobahn-based implementation of websockets.
 
 **Deprecated**
 
@@ -61,24 +63,24 @@ Unreleased
 
 **Changed**
 
-* Changed behavior: Topics automatically reconnect when websockets is reconnected
+* Changed behavior: Topics automatically reconnect when websockets is reconnected.
 
 **Added**
 
 * Added blocking behavior to more ROS API methods: ``ros.get_nodes`` and ``ros.get_node_details``.
-* Added reconnection support to IronPython implementation of websockets
-* Added automatic topic reconnection support for both subscribers and publishers
+* Added reconnection support to IronPython implementation of websockets.
+* Added automatic topic reconnection support for both subscribers and publishers.
 
 **Fixed**
 
-* Fixed reconnection issues on the Twisted/Autobahn-based implementation of websockets
+* Fixed reconnection issues on the Twisted/Autobahn-based implementation of websockets.
 
 0.7.1
 ----------
 
 **Fixed**
 
-* Fixed blocking service calls for Mac OS
+* Fixed blocking service calls for Mac OS.
 
 0.7.0
 ----------
@@ -141,7 +143,7 @@ Unreleased
 
 **Added**
 
-* Add a non-blocking event loop runner
+* Add a non-blocking event loop runner.
 
 0.3.0
 ----------
@@ -155,33 +157,33 @@ Unreleased
 
 **Fixed**
 
-* Fix JSON serialization error on TF Client (on Python 3.x)
+* Fix JSON serialization error on TF Client (on Python 3.x).
 
 0.2.0
 ----------
 
 **Added**
 
-* Add support for IronPython 2.7
+* Add support for IronPython 2.7.
 
 **Changed**
 
-* Handler ``on_ready`` now defaults to run the callback in thread
+* Handler ``on_ready`` now defaults to run the callback in thread.
 
 **Deprecated**
 
-* Rename ``run_event_loop`` to the more fitting ``run_forever``
+* Rename ``run_event_loop`` to the more fitting ``run_forever``.
 
 0.1.1
 ----------
 
 **Fixed**
 
-* Minimal documentation fixes
+* Minimal documentation fixes.
 
 0.1.0
 ----------
 
 **Added**
 
-* Initial version
+* Initial version.
