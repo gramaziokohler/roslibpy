@@ -206,7 +206,7 @@ class TwistedEventLoopManager(object):
 
         Args:
             callback: Callable function to be invoked from the thread.
-            timeout (:obj: int): Number of seconds to wait for the response before
+            timeout (:obj:`int`): Number of seconds to wait for the response before
                 raising an exception.
 
         Returns:
@@ -233,7 +233,7 @@ class TwistedEventLoopManager(object):
         """Get the callback which, when called, provides result_placeholder with the result.
 
         Args:
-            result_placeholder: (:obj: Deferred): Object in which to store the result.
+            result_placeholder: (:class:`Deferred`): Object in which to store the result.
 
         Returns:
             A callable which provides result_placeholder with the result in the case of success.
@@ -246,7 +246,7 @@ class TwistedEventLoopManager(object):
         """Get the errback which, when called, provides result_placeholder with the error.
 
         Args:
-            result_placeholder: (:obj: Deferred): Object in which to store the result.
+            result_placeholder: (:class:`Deferred`): Object in which to store the result.
 
         Returns:
             A callable which provides result_placeholder with the error in the case of failure.

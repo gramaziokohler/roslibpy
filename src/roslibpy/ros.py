@@ -10,11 +10,22 @@ from . import ServiceRequest
 from . import Time
 from .comm import RosBridgeClientFactory
 
-__all__ = ['Ros']
+__all__ = ['Ros', 'set_rosapi_timeout']
 
 LOGGER = logging.getLogger('roslibpy')
 CONNECTION_TIMEOUT = 10
 ROSAPI_TIMEOUT = 3
+
+
+def set_rosapi_timeout(timeout):
+    """Set the default number of seconds to wait for a response before
+    raising an exception.
+
+    Args:
+         timeout (:obj:`int`): Duration in seconds.
+    """
+    global ROSAPI_TIMEOUT
+    ROSAPI_TIMEOUT = timeout
 
 
 class Ros(object):
@@ -194,7 +205,7 @@ class Ros(object):
 
         Args:
             callback: Callable function to be invoked from the thread.
-            timeout (:obj: int): Number of seconds to wait for the response before
+            timeout (:obj:`int`): Number of seconds to wait for the response before
                 raising an exception.
 
         Returns:
@@ -231,7 +242,7 @@ class Ros(object):
 
         Args:
             message (:class:`.Message`): ROS Bridge Message containing the request.
-            timeout (:obj: int): Number of seconds to wait for the response before
+            timeout (:obj:`int`): Number of seconds to wait for the response before
                 raising an exception.
         Returns:
             Either returns the service request results or raises a timeout exception.
