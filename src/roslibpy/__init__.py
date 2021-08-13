@@ -36,6 +36,7 @@ as an argument to their constructors.
 
 .. autoclass:: Ros
    :members:
+.. autofunction:: set_rosapi_timeout
 
 Main ROS concepts
 =================
@@ -106,6 +107,7 @@ from .core import ServiceResponse
 from .core import Time
 from .core import Topic
 from .ros import Ros
+from .ros import set_rosapi_timeout
 
-__all__ = ['Ros', 'Message', 'Header', 'Time', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic', '__author__',
+__all__ = ['Ros', 'set_rosapi_timeout', 'Message', 'Header', 'Time', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Topic',
            '__author__', '__author_email__', '__copyright__', '__description__', '__license__', '__title__', '__url__', '__version__']
