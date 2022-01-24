@@ -150,13 +150,21 @@ class Goal(EventEmitterMixin):
 
     def _set_status(self, status):
         self.status = status
+        if self.is_finished:
+            self.wait_result.set()
 
     def _set_result(self, result):
         self.result = result
-        self.wait_result.set()
+        if self.is_finished:
+            self.wait_result.set()
 
     def _set_feedback(self, feedback):
         self.feedback = feedback
+
+    @property
+    def is_active(self):
+        return (self.status['status'] == GoalStatus.ACTIVE or
+                self.status['status'] == GoalStatus.PENDING)
 
     @property
     def is_finished(self):
@@ -165,7 +173,7 @@ class Goal(EventEmitterMixin):
         Returns:
             bool: True if finished, False otherwise.
         """
-        return self.result is not None
+        return self.result is not None and not self.is_active
 
 
 class ActionClient(EventEmitterMixin):
