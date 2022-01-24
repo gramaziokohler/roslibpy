@@ -120,6 +120,8 @@ class Goal(EventEmitterMixin):
         if result_callback:
             self.on('result', result_callback)
 
+        self.status = {'status': GoalStatus.PENDING}
+
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
             self.action_client.ros.call_later(timeout, self._trigger_timeout)
@@ -163,6 +165,8 @@ class Goal(EventEmitterMixin):
 
     @property
     def is_active(self):
+        if self.status is None:
+            return False
         return (self.status['status'] == GoalStatus.ACTIVE or
                 self.status['status'] == GoalStatus.PENDING)
 
@@ -244,7 +248,6 @@ class ActionClient(EventEmitterMixin):
         goal = self.goals.get(goal_id, None)
 
         if goal:
-            goal.emit('status', message['status'])
             goal.emit('feedback', message['feedback'])
 
     def _on_result_message(self, message):
@@ -252,7 +255,6 @@ class ActionClient(EventEmitterMixin):
         goal = self.goals.get(goal_id, None)
 
         if goal:
-            goal.emit('status', message['status'])
             goal.emit('result', message['result'])
 
     def add_goal(self, goal):
