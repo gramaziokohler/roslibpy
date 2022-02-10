@@ -18,6 +18,8 @@ Unreleased
 
 **Fixed**
 
+* Ensure input of ``Time`` is always two integers.
+
 **Deprecated**
 
 **Removed**
