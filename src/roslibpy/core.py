@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import json
 import logging
-from multiprocessing.sharedctypes import Value
 import time
 
 # Python 2/3 compatibility import list
