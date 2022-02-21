@@ -99,6 +99,8 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='roslibpy command-line utility')
+    parser.add_argument('-r', '--ros-host', type=str, help='ROS host name or IP address', default='localhost')
+    parser.add_argument('-p', '--ros-port', type=int, help='ROS bridge port', default=9090)
 
     commands = parser.add_subparsers(help='commands')
     commands.dest = 'command'
@@ -186,7 +188,7 @@ def main():
 
     # Invoke
     args = parser.parse_args()
-    ros = roslibpy.Ros('localhost', 9090)
+    ros = roslibpy.Ros(args.ros_host, args.ros_port)
 
     try:
         ros.run()
