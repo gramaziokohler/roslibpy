@@ -13,6 +13,7 @@ Unreleased
 **Added**
 
 * Added function to set the default timeout value.
+* Added ROS host and port parameters to the command-line interface.
 
 **Changed**
 
