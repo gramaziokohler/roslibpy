@@ -15,17 +15,11 @@ Unreleased
 * Added function to set the default timeout value.
 * Added ROS host and port parameters to the command-line interface.
 
-**Changed**
-
 **Fixed**
 
 * Fixed #87 where a goal could be marked as terminal on result alone rather
   than both result and status.
 * Ensure input of ``Time`` is always two integers.
-
-**Deprecated**
-
-**Removed**
 
 1.2.1
 ----------
