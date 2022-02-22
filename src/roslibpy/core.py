@@ -12,12 +12,16 @@ except ImportError:
 
 LOGGER = logging.getLogger('roslibpy')
 
-__all__ = ['Message',
-           'ServiceRequest',
-           'ServiceResponse',
-           'Topic',
-           'Service',
-           'Param']
+__all__ = [
+    'Header',
+    'Message',
+    'Param',
+    'Service',
+    'ServiceRequest',
+    'ServiceResponse',
+    'Time',
+    'Topic'
+]
 
 
 class Message(UserDict):
@@ -44,8 +48,15 @@ class Time(UserDict):
     """Represents ROS time with two integers: seconds since epoch and nanoseconds since seconds."""
     def __init__(self, secs, nsecs):
         self.data = {}
-        self.data['secs'] = secs
-        self.data['nsecs'] = nsecs
+        self.data['secs'] = self._ensure_int(secs)
+        self.data['nsecs'] = self._ensure_int(nsecs)
+
+    def _ensure_int(self, n):
+        if isinstance(n, int):
+            return n
+        if isinstance(n, float) and n.is_integer():
+            return int(n)
+        raise ValueError('argument must be an integer')
 
     @property
     def secs(self):
