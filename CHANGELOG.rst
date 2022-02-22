@@ -19,6 +19,9 @@ Unreleased
 
 **Fixed**
 
+* Fixed #87 where a goal could be marked as terminal on result alone rather
+  than both result and status.
+
 **Deprecated**
 
 **Removed**
