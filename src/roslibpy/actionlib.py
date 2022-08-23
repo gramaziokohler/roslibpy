@@ -28,8 +28,7 @@ import random
 import threading
 import time
 
-from . import Message
-from . import Topic
+from . import Message, Topic
 from .event_emitter import EventEmitterMixin
 
 __all__ = ["Goal", "GoalStatus", "ActionClient", "SimpleActionServer"]
@@ -109,7 +108,8 @@ class Goal(EventEmitterMixin):
 
         Args:
             timeout (:obj:`int`): Timeout for the goal's result expressed in seconds.
-            callback (:obj:`callable`): Function to be called when a result is received. It is a shorthand for hooking on the ``result`` event.
+            callback (:obj:`callable`): Function to be called when a result is received.
+            It is a shorthand for hooking on the ``result`` event.
         """
         if result_callback:
             self.on("result", result_callback)
@@ -220,7 +220,7 @@ class ActionClient(EventEmitterMixin):
 
         if timeout:
             LOGGER.warn(
-                "Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant."
+                "Deprecation warning: timeout parameter ignored and replaced by DEFAULT_CONNECTION_TIMEOUT constant."
             )
 
         self.wait_status = threading.Event()
@@ -332,7 +332,8 @@ class SimpleActionServer(EventEmitterMixin):
         """Start the action server.
 
         Args:
-            action_callback: Callable function to be invoked when a new goal is received. It takes one paramter containing the goal message.
+            action_callback: Callable function to be invoked when a new goal is received.
+            It takes one paramter containing the goal message.
         """
         LOGGER.info("Action server {} started".format(self.server_name))
 

@@ -3,9 +3,7 @@ from __future__ import print_function
 import json
 import logging
 
-from roslibpy.core import Message
-from roslibpy.core import MessageEncoder
-from roslibpy.core import ServiceResponse
+from roslibpy.core import Message, MessageEncoder, ServiceResponse
 
 LOGGER = logging.getLogger("roslibpy")
 

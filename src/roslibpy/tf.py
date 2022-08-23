@@ -18,9 +18,7 @@ from __future__ import print_function
 import logging
 import math
 
-from . import Service
-from . import ServiceRequest
-from . import Topic
+from . import Service, ServiceRequest, Topic
 
 __all__ = ["TFClient"]
 
@@ -36,7 +34,7 @@ class TFClient(object):
         angular_threshold (:obj:`float`): Angular threshold for the TF republisher.
         translation_threshold (:obj:`float`): Translation threshold for the TF republisher.
         rate (:obj:`float`): Rate for the TF republisher.
-        update_delay (:obj:`int`): Time expressed in milliseconds to wait after a new subscription to update the TF republisher's list of TFs.
+        update_delay (:obj:`int`): Time expressed in milliseconds to wait after a new subscription before update TFs.
         topic_timeout (:obj:`int`): Timeout parameter for the TF republisher expressed in milliseconds.
         repub_service_name (:obj:`str`): Name of the republish tfs service, e.g. ``/republish_tfs``.
     """

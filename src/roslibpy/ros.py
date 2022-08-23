@@ -3,11 +3,7 @@ from __future__ import print_function
 import logging
 import threading
 
-from . import Message
-from . import Param
-from . import Service
-from . import ServiceRequest
-from . import Time
+from . import Message, Param, Service, ServiceRequest, Time
 from .comm import RosBridgeClientFactory
 
 __all__ = ["Ros", "set_rosapi_timeout"]

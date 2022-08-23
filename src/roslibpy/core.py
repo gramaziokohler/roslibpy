@@ -130,7 +130,7 @@ class Topic(object):
         queue_size (:obj:`int`): Queue size created at bridge side for re-publishing webtopics.
         latch (:obj:`bool`): True to latch the topic when publishing, False otherwise.
         queue_length (:obj:`int`): Queue length at bridge side used when subscribing.
-        reconnect_on_close (:obj:`bool`): Reconnect the topic (both for publisher and subscribers) if a reconnection is detected.
+        reconnect_on_close (:obj:`bool`): Reconnect topic (both publisher & subscriber) on reconnection.
     """
 
     SUPPORTED_COMPRESSION_TYPES = ("png", "none")

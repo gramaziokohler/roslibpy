@@ -1,7 +1,6 @@
 import sys
 
-from .comm import RosBridgeException
-from .comm import RosBridgeProtocol
+from .comm import RosBridgeException, RosBridgeProtocol
 
 if sys.platform == "cli":
     from .comm_cli import CliRosBridgeClientFactory as RosBridgeClientFactory

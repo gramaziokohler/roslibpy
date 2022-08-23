@@ -32,14 +32,12 @@ It supports both synchronous callbacks and asyncio coroutines.
 """
 
 try:
-    from asyncio import ensure_future
-    from asyncio import iscoroutine
+    from asyncio import ensure_future, iscoroutine
 except ImportError:
     iscoroutine = None
     ensure_future = None
 
-from collections import OrderedDict
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from threading import RLock
 
 __all__ = ["EventEmitterMixin", "EventEmitterException"]
