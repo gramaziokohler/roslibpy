@@ -16,7 +16,7 @@ from twisted.python import log
 from ..event_emitter import EventEmitterMixin
 from . import RosBridgeProtocol
 
-LOGGER = logging.getLogger('roslibpy')
+LOGGER = logging.getLogger("roslibpy")
 
 
 class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
@@ -24,27 +24,27 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         super(AutobahnRosBridgeProtocol, self).__init__(*args, **kwargs)
 
     def onConnect(self, response):
-        LOGGER.debug('Server connected: %s', response.peer)
+        LOGGER.debug("Server connected: %s", response.peer)
 
     def onOpen(self):
-        LOGGER.info('Connection to ROS ready.')
+        LOGGER.info("Connection to ROS ready.")
         self._manual_disconnect = False
         self.factory.ready(self)
 
     def onMessage(self, payload, isBinary):
         if isBinary:
-            raise NotImplementedError('Add support for binary messages')
+            raise NotImplementedError("Add support for binary messages")
 
         try:
             self.on_message(payload)
         except Exception:
             LOGGER.exception(
-                'Exception on start_listening while trying to handle message received.'
-                + 'It could indicate a bug in user code on message handlers. Message skipped.'
+                "Exception on start_listening while trying to handle message received."
+                + "It could indicate a bug in user code on message handlers. Message skipped."
             )
 
     def onClose(self, wasClean, code, reason):
-        LOGGER.info('WebSocket connection closed: Code=%s, Reason=%s', str(code), reason)
+        LOGGER.info("WebSocket connection closed: Code=%s, Reason=%s", str(code), reason)
 
     def send_message(self, payload):
         return reactor.callFromThread(
@@ -79,32 +79,32 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         Returns:
             bool: True if WebSocket is connected, False otherwise.
         """
-        return self.connector and self.connector.state == 'connected'
+        return self.connector and self.connector.state == "connected"
 
     def on_ready(self, callback):
         if self._proto:
             callback(self._proto)
         else:
-            self.once('ready', callback)
+            self.once("ready", callback)
 
     def ready(self, proto):
         self.resetDelay()
         self._proto = proto
-        self.emit('ready', proto)
+        self.emit("ready", proto)
 
     def startedConnecting(self, connector):
-        LOGGER.debug('Started to connect...')
+        LOGGER.debug("Started to connect...")
 
     def clientConnectionLost(self, connector, reason):
-        LOGGER.debug('Lost connection. Reason: %s', reason)
-        self.emit('close', self._proto)
+        LOGGER.debug("Lost connection. Reason: %s", reason)
+        self.emit("close", self._proto)
 
         if not self._proto or (self._proto and not self._proto._manual_disconnect):
             ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
         self._proto = None
 
     def clientConnectionFailed(self, connector, reason):
-        LOGGER.debug('Connection failed. Reason: %s', reason)
+        LOGGER.debug("Connection failed. Reason: %s", reason)
         ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
         self._proto = None
 
@@ -128,7 +128,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         Args:
             max_delay: The new maximum delay, in seconds.
         """
-        LOGGER.debug('Updating max delay to {} seconds'.format(max_delay))
+        LOGGER.debug("Updating max delay to {} seconds".format(max_delay))
         # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
         cls.maxDelay = max_delay
 
@@ -139,7 +139,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         Args:
             initial_delay: The new initial delay, in seconds.
         """
-        LOGGER.debug('Updating initial delay to {} seconds'.format(initial_delay))
+        LOGGER.debug("Updating initial delay to {} seconds".format(initial_delay))
         # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
         cls.initialDelay = initial_delay
 
@@ -150,7 +150,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
         Args:
             max_retries: The new maximum number of retries.
         """
-        LOGGER.debug('Updating max retries to {}'.format(max_retries))
+        LOGGER.debug("Updating max retries to {}".format(max_retries))
         # See https://twistedmatrix.com/documents/19.10.0/api/twisted.internet.protocol.ReconnectingClientFactory.html
         cls.maxRetries = max_retries
 
@@ -232,7 +232,7 @@ class TwistedEventLoopManager(object):
         Raises:
             An exception.
         """
-        raise Exception('No service response received')
+        raise Exception("No service response received")
 
     def get_inner_callback(self, result_placeholder):
         """Get the callback which, when called, provides result_placeholder with the result.
@@ -245,7 +245,7 @@ class TwistedEventLoopManager(object):
         """
 
         def inner_callback(result):
-            result_placeholder.callback({'result': result})
+            result_placeholder.callback({"result": result})
 
         return inner_callback
 
@@ -260,7 +260,7 @@ class TwistedEventLoopManager(object):
         """
 
         def inner_errback(error):
-            result_placeholder.callback({'exception': error})
+            result_placeholder.callback({"exception": error})
 
         return inner_errback
 

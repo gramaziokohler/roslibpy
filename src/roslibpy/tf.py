@@ -22,9 +22,9 @@ from . import Service
 from . import ServiceRequest
 from . import Topic
 
-__all__ = ['TFClient']
+__all__ = ["TFClient"]
 
-LOGGER = logging.getLogger('roslibpy.tf')
+LOGGER = logging.getLogger("roslibpy.tf")
 
 
 class TFClient(object):
@@ -44,14 +44,14 @@ class TFClient(object):
     def __init__(
         self,
         ros,
-        fixed_frame='/base_link',
+        fixed_frame="/base_link",
         angular_threshold=2.0,
         translation_threshold=0.01,
         rate=10.0,
         update_delay=50,
         topic_timeout=2000.0,
-        server_name='/tf2_web_republisher',
-        repub_service_name='/republish_tfs',
+        server_name="/tf2_web_republisher",
+        repub_service_name="/republish_tfs",
     ):
         self.ros = ros
         self.fixed_frame = fixed_frame
@@ -70,7 +70,7 @@ class TFClient(object):
         self.frame_info = {}
         self.republisher_update_requested = False
 
-        self.service_client = Service(ros, self.repub_service_name, 'tf2_web_republisher/RepublishTFs')
+        self.service_client = Service(ros, self.repub_service_name, "tf2_web_republisher/RepublishTFs")
 
     def _process_tf_array(self, tf):
         """Process an incoming TF message and send it out using the callback functions.
@@ -79,16 +79,16 @@ class TFClient(object):
             tf (:obj:`list`): TF message from the server.
         """
         # TODO: Test this function
-        for transform in tf['transforms']:
-            frame_id = self._normalize_frame_id(transform['child_frame_id'])
+        for transform in tf["transforms"]:
+            frame_id = self._normalize_frame_id(transform["child_frame_id"])
             frame = self.frame_info.get(frame_id, None)
 
             if frame:
-                frame['transform'] = dict(
-                    translation=transform['transform']['translation'], rotation=transform['transform']['rotation']
+                frame["transform"] = dict(
+                    translation=transform["transform"]["translation"], rotation=transform["transform"]["rotation"]
                 )
-                for callback in frame['cbs']:
-                    callback(frame['transform'])
+                for callback in frame["cbs"]:
+                    callback(frame["transform"])
 
     def update_goal(self):
         """Send a new service request to the tf2_web_republisher based on the current list of TFs."""
@@ -102,7 +102,7 @@ class TFClient(object):
 
         # In contrast to roslibjs, we do not support groovy compatibility mode
         # and only use the service interface to the TF republisher
-        message['timeout'] = self.topic_timeout
+        message["timeout"] = self.topic_timeout
         request = ServiceRequest(message)
 
         self.service_client.call(request, self._process_response, self._process_error)
@@ -110,21 +110,21 @@ class TFClient(object):
         self.republisher_update_requested = False
 
     def _process_error(self, response):
-        LOGGER.error('The TF republisher service interface returned an error. %s', str(response))
+        LOGGER.error("The TF republisher service interface returned an error. %s", str(response))
 
     def _process_response(self, response):
         """Process the service response and subscribe to the tf republisher topic."""
-        LOGGER.info('Received response from TF Republisher service interface')
+        LOGGER.info("Received response from TF Republisher service interface")
 
         if self.current_topic:
             self.current_topic.unsubscribe()
 
-        self.current_topic = Topic(self.ros, response['topic_name'], 'tf2_web_republisher/TFArray')
+        self.current_topic = Topic(self.ros, response["topic_name"], "tf2_web_republisher/TFArray")
         self.current_topic.subscribe(self._process_tf_array)
 
     def _normalize_frame_id(self, frame_id):
         # Remove leading slash, if it's there
-        if frame_id[0] == '/':
+        if frame_id[0] == "/":
             return frame_id[1:]
 
         return frame_id
@@ -150,10 +150,10 @@ class TFClient(object):
                 self.republisher_update_requested = True
         else:
             # If we already have a transform, call back immediately
-            if 'transform' in frame:
-                callback(frame['transform'])
+            if "transform" in frame:
+                callback(frame["transform"])
 
-        frame['cbs'].append(callback)
+        frame["cbs"].append(callback)
 
     def unsubscribe(self, frame_id, callback):
         """Unsubscribe from the given TF frame.
@@ -166,10 +166,10 @@ class TFClient(object):
         frame_id = self._normalize_frame_id(frame_id)
         frame = self.frame_info.get(frame_id, None)
 
-        if 'cbs' in frame:
-            frame['cbs'].pop(callback)
+        if "cbs" in frame:
+            frame["cbs"].pop(callback)
 
-        if not callback or ('cbs' in frame and len(frame['cbs']) == 0):
+        if not callback or ("cbs" in frame and len(frame["cbs"]) == 0):
             self.frame_info.pop(frame_id)
 
     def dispose(self):
@@ -178,18 +178,18 @@ class TFClient(object):
             self.current_topic.unsubscribe()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from roslibpy import Ros
 
-    FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
+    FORMAT = "%(asctime)-15s [%(levelname)s] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 
-    ros_client = Ros('127.0.0.1', 9090)
+    ros_client = Ros("127.0.0.1", 9090)
 
     def run_tf_example():
-        tfclient = TFClient(ros_client, fixed_frame='world', angular_threshold=0.01, translation_threshold=0.01)
+        tfclient = TFClient(ros_client, fixed_frame="world", angular_threshold=0.01, translation_threshold=0.01)
 
-        tfclient.subscribe('turtle2', print)
+        tfclient.subscribe("turtle2", print)
 
         def dispose_server():
             tfclient.dispose()

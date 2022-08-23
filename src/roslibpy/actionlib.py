@@ -32,20 +32,20 @@ from . import Message
 from . import Topic
 from .event_emitter import EventEmitterMixin
 
-__all__ = ['Goal', 'GoalStatus', 'ActionClient', 'SimpleActionServer']
+__all__ = ["Goal", "GoalStatus", "ActionClient", "SimpleActionServer"]
 
 
-LOGGER = logging.getLogger('roslibpy')
+LOGGER = logging.getLogger("roslibpy")
 DEFAULT_CONNECTION_TIMEOUT = 3  # in seconds
 
 
 def _is_earlier(t1, t2):
     """Compares two timestamps."""
-    if t1['secs'] > t2['secs']:
+    if t1["secs"] > t2["secs"]:
         return False
-    elif t1['secs'] < t2['secs']:
+    elif t1["secs"] < t2["secs"]:
         return True
-    elif t1['nsecs'] < t2['nsecs']:
+    elif t1["nsecs"] < t2["nsecs"]:
         return True
 
     return False
@@ -87,7 +87,7 @@ class Goal(EventEmitterMixin):
 
         self.action_client = action_client
         self.goal_message = goal_message
-        self.goal_id = 'goal_%s_%d' % (random.random(), time.time() * 1000)
+        self.goal_id = "goal_%s_%d" % (random.random(), time.time() * 1000)
 
         self.wait_result = threading.Event()
         self.result = None
@@ -95,14 +95,14 @@ class Goal(EventEmitterMixin):
         self.feedback = None
 
         self.goal_message = Message(
-            {'goal_id': {'stamp': {'secs': 0, 'nsecs': 0}, 'id': self.goal_id}, 'goal': dict(self.goal_message)}
+            {"goal_id": {"stamp": {"secs": 0, "nsecs": 0}, "id": self.goal_id}, "goal": dict(self.goal_message)}
         )
 
         self.action_client.add_goal(self)
 
-        self.on('status', self._set_status)
-        self.on('result', self._set_result)
-        self.on('feedback', self._set_feedback)
+        self.on("status", self._set_status)
+        self.on("result", self._set_result)
+        self.on("feedback", self._set_feedback)
 
     def send(self, result_callback=None, timeout=None):
         """Send goal to the action server.
@@ -112,9 +112,9 @@ class Goal(EventEmitterMixin):
             callback (:obj:`callable`): Function to be called when a result is received. It is a shorthand for hooking on the ``result`` event.
         """
         if result_callback:
-            self.on('result', result_callback)
+            self.on("result", result_callback)
 
-        self.status = {'status': GoalStatus.PENDING}
+        self.status = {"status": GoalStatus.PENDING}
 
         self.action_client.goal_topic.publish(self.goal_message)
         if timeout:
@@ -122,7 +122,7 @@ class Goal(EventEmitterMixin):
 
     def cancel(self):
         """Cancel the current goal."""
-        self.action_client.cancel_topic.publish(Message({'id': self.goal_id}))
+        self.action_client.cancel_topic.publish(Message({"id": self.goal_id}))
 
     def wait(self, timeout=None):
         """Block until the result is available.
@@ -136,13 +136,13 @@ class Goal(EventEmitterMixin):
             Result of the goal.
         """
         if not self.wait_result.wait(timeout):
-            raise Exception('Goal failed to receive result')
+            raise Exception("Goal failed to receive result")
 
         return self.result
 
     def _trigger_timeout(self):
         if not self.is_finished:
-            self.emit('timeout')
+            self.emit("timeout")
 
     def _set_status(self, status):
         self.status = status
@@ -161,7 +161,7 @@ class Goal(EventEmitterMixin):
     def is_active(self):
         if self.status is None:
             return False
-        return self.status['status'] == GoalStatus.ACTIVE or self.status['status'] == GoalStatus.PENDING
+        return self.status["status"] == GoalStatus.ACTIVE or self.status["status"] == GoalStatus.PENDING
 
     @property
     def is_finished(self):
@@ -196,11 +196,11 @@ class ActionClient(EventEmitterMixin):
         self.goals = {}
 
         # Create the topics associated with actionlib
-        self.feedback_listener = Topic(ros, server_name + '/feedback', action_name + 'Feedback')
-        self.status_listener = Topic(ros, server_name + '/status', 'actionlib_msgs/GoalStatusArray')
-        self.result_listener = Topic(ros, server_name + '/result', action_name + 'Result')
-        self.goal_topic = Topic(ros, server_name + '/goal', action_name + 'Goal')
-        self.cancel_topic = Topic(ros, server_name + '/cancel', 'actionlib_msgs/GoalID')
+        self.feedback_listener = Topic(ros, server_name + "/feedback", action_name + "Feedback")
+        self.status_listener = Topic(ros, server_name + "/status", "actionlib_msgs/GoalStatusArray")
+        self.result_listener = Topic(ros, server_name + "/result", action_name + "Result")
+        self.goal_topic = Topic(ros, server_name + "/goal", action_name + "Goal")
+        self.cancel_topic = Topic(ros, server_name + "/cancel", "actionlib_msgs/GoalID")
 
         # Advertise the goal and cancel topics
         self.goal_topic.advertise()
@@ -220,37 +220,37 @@ class ActionClient(EventEmitterMixin):
 
         if timeout:
             LOGGER.warn(
-                'Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant.'
+                "Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant."
             )
 
         self.wait_status = threading.Event()
 
         if not self.wait_status.wait(DEFAULT_CONNECTION_TIMEOUT):
-            raise Exception('Action client failed to connect, no status received.')
+            raise Exception("Action client failed to connect, no status received.")
 
     def _on_status_message(self, message):
         self.wait_status.set()
 
-        for status in message['status_list']:
-            goal_id = status['goal_id']['id']
+        for status in message["status_list"]:
+            goal_id = status["goal_id"]["id"]
             goal = self.goals.get(goal_id, None)
 
             if goal:
-                goal.emit('status', status)
+                goal.emit("status", status)
 
     def _on_feedback_message(self, message):
-        goal_id = message['status']['goal_id']['id']
+        goal_id = message["status"]["goal_id"]["id"]
         goal = self.goals.get(goal_id, None)
 
         if goal:
-            goal.emit('feedback', message['feedback'])
+            goal.emit("feedback", message["feedback"])
 
     def _on_result_message(self, message):
-        goal_id = message['status']['goal_id']['id']
+        goal_id = message["status"]["goal_id"]["id"]
         goal = self.goals.get(goal_id, None)
 
         if goal:
-            goal.emit('result', message['result'])
+            goal.emit("result", message["result"])
 
     def add_goal(self, goal):
         """Add a goal to this action client.
@@ -302,11 +302,11 @@ class SimpleActionServer(EventEmitterMixin):
         self._lock = threading.Lock()
 
         # Create all required publishers and listeners
-        self.feedback_publisher = Topic(ros, server_name + '/feedback', action_name + 'Feedback')
-        self.status_publisher = Topic(ros, server_name + '/status', 'actionlib_msgs/GoalStatusArray')
-        self.result_publisher = Topic(ros, server_name + '/result', action_name + 'Result')
-        self.goal_listener = Topic(ros, server_name + '/goal', action_name + 'Goal')
-        self.cancel_listener = Topic(ros, server_name + '/cancel', 'actionlib_msgs/GoalID')
+        self.feedback_publisher = Topic(ros, server_name + "/feedback", action_name + "Feedback")
+        self.status_publisher = Topic(ros, server_name + "/status", "actionlib_msgs/GoalStatusArray")
+        self.result_publisher = Topic(ros, server_name + "/result", action_name + "Result")
+        self.goal_listener = Topic(ros, server_name + "/goal", action_name + "Goal")
+        self.cancel_listener = Topic(ros, server_name + "/cancel", "actionlib_msgs/GoalID")
 
         # Advertise all publishers
         self.feedback_publisher.advertise()
@@ -314,7 +314,7 @@ class SimpleActionServer(EventEmitterMixin):
         self.result_publisher.advertise()
 
         # Track the goals and their status in order to publish status
-        self.status_message = Message(dict(header=dict(stamp=dict(secs=0, nsecs=100), frame_id=''), status_list=[]))
+        self.status_message = Message(dict(header=dict(stamp=dict(secs=0, nsecs=100), frame_id=""), status_list=[]))
 
         # Needed for handling preemption prompted by a new goal being received
         self.current_goal = None  # currently tracked goal
@@ -334,18 +334,18 @@ class SimpleActionServer(EventEmitterMixin):
         Args:
             action_callback: Callable function to be invoked when a new goal is received. It takes one paramter containing the goal message.
         """
-        LOGGER.info('Action server {} started'.format(self.server_name))
+        LOGGER.info("Action server {} started".format(self.server_name))
 
         def _internal_goal_callback(goal):
-            LOGGER.info('Action server {} received new goal'.format(self.server_name))
+            LOGGER.info("Action server {} received new goal".format(self.server_name))
             self.ros.call_in_thread(lambda: action_callback(goal))
 
         def _internal_preempt_callback():
-            LOGGER.info('Action server {} received preemption request'.format(self.server_name))
+            LOGGER.info("Action server {} received preemption request".format(self.server_name))
             self.preempt_request = True
 
-        self.on('goal', _internal_goal_callback)
-        self.on('cancel', _internal_preempt_callback)
+        self.on("goal", _internal_goal_callback)
+        self.on("cancel", _internal_preempt_callback)
 
     def _publish_status(self):
         # Status publishing is required for clients to know they've connected
@@ -354,8 +354,8 @@ class SimpleActionServer(EventEmitterMixin):
             secs = int(math.floor(current_time))
             nsecs = int(round(1e9 * (current_time - secs)))
 
-            self.status_message['header']['stamp']['secs'] = secs
-            self.status_message['header']['stamp']['nsecs'] = nsecs
+            self.status_message["header"]["stamp"]["secs"] = secs
+            self.status_message["header"]["stamp"]["nsecs"] = nsecs
             self.status_publisher.publish(self.status_message)
 
         # Invoke again in the defined interval
@@ -371,14 +371,14 @@ class SimpleActionServer(EventEmitterMixin):
                 # needs to happen AFTER rest is set up
                 will_cancel = True
             else:
-                self.status_message['status_list'] = [dict(goal_id=message['goal_id'], status=GoalStatus.ACTIVE)]
+                self.status_message["status_list"] = [dict(goal_id=message["goal_id"], status=GoalStatus.ACTIVE)]
                 self.current_goal = message
-                will_emit_goal = message['goal']
+                will_emit_goal = message["goal"]
 
         if will_cancel:
-            self.emit('cancel')
+            self.emit("cancel")
         if will_emit_goal:
-            self.emit('goal', will_emit_goal)
+            self.emit("goal", will_emit_goal)
 
     def _on_cancel_message(self, message):
         # As described in the comments of the original roslibjs code
@@ -390,28 +390,28 @@ class SimpleActionServer(EventEmitterMixin):
         will_cancel = False
 
         with self._lock:
-            message_id = message['id']
-            message_stamp = message['stamp']
-            secs = message['stamp']['secs']
+            message_id = message["id"]
+            message_stamp = message["stamp"]
+            secs = message["stamp"]["secs"]
 
-            if secs == 0 and secs == 0 and message_id == '':
+            if secs == 0 and secs == 0 and message_id == "":
                 self.next_goal = None
                 if self.current_goal:
                     will_cancel = True
 
             else:  # treat id and stamp independently
-                if self.current_goal and message_id == self.current_goal['goal_id']['id']:
+                if self.current_goal and message_id == self.current_goal["goal_id"]["id"]:
                     will_cancel = True
-                elif self.next_goal and message_id == self.next_goal['goal_id']['id']:
+                elif self.next_goal and message_id == self.next_goal["goal_id"]["id"]:
                     self.next_goal = None
 
-                if self.next_goal and _is_earlier(self.next_goal['goal_id']['stamp'], message_stamp):
+                if self.next_goal and _is_earlier(self.next_goal["goal_id"]["stamp"], message_stamp):
                     self.next_goal = None
-                if self.current_goal and _is_earlier(self.current_goal['goal_id']['stamp'], message_stamp):
+                if self.current_goal and _is_earlier(self.current_goal["goal_id"]["stamp"], message_stamp):
                     will_cancel = True
 
         if will_cancel:
-            self.emit('cancel')
+            self.emit("cancel")
 
     def is_preempt_requested(self):
         """Indicate whether the client has requested preemption of the current goal."""
@@ -424,16 +424,16 @@ class SimpleActionServer(EventEmitterMixin):
         Args:
             result (:obj:`dict`): Dictionary of key/values to set as the result of the action.
         """
-        LOGGER.info('Action server {} setting current goal to SUCCEEDED'.format(self.server_name))
+        LOGGER.info("Action server {} setting current goal to SUCCEEDED".format(self.server_name))
 
         with self._lock:
             result_message = Message(
-                {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.SUCCEEDED}, 'result': result}
+                {"status": {"goal_id": self.current_goal["goal_id"], "status": GoalStatus.SUCCEEDED}, "result": result}
             )
 
             self.result_publisher.publish(result_message)
 
-            self.status_message['status_list'] = []
+            self.status_message["status_list"] = []
 
             if self.next_goal:
                 self.current_goal = self.next_goal
@@ -445,7 +445,7 @@ class SimpleActionServer(EventEmitterMixin):
 
         # If there's a new current goal assigned, emit it
         if self.current_goal:
-            self.emit('goal', self.current_goal['goal'])
+            self.emit("goal", self.current_goal["goal"])
 
     def send_feedback(self, feedback):
         """Send feedback.
@@ -454,19 +454,19 @@ class SimpleActionServer(EventEmitterMixin):
             feedback (:obj:`dict`): Dictionary of key/values of the feedback message.
         """
         feedback_message = Message(
-            {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.ACTIVE}, 'feedback': feedback}
+            {"status": {"goal_id": self.current_goal["goal_id"], "status": GoalStatus.ACTIVE}, "feedback": feedback}
         )
 
         self.feedback_publisher.publish(feedback_message)
 
     def set_preempted(self):
         """Set the current action to preempted (cancelled)."""
-        LOGGER.info('Action server {} preempting current goal'.format(self.server_name))
+        LOGGER.info("Action server {} preempting current goal".format(self.server_name))
 
         with self._lock:
-            self.status_message['status_list'] = []
+            self.status_message["status_list"] = []
             result_message = Message(
-                {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.PREEMPTED}}
+                {"status": {"goal_id": self.current_goal["goal_id"], "status": GoalStatus.PREEMPTED}}
             )
 
             self.result_publisher.publish(result_message)
@@ -482,4 +482,4 @@ class SimpleActionServer(EventEmitterMixin):
 
         # If there's a new current goal assigned, emit it
         if self.current_goal:
-            self.emit('goal', self.current_goal['goal'])
+            self.emit("goal", self.current_goal["goal"])
