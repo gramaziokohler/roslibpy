@@ -3,32 +3,29 @@ from __future__ import print_function
 import logging
 import math
 
-from System import Action
-from System import Array
-from System import ArraySegment
-from System import Byte
-from System import TimeSpan
-from System import Uri
-from System import UriBuilder
-from System.Net.WebSockets import ClientWebSocket
-from System.Net.WebSockets import WebSocketCloseStatus
-from System.Net.WebSockets import WebSocketError
-from System.Net.WebSockets import WebSocketMessageType
-from System.Net.WebSockets import WebSocketReceiveResult
-from System.Net.WebSockets import WebSocketState
+from System import Action, Array, ArraySegment, Byte, TimeSpan, Uri, UriBuilder
+from System.Net.WebSockets import (
+    ClientWebSocket,
+    WebSocketCloseStatus,
+    WebSocketError,
+    WebSocketMessageType,
+    WebSocketReceiveResult,
+    WebSocketState,
+)
 from System.Text import Encoding
-from System.Threading import CancellationToken
-from System.Threading import CancellationTokenSource
-from System.Threading import ManualResetEventSlim
-from System.Threading import SemaphoreSlim
-from System.Threading import Thread
-from System.Threading import ThreadPool
-from System.Threading import WaitCallback
+from System.Threading import (
+    CancellationToken,
+    CancellationTokenSource,
+    ManualResetEventSlim,
+    SemaphoreSlim,
+    Thread,
+    ThreadPool,
+    WaitCallback,
+)
 from System.Threading.Tasks import Task
 
 from ..event_emitter import EventEmitterMixin
-from . import RosBridgeException
-from . import RosBridgeProtocol
+from . import RosBridgeException, RosBridgeProtocol
 
 LOGGER = logging.getLogger('roslibpy')
 RECEIVE_CHUNK_SIZE = 1024

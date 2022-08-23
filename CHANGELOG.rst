@@ -14,6 +14,8 @@ Unreleased
 
 **Changed**
 
+* Switched to ``black`` for python code formatting.
+
 **Fixed**
 
 **Deprecated**
