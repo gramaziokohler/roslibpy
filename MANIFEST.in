@@ -14,6 +14,7 @@ include CONTRIBUTING.rst
 include ISSUE_TEMPLATE.md
 include LICENSE
 include README.rst
+include pyproject.toml
 
 include requirements-dev.txt tasks.py pytest.ini
 
