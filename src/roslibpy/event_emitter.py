@@ -47,6 +47,7 @@ __all__ = ['EventEmitterMixin', 'EventEmitterException']
 
 class EventEmitterException(Exception):
     """An internal exception."""
+
     pass
 
 
@@ -122,6 +123,7 @@ class EventEmitterMixin(object):
         """
 
         with self._event_lock:
+
             def _on(f):
                 self._add_event_handler(event, f, f)
                 return f
@@ -173,6 +175,7 @@ class EventEmitterMixin(object):
 
                     # scheduler gave us an asyncio Future
                     if hasattr(d, 'add_done_callback'):
+
                         @d.add_done_callback
                         def _callback(f):
                             exc = f.exception()
@@ -181,17 +184,18 @@ class EventEmitterMixin(object):
 
                     # scheduler gave us a twisted Deferred
                     elif hasattr(d, 'addErrback'):
+
                         @d.addErrback
                         def _callback(exc):
                             self.emit('error', exc)
+
                 handled = True
 
         if not handled and event == 'error':
             if args:
                 raise args[0]
             else:
-                raise EventEmitterException(
-                    "Uncaught, unspecified 'error' event.")
+                raise EventEmitterException("Uncaught, unspecified 'error' event.")
 
         return handled
 
@@ -201,6 +205,7 @@ class EventEmitterMixin(object):
         """
 
         with self._event_lock:
+
             def _wrapper(f):
                 def g(*args, **kwargs):
                     self.remove_listener(event, f)
@@ -235,6 +240,5 @@ class EventEmitterMixin(object):
                 self._events = defaultdict(OrderedDict)
 
     def listeners(self, event):
-        """Returns a list of all listeners registered to the ``event``.
-        """
+        """Returns a list of all listeners registered to the ``event``."""
         return list(self._events[event].keys())

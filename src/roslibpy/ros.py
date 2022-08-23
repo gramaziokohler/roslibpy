@@ -80,6 +80,7 @@ class Ros(object):
     def close(self):
         """Disconnect from ROS."""
         if self.is_connected:
+
             def _wrapper_callback(proto):
                 self.emit('closing')
                 proto.send_close()
@@ -110,8 +111,7 @@ class Ros(object):
         self.factory.manager.run_forever()
 
     def run_event_loop(self):
-        LOGGER.warn(
-            'Deprecation warning: use run_forever instead of run_event_loop ')
+        LOGGER.warn('Deprecation warning: use run_forever instead of run_event_loop ')
         self.run_forever()
 
     def call_in_thread(self, callback):
@@ -175,6 +175,7 @@ class Ros(object):
             callback: Callable function to be invoked when ROS connection is ready.
             run_in_thread (:obj:`bool`): True to run the callback in a separate thread, False otherwise.
         """
+
         def _wrapper_callback(proto):
             if run_in_thread:
                 self.factory.manager.call_in_thread(callback)
@@ -193,6 +194,7 @@ class Ros(object):
         Args:
             message (:class:`.Message`): ROS Bridge Message to send.
         """
+
         def _send_internal(proto):
             proto.send_ros_message(message)
             return proto
@@ -222,6 +224,7 @@ class Ros(object):
         Returns:
             A callable which makes the service request.
         """
+
         def get_call_results(result_placeholder):
 
             inner_callback = self.factory.manager.get_inner_callback(result_placeholder)
@@ -260,6 +263,7 @@ class Ros(object):
             callback: Callback invoked on successful execution.
             errback: Callback invoked on error.
         """
+
         def _send_internal(proto):
             proto.send_ros_service_request(message, callback, errback)
             return proto
@@ -267,11 +271,7 @@ class Ros(object):
         self.factory.on_ready(_send_internal)
 
     def set_status_level(self, level, identifier):
-        level_message = Message({
-            'op': 'set_level',
-            'level': level,
-            'id': identifier
-        })
+        level_message = Message({'op': 'set_level', 'level': level, 'id': identifier})
 
         self.send_on_ready(level_message)
 
@@ -286,8 +286,7 @@ class Ros(object):
         """
         service = Service(self, '/rosapi/get_time', 'rosapi/GetTime')
 
-        result = service.call(ServiceRequest(), callback,
-                              errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest(), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -306,8 +305,7 @@ class Ros(object):
         """
         service = Service(self, '/rosapi/topics', 'rosapi/Topics')
 
-        result = service.call(ServiceRequest(), callback,
-                              errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest(), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -324,11 +322,9 @@ class Ros(object):
         Returns:
             str: Topic type if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/topic_type',
-                          'rosapi/TopicType')
+        service = Service(self, '/rosapi/topic_type', 'rosapi/TopicType')
 
-        result = service.call(ServiceRequest({'topic': topic}),
-                              callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'topic': topic}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -345,11 +341,9 @@ class Ros(object):
         Returns:
             list: List of topics matching the specified type if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/topics_for_type',
-                          'rosapi/TopicsForType')
+        service = Service(self, '/rosapi/topics_for_type', 'rosapi/TopicsForType')
 
-        result = service.call(ServiceRequest({'type': topic_type}),
-                              callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'type': topic_type}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -366,11 +360,9 @@ class Ros(object):
         Returns:
             list: List of services if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/services',
-                          'rosapi/Services')
+        service = Service(self, '/rosapi/services', 'rosapi/Services')
 
-        result = service.call(ServiceRequest(), callback,
-                              errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest(), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -387,11 +379,9 @@ class Ros(object):
         Returns:
             str: Service type if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/service_type',
-                          'rosapi/ServiceType')
+        service = Service(self, '/rosapi/service_type', 'rosapi/ServiceType')
 
-        result = service.call(ServiceRequest(
-            {'service': service_name}), callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'service': service_name}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -408,11 +398,9 @@ class Ros(object):
         Returns:
             list: List of services matching the specified type if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/services_for_type',
-                          'rosapi/ServicesForType')
+        service = Service(self, '/rosapi/services_for_type', 'rosapi/ServicesForType')
 
-        result = service.call(ServiceRequest({'type': service_type}),
-                              callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'type': service_type}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -429,11 +417,9 @@ class Ros(object):
         Returns:
             Service Request details if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/service_request_details',
-                          'rosapi/ServiceRequestDetails')
+        service = Service(self, '/rosapi/service_request_details', 'rosapi/ServiceRequestDetails')
 
-        result = service.call(ServiceRequest({'type': type}),
-                              callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'type': type}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -449,11 +435,9 @@ class Ros(object):
         Returns:
             Service Response details if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/service_response_details',
-                          'rosapi/ServiceResponseDetails')
+        service = Service(self, '/rosapi/service_response_details', 'rosapi/ServiceResponseDetails')
 
-        result = service.call(ServiceRequest({'type': type}),
-                              callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'type': type}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -469,11 +453,9 @@ class Ros(object):
         Returns:
             Message type details if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/message_details',
-                          'rosapi/MessageDetails')
+        service = Service(self, '/rosapi/message_details', 'rosapi/MessageDetails')
 
-        result = service.call(ServiceRequest(
-            {'type': message_type}), callback, errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest({'type': message_type}), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -489,11 +471,9 @@ class Ros(object):
         Returns:
             list: List of parameters if blocking, otherwise ``None``.
         """
-        service = Service(self, '/rosapi/get_param_names',
-                          'rosapi/GetParamNames')
+        service = Service(self, '/rosapi/get_param_names', 'rosapi/GetParamNames')
 
-        result = service.call(ServiceRequest(), callback,
-                              errback, timeout=ROSAPI_TIMEOUT)
+        result = service.call(ServiceRequest(), callback, errback, timeout=ROSAPI_TIMEOUT)
 
         if callback:
             return
@@ -533,8 +513,7 @@ class Ros(object):
 
     def get_action_servers(self, callback, errback=None):
         """Retrieve list of action servers in ROS."""
-        service = Service(self, '/rosapi/action_servers',
-                          'rosapi/GetActionServers')
+        service = Service(self, '/rosapi/action_servers', 'rosapi/GetActionServers')
 
         service.call(ServiceRequest(), callback, errback)
 
@@ -544,8 +523,7 @@ class Ros(object):
         Note:
             To make this a blocking call, pass ``None`` to the ``callback`` parameter .
         """
-        service = Service(self, '/rosapi/nodes',
-                          'rosapi/Nodes')
+        service = Service(self, '/rosapi/nodes', 'rosapi/Nodes')
 
         result = service.call(ServiceRequest(), callback, errback)
 
@@ -561,8 +539,7 @@ class Ros(object):
         Note:
             To make this a blocking call, pass ``None`` to the ``callback`` parameter .
         """
-        service = Service(self, '/rosapi/node_details',
-                          'rosapi/NodeDetails')
+        service = Service(self, '/rosapi/node_details', 'rosapi/NodeDetails')
 
         result = service.call(ServiceRequest({'node': node}), callback, errback)
         if callback:
@@ -570,8 +547,8 @@ class Ros(object):
 
         output = {
             'services': result['services'],
-            'subscribing':  result['subscribing'],
-            'publishing': result['publishing']
+            'subscribing': result['subscribing'],
+            'publishing': result['publishing'],
         }
 
         return output

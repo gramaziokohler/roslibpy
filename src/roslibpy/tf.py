@@ -41,8 +41,18 @@ class TFClient(object):
         repub_service_name (:obj:`str`): Name of the republish tfs service, e.g. ``/republish_tfs``.
     """
 
-    def __init__(self, ros, fixed_frame='/base_link', angular_threshold=2.0, translation_threshold=0.01, rate=10.0, update_delay=50, topic_timeout=2000.0,
-                 server_name='/tf2_web_republisher', repub_service_name='/republish_tfs'):
+    def __init__(
+        self,
+        ros,
+        fixed_frame='/base_link',
+        angular_threshold=2.0,
+        translation_threshold=0.01,
+        rate=10.0,
+        update_delay=50,
+        topic_timeout=2000.0,
+        server_name='/tf2_web_republisher',
+        repub_service_name='/republish_tfs',
+    ):
         self.ros = ros
         self.fixed_frame = fixed_frame
         self.angular_threshold = angular_threshold
@@ -50,7 +60,7 @@ class TFClient(object):
         self.rate = rate
         self.update_delay = update_delay
 
-        seconds = topic_timeout / 1000.
+        seconds = topic_timeout / 1000.0
         secs = math.floor(seconds)
         nsecs = math.floor((seconds - secs) * int(1e9))
         self.topic_timeout = dict(secs=secs, nsecs=nsecs)
@@ -60,8 +70,7 @@ class TFClient(object):
         self.frame_info = {}
         self.republisher_update_requested = False
 
-        self.service_client = Service(ros, self.repub_service_name,
-                                      'tf2_web_republisher/RepublishTFs')
+        self.service_client = Service(ros, self.repub_service_name, 'tf2_web_republisher/RepublishTFs')
 
     def _process_tf_array(self, tf):
         """Process an incoming TF message and send it out using the callback functions.
@@ -76,33 +85,32 @@ class TFClient(object):
 
             if frame:
                 frame['transform'] = dict(
-                    translation=transform['transform']['translation'],
-                    rotation=transform['transform']['rotation']
+                    translation=transform['transform']['translation'], rotation=transform['transform']['rotation']
                 )
                 for callback in frame['cbs']:
                     callback(frame['transform'])
 
     def update_goal(self):
         """Send a new service request to the tf2_web_republisher based on the current list of TFs."""
-        message = dict(source_frames=list(self.frame_info.keys()),
-                       target_frame=self.fixed_frame,
-                       angular_thres=self.angular_threshold,
-                       trans_thres=self.translation_threshold,
-                       rate=self.rate)
+        message = dict(
+            source_frames=list(self.frame_info.keys()),
+            target_frame=self.fixed_frame,
+            angular_thres=self.angular_threshold,
+            trans_thres=self.translation_threshold,
+            rate=self.rate,
+        )
 
         # In contrast to roslibjs, we do not support groovy compatibility mode
         # and only use the service interface to the TF republisher
         message['timeout'] = self.topic_timeout
         request = ServiceRequest(message)
 
-        self.service_client.call(
-            request, self._process_response, self._process_error)
+        self.service_client.call(request, self._process_response, self._process_error)
 
         self.republisher_update_requested = False
 
     def _process_error(self, response):
-        LOGGER.error(
-            'The TF republisher service interface returned an error. %s', str(response))
+        LOGGER.error('The TF republisher service interface returned an error. %s', str(response))
 
     def _process_response(self, response):
         """Process the service response and subscribe to the tf republisher topic."""
@@ -111,8 +119,7 @@ class TFClient(object):
         if self.current_topic:
             self.current_topic.unsubscribe()
 
-        self.current_topic = Topic(
-            self.ros, response['topic_name'], 'tf2_web_republisher/TFArray')
+        self.current_topic = Topic(self.ros, response['topic_name'], 'tf2_web_republisher/TFArray')
         self.current_topic.subscribe(self._process_tf_array)
 
     def _normalize_frame_id(self, frame_id):
@@ -139,7 +146,7 @@ class TFClient(object):
             self.frame_info[frame_id] = frame
 
             if not self.republisher_update_requested:
-                self.ros.call_later(self.update_delay / 1000., self.update_goal)
+                self.ros.call_later(self.update_delay / 1000.0, self.update_goal)
                 self.republisher_update_requested = True
         else:
             # If we already have a transform, call back immediately
@@ -180,8 +187,7 @@ if __name__ == '__main__':
     ros_client = Ros('127.0.0.1', 9090)
 
     def run_tf_example():
-        tfclient = TFClient(ros_client, fixed_frame='world',
-                            angular_threshold=0.01, translation_threshold=0.01)
+        tfclient = TFClient(ros_client, fixed_frame='world', angular_threshold=0.01, translation_threshold=0.01)
 
         tfclient.subscribe('turtle2', print)
 

@@ -98,22 +98,10 @@ from .__version__ import (
     __license__,
     __title__,
     __url__,
-    __version__
+    __version__,
 )
-from .core import (
-    Header,
-    Message,
-    Param,
-    Service,
-    ServiceRequest,
-    ServiceResponse,
-    Time,
-    Topic
-)
-from .ros import (
-    set_rosapi_timeout,
-    Ros
-)
+from .core import Header, Message, Param, Service, ServiceRequest, ServiceResponse, Time, Topic
+from .ros import set_rosapi_timeout, Ros
 
 __all__ = [
     '__author__',
@@ -124,7 +112,6 @@ __all__ = [
     '__title__',
     '__url__',
     '__version__',
-
     'Header',
     'Message',
     'Param',
@@ -133,7 +120,6 @@ __all__ = [
     'ServiceResponse',
     'Time',
     'Topic',
-
     'set_rosapi_timeout',
     'Ros',
 ]

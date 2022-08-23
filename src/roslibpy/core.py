@@ -12,16 +12,7 @@ except ImportError:
 
 LOGGER = logging.getLogger('roslibpy')
 
-__all__ = [
-    'Header',
-    'Message',
-    'Param',
-    'Service',
-    'ServiceRequest',
-    'ServiceResponse',
-    'Time',
-    'Topic'
-]
+__all__ = ['Header', 'Message', 'Param', 'Service', 'ServiceRequest', 'ServiceResponse', 'Time', 'Topic']
 
 
 class Message(UserDict):
@@ -37,6 +28,7 @@ class Message(UserDict):
 
 class Header(UserDict):
     """Represents a message header of the ROS type std_msgs/Header."""
+
     def __init__(self, seq=None, stamp=None, frame_id=None):
         self.data = {}
         self.data['seq'] = seq
@@ -46,6 +38,7 @@ class Header(UserDict):
 
 class Time(UserDict):
     """Represents ROS time with two integers: seconds since epoch and nanoseconds since seconds."""
+
     def __init__(self, secs, nsecs):
         self.data = {}
         self.data['secs'] = self._ensure_int(secs)
@@ -115,6 +108,7 @@ class ServiceResponse(UserDict):
 
 class MessageEncoder(json.JSONEncoder):
     """Internal class to serialize some of the core data types into json."""
+
     def default(self, o):
         if isinstance(o, Header):
             return dict(o)
@@ -138,10 +132,21 @@ class Topic(object):
         queue_length (:obj:`int`): Queue length at bridge side used when subscribing.
         reconnect_on_close (:obj:`bool`): Reconnect the topic (both for publisher and subscribers) if a reconnection is detected.
     """
+
     SUPPORTED_COMPRESSION_TYPES = ('png', 'none')
 
-    def __init__(self, ros, name, message_type, compression=None, latch=False, throttle_rate=0,
-                 queue_size=100, queue_length=0, reconnect_on_close=True):
+    def __init__(
+        self,
+        ros,
+        name,
+        message_type,
+        compression=None,
+        latch=False,
+        throttle_rate=0,
+        queue_size=100,
+        queue_length=0,
+        reconnect_on_close=True,
+    ):
         self.ros = ros
         self.name = name
         self.message_type = message_type
@@ -158,8 +163,7 @@ class Topic(object):
             self.compression = 'none'
 
         if self.compression not in self.SUPPORTED_COMPRESSION_TYPES:
-            raise ValueError(
-                'Unsupported compression type. Must be one of: ' + str(self.SUPPORTED_COMPRESSION_TYPES))
+            raise ValueError('Unsupported compression type. Must be one of: ' + str(self.SUPPORTED_COMPRESSION_TYPES))
 
         self.reconnect_on_close = reconnect_on_close
 
@@ -194,19 +198,22 @@ class Topic(object):
         if self._subscribe_id:
             return
 
-        self._subscribe_id = 'subscribe:%s:%d' % (
-            self.name, self.ros.id_counter)
+        self._subscribe_id = 'subscribe:%s:%d' % (self.name, self.ros.id_counter)
 
         self.ros.on(self.name, callback)
-        self._connect_topic(Message({
-            'op': 'subscribe',
-            'id': self._subscribe_id,
-            'type': self.message_type,
-            'topic': self.name,
-            'compression': self.compression,
-            'throttle_rate': self.throttle_rate,
-            'queue_length': self.queue_length
-        }))
+        self._connect_topic(
+            Message(
+                {
+                    'op': 'subscribe',
+                    'id': self._subscribe_id,
+                    'type': self.message_type,
+                    'topic': self.name,
+                    'compression': self.compression,
+                    'throttle_rate': self.throttle_rate,
+                    'queue_length': self.queue_length,
+                }
+            )
+        )
 
     def unsubscribe(self):
         """Unregister from a subscribed the topic."""
@@ -218,11 +225,7 @@ class Topic(object):
             self.ros.off('close', self._reconnect_topic)
 
         self.ros.off(self.name)
-        self.ros.send_on_ready(Message({
-            'op': 'unsubscribe',
-            'id': self._subscribe_id,
-            'topic': self.name
-        }))
+        self.ros.send_on_ready(Message({'op': 'unsubscribe', 'id': self._subscribe_id, 'topic': self.name}))
         self._subscribe_id = None
 
     def publish(self, message):
@@ -234,30 +237,37 @@ class Topic(object):
         if not self.is_advertised:
             self.advertise()
 
-        self.ros.send_on_ready(Message({
-            'op': 'publish',
-            'id': 'publish:%s:%d' % (self.name, self.ros.id_counter),
-            'topic': self.name,
-            'msg': dict(message),
-            'latch': self.latch
-        }))
+        self.ros.send_on_ready(
+            Message(
+                {
+                    'op': 'publish',
+                    'id': 'publish:%s:%d' % (self.name, self.ros.id_counter),
+                    'topic': self.name,
+                    'msg': dict(message),
+                    'latch': self.latch,
+                }
+            )
+        )
 
     def advertise(self):
         """Register as a publisher for the topic."""
         if self.is_advertised:
             return
 
-        self._advertise_id = 'advertise:%s:%d' % (
-            self.name, self.ros.id_counter)
+        self._advertise_id = 'advertise:%s:%d' % (self.name, self.ros.id_counter)
 
-        self._connect_topic(Message({
-            'op': 'advertise',
-            'id': self._advertise_id,
-            'type': self.message_type,
-            'topic': self.name,
-            'latch': self.latch,
-            'queue_size': self.queue_size
-        }))
+        self._connect_topic(
+            Message(
+                {
+                    'op': 'advertise',
+                    'id': self._advertise_id,
+                    'type': self.message_type,
+                    'topic': self.name,
+                    'latch': self.latch,
+                    'queue_size': self.queue_size,
+                }
+            )
+        )
 
         if not self.reconnect_on_close:
             self.ros.on('close', self._reset_advertise_id)
@@ -287,11 +297,15 @@ class Topic(object):
         if self.reconnect_on_close:
             self.ros.off('close', self._reconnect_topic)
 
-        self.ros.send_on_ready(Message({
-            'op': 'unadvertise',
-            'id': self._advertise_id,
-            'topic': self.name,
-        }))
+        self.ros.send_on_ready(
+            Message(
+                {
+                    'op': 'unadvertise',
+                    'id': self._advertise_id,
+                    'topic': self.name,
+                }
+            )
+        )
 
         self._advertise_id = None
 
@@ -349,15 +363,16 @@ class Service(object):
         if self.is_advertised:
             return
 
-        service_call_id = 'call_service:%s:%d' % (
-            self.name, self.ros.id_counter)
+        service_call_id = 'call_service:%s:%d' % (self.name, self.ros.id_counter)
 
-        message = Message({
-            'op': 'call_service',
-            'id': service_call_id,
-            'service': self.name,
-            'args': dict(request),
-        })
+        message = Message(
+            {
+                'op': 'call_service',
+                'id': service_call_id,
+                'service': self.name,
+                'args': dict(request),
+            }
+        )
 
         # Non-blocking mode
         if callback:
@@ -391,11 +406,7 @@ class Service(object):
 
         self._service_callback = callback
         self.ros.on(self.name, self._service_response_handler)
-        self._connect_service(Message({
-            'op': 'advertise_service',
-            'type': self.service_type,
-            'service': self.name
-        }))
+        self._connect_service(Message({'op': 'advertise_service', 'type': self.service_type, 'service': self.name}))
         self._is_advertised = True
         if not self.reconnect_on_close:
             self.ros.on('close', self._reset_advertise_id)
@@ -425,10 +436,14 @@ class Service(object):
         if self.reconnect_on_close:
             self.ros.off('close', self._reconnect_service)
 
-        self.ros.send_on_ready(Message({
-            'op': 'unadvertise_service',
-            'service': self.name,
-        }))
+        self.ros.send_on_ready(
+            Message(
+                {
+                    'op': 'unadvertise_service',
+                    'service': self.name,
+                }
+            )
+        )
         self.ros.off(self.name, self._service_response_handler)
 
         self._is_advertised = False
@@ -437,11 +452,7 @@ class Service(object):
         response = ServiceResponse()
         success = self._service_callback(request['args'], response)
 
-        call = Message({'op': 'service_response',
-                        'service': self.name,
-                        'values': dict(response),
-                        'result': success
-                        })
+        call = Message({'op': 'service_response', 'service': self.name, 'values': dict(response), 'result': success})
 
         if 'id' in request:
             call['id'] = request['id']
@@ -485,8 +496,7 @@ class Param(object):
             result = client.call(request, timeout=timeout)
             return json.loads(result['value'])
         else:
-            client.call(request, lambda result: callback(
-                json.loads(result['value'])), errback)
+            client.call(request, lambda result: callback(json.loads(result['value'])), errback)
 
     def set(self, value, callback=None, errback=None, timeout=None):
         """Set a new value to the parameter.
@@ -502,8 +512,7 @@ class Param(object):
             timeout: Timeout for the operation, in seconds. Only used if blocking.
         """
         client = Service(self.ros, '/rosapi/set_param', 'rosapi/SetParam')
-        request = ServiceRequest(
-            {'name': self.name, 'value': json.dumps(value)})
+        request = ServiceRequest({'name': self.name, 'value': json.dumps(value)})
 
         client.call(request, callback, errback, timeout=timeout)
 
@@ -520,8 +529,7 @@ class Param(object):
             errback: Callback invoked on error.
             timeout: Timeout for the operation, in seconds. Only used if blocking.
         """
-        client = Service(self.ros, '/rosapi/delete_param',
-                         'rosapi/DeleteParam')
+        client = Service(self.ros, '/rosapi/delete_param', 'rosapi/DeleteParam')
         request = ServiceRequest({'name': self.name})
 
         client.call(request, callback, errback, timeout=timeout)
@@ -538,8 +546,7 @@ if __name__ == '__main__':
 
     def run_subscriber_example():
         listener = Topic(ros_client, '/chatter', 'std_msgs/String')
-        listener.subscribe(lambda message: LOGGER.info(
-            'Received message on: %s', message['data']))
+        listener.subscribe(lambda message: LOGGER.info('Received message on: %s', message['data']))
 
     def run_unsubscriber_example():
         listener = Topic(ros_client, '/chatter', 'std_msgs/String')
@@ -553,8 +560,7 @@ if __name__ == '__main__':
         ros_client.call_later(10, lambda: listener.subscribe(print_message))
 
     def run_publisher_example():
-        publisher = Topic(ros_client, '/chatter',
-                          'std_msgs/String', compression='png')
+        publisher = Topic(ros_client, '/chatter', 'std_msgs/String', compression='png')
 
         def start_sending():
             i = 0
@@ -577,13 +583,11 @@ if __name__ == '__main__':
         def h2(x):
             print('error', x)
 
-        service = Service(ros_client, '/turtle1/teleport_relative',
-                          'turtlesim/TeleportRelative')
+        service = Service(ros_client, '/turtle1/teleport_relative', 'turtlesim/TeleportRelative')
         service.call(ServiceRequest({'linear': 2, 'angular': 2}), h1, h2)
 
     def run_turtle_subscriber_example():
-        listener = Topic(ros_client, '/turtle1/pose',
-                         'turtlesim/Pose', throttle_rate=500)
+        listener = Topic(ros_client, '/turtle1/pose', 'turtlesim/Pose', throttle_rate=500)
 
         def print_message(message):
             LOGGER.info('Received message on: %s', message)
@@ -603,8 +607,7 @@ if __name__ == '__main__':
         param.delete()
 
     def run_server_example():
-        service = Service(ros_client, '/test_server',
-                          'rospy_tutorials/AddTwoInts')
+        service = Service(ros_client, '/test_server', 'rospy_tutorials/AddTwoInts')
 
         def dispose_server():
             service.unadvertise()

@@ -38,14 +38,18 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
         try:
             self.on_message(payload)
         except Exception:
-            LOGGER.exception('Exception on start_listening while trying to handle message received.' +
-                             'It could indicate a bug in user code on message handlers. Message skipped.')
+            LOGGER.exception(
+                'Exception on start_listening while trying to handle message received.'
+                + 'It could indicate a bug in user code on message handlers. Message skipped.'
+            )
 
     def onClose(self, wasClean, code, reason):
         LOGGER.info('WebSocket connection closed: Code=%s, Reason=%s', str(code), reason)
 
     def send_message(self, payload):
-        return reactor.callFromThread(self.sendMessage, payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False)
+        return reactor.callFromThread(
+            self.sendMessage, payload, isBinary=False, fragmentSize=None, sync=False, doNotCompress=False
+        )
 
     def send_close(self):
         self._manual_disconnect = True
@@ -54,6 +58,7 @@ class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
 
 class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactory, WebSocketClientFactory):
     """Factory to create instances of the ROS Bridge protocol built on top of Autobahn/Twisted."""
+
     protocol = AutobahnRosBridgeProtocol
 
     def __init__(self, *args, **kwargs):
@@ -100,8 +105,7 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
 
     def clientConnectionFailed(self, connector, reason):
         LOGGER.debug('Connection failed. Reason: %s', reason)
-        ReconnectingClientFactory.clientConnectionFailed(
-            self, connector, reason)
+        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
         self._proto = None
 
     @property
@@ -159,6 +163,7 @@ class TwistedEventLoopManager(object):
     event loop handlers that might be more fitting for different
     execution environments.
     """
+
     def __init__(self):
         self._log_observer = log.PythonLoggingObserver()
         self._log_observer.start()
@@ -238,8 +243,10 @@ class TwistedEventLoopManager(object):
         Returns:
             A callable which provides result_placeholder with the result in the case of success.
         """
+
         def inner_callback(result):
             result_placeholder.callback({'result': result})
+
         return inner_callback
 
     def get_inner_errback(self, result_placeholder):
@@ -251,8 +258,10 @@ class TwistedEventLoopManager(object):
         Returns:
             A callable which provides result_placeholder with the error in the case of failure.
         """
+
         def inner_errback(error):
             result_placeholder.callback({'exception': error})
+
         return inner_errback
 
     def terminate(self):

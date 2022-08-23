@@ -53,6 +53,7 @@ def _is_earlier(t1, t2):
 
 class GoalStatus:
     """Valid goal statuses."""
+
     PENDING = 0
     ACTIVE = 1
     PREEMPTED = 2
@@ -93,16 +94,9 @@ class Goal(EventEmitterMixin):
         self.status = None
         self.feedback = None
 
-        self.goal_message = Message({
-            'goal_id': {
-                'stamp': {
-                    'secs': 0,
-                    'nsecs': 0
-                },
-                'id': self.goal_id
-            },
-            'goal': dict(self.goal_message)
-        })
+        self.goal_message = Message(
+            {'goal_id': {'stamp': {'secs': 0, 'nsecs': 0}, 'id': self.goal_id}, 'goal': dict(self.goal_message)}
+        )
 
         self.action_client.add_goal(self)
 
@@ -167,8 +161,7 @@ class Goal(EventEmitterMixin):
     def is_active(self):
         if self.status is None:
             return False
-        return (self.status['status'] == GoalStatus.ACTIVE or
-                self.status['status'] == GoalStatus.PENDING)
+        return self.status['status'] == GoalStatus.ACTIVE or self.status['status'] == GoalStatus.PENDING
 
     @property
     def is_finished(self):
@@ -190,8 +183,9 @@ class ActionClient(EventEmitterMixin):
         timeout (:obj:`int`): **Deprecated.** Connection timeout, expressed in seconds.
     """
 
-    def __init__(self, ros, server_name, action_name, timeout=None,
-                 omit_feedback=False, omit_status=False, omit_result=False):
+    def __init__(
+        self, ros, server_name, action_name, timeout=None, omit_feedback=False, omit_status=False, omit_result=False
+    ):
         super(ActionClient, self).__init__()
         self.ros = ros
         self.server_name = server_name
@@ -226,7 +220,8 @@ class ActionClient(EventEmitterMixin):
 
         if timeout:
             LOGGER.warn(
-                'Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant.')
+                'Deprecation warning: timeout parameter is ignored, and replaced by the DEFAULT_CONNECTION_TIMEOUT constant.'
+            )
 
         self.wait_status = threading.Event()
 
@@ -295,7 +290,8 @@ class SimpleActionServer(EventEmitterMixin):
         server_name (:obj:`str`): Action server name, e.g. ``/fibonacci``.
         action_name (:obj:`str`): Action message name, e.g. ``actionlib_tutorials/FibonacciAction``.
     """
-    STATUS_PUBLISH_INTERVAL = 0.5   # In seconds
+
+    STATUS_PUBLISH_INTERVAL = 0.5  # In seconds
 
     def __init__(self, ros, server_name, action_name):
         super(SimpleActionServer, self).__init__()
@@ -318,17 +314,11 @@ class SimpleActionServer(EventEmitterMixin):
         self.result_publisher.advertise()
 
         # Track the goals and their status in order to publish status
-        self.status_message = Message(dict(
-            header=dict(
-                stamp=dict(secs=0, nsecs=100),
-                frame_id=''
-            ),
-            status_list=[]
-        ))
+        self.status_message = Message(dict(header=dict(stamp=dict(secs=0, nsecs=100), frame_id=''), status_list=[]))
 
         # Needed for handling preemption prompted by a new goal being received
-        self.current_goal = None    # currently tracked goal
-        self.next_goal = None       # the one that'll be preempting
+        self.current_goal = None  # currently tracked goal
+        self.next_goal = None  # the one that'll be preempting
         self.preempt_request = False
 
         self.goal_listener.subscribe(self._on_goal_message)
@@ -381,8 +371,7 @@ class SimpleActionServer(EventEmitterMixin):
                 # needs to happen AFTER rest is set up
                 will_cancel = True
             else:
-                self.status_message['status_list'] = [
-                    dict(goal_id=message['goal_id'], status=GoalStatus.ACTIVE)]
+                self.status_message['status_list'] = [dict(goal_id=message['goal_id'], status=GoalStatus.ACTIVE)]
                 self.current_goal = message
                 will_emit_goal = message['goal']
 
@@ -435,17 +424,12 @@ class SimpleActionServer(EventEmitterMixin):
         Args:
             result (:obj:`dict`): Dictionary of key/values to set as the result of the action.
         """
-        LOGGER.info(
-            'Action server {} setting current goal to SUCCEEDED'.format(self.server_name))
+        LOGGER.info('Action server {} setting current goal to SUCCEEDED'.format(self.server_name))
 
         with self._lock:
-            result_message = Message({
-                'status': {
-                    'goal_id': self.current_goal['goal_id'],
-                    'status': GoalStatus.SUCCEEDED
-                },
-                'result': result
-            })
+            result_message = Message(
+                {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.SUCCEEDED}, 'result': result}
+            )
 
             self.result_publisher.publish(result_message)
 
@@ -469,13 +453,9 @@ class SimpleActionServer(EventEmitterMixin):
         Args:
             feedback (:obj:`dict`): Dictionary of key/values of the feedback message.
         """
-        feedback_message = Message({
-            'status': {
-                'goal_id': self.current_goal['goal_id'],
-                'status': GoalStatus.ACTIVE
-            },
-            'feedback': feedback
-        })
+        feedback_message = Message(
+            {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.ACTIVE}, 'feedback': feedback}
+        )
 
         self.feedback_publisher.publish(feedback_message)
 
@@ -485,12 +465,9 @@ class SimpleActionServer(EventEmitterMixin):
 
         with self._lock:
             self.status_message['status_list'] = []
-            result_message = Message({
-                'status': {
-                    'goal_id': self.current_goal['goal_id'],
-                    'status': GoalStatus.PREEMPTED
-                }
-            })
+            result_message = Message(
+                {'status': {'goal_id': self.current_goal['goal_id'], 'status': GoalStatus.PREEMPTED}}
+            )
 
             self.result_publisher.publish(result_message)
 

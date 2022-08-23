@@ -12,6 +12,7 @@ LOGGER = logging.getLogger('roslibpy')
 
 class RosBridgeException(Exception):
     """Exception raised on the ROS bridge communication."""
+
     pass
 
 
@@ -33,8 +34,7 @@ class RosBridgeProtocol(object):
         message = Message(json.loads(payload.decode('utf8')))
         handler = self._message_handlers.get(message['op'], None)
         if not handler:
-            raise RosBridgeException(
-                'No handler registered for operation "%s"' % message['op'])
+            raise RosBridgeException('No handler registered for operation "%s"' % message['op'])
 
         handler(message)
 
@@ -62,8 +62,7 @@ class RosBridgeProtocol(object):
             handler: Callback to handle the message.
         """
         if operation in self._message_handlers:
-            raise RosBridgeException(
-                'Only one handler can be registered per operation')
+            raise RosBridgeException('Only one handler can be registered per operation')
 
         self._message_handlers[operation] = handler
 
@@ -91,8 +90,7 @@ class RosBridgeProtocol(object):
         service_handlers = self._pending_service_requests.get(request_id, None)
 
         if not service_handlers:
-            raise RosBridgeException(
-                'No handler registered for service request ID: "%s"' % request_id)
+            raise RosBridgeException('No handler registered for service request ID: "%s"' % request_id)
 
         callback, errback = service_handlers
         del self._pending_service_requests[request_id]
@@ -106,7 +104,6 @@ class RosBridgeProtocol(object):
 
     def _handle_service_request(self, message):
         if 'service' not in message:
-            raise ValueError(
-                'Expected service name missing in service request')
+            raise ValueError('Expected service name missing in service request')
 
         self.factory.emit(message['service'], message)
