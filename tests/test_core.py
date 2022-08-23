@@ -1,7 +1,6 @@
 import pytest
 
-from roslibpy import Header
-from roslibpy import Time
+from roslibpy import Header, Time
 
 REF_FLOAT_SECS_TIME = 1610122759.677662
 
@@ -29,16 +28,16 @@ def test_is_zero():
 
 def test_header_ctor_supports_time():
     header = Header(seq=1, stamp=Time.from_sec(REF_FLOAT_SECS_TIME))
-    assert header['stamp']['secs'] == 1610122759
-    assert header['stamp']['secs'] == header['stamp'].secs
-    assert header['stamp'].to_sec() == REF_FLOAT_SECS_TIME
+    assert header["stamp"]["secs"] == 1610122759
+    assert header["stamp"]["secs"] == header["stamp"].secs
+    assert header["stamp"].to_sec() == REF_FLOAT_SECS_TIME
 
 
 def test_header_ctor_supports_dict():
     header = Header(seq=1, stamp=dict(secs=1610122759, nsecs=677661895))
-    assert header['stamp']['secs'] == 1610122759
-    assert header['stamp']['secs'] == header['stamp'].secs
-    assert header['stamp'].to_sec() == REF_FLOAT_SECS_TIME
+    assert header["stamp"]["secs"] == 1610122759
+    assert header["stamp"]["secs"] == header["stamp"].secs
+    assert header["stamp"].to_sec() == REF_FLOAT_SECS_TIME
 
 
 def test_time_accepts_only_ints():
