@@ -15,6 +15,7 @@ Unreleased
 **Changed**
 
 * Switched to ``black`` for python code formatting.
+* Fix incompatible settings between ``black`` and ``flake8``.
 
 **Fixed**
 
