@@ -326,7 +326,7 @@ class SimpleActionServer(EventEmitterMixin):
 
         # Intentionally not publishing immediately and instead
         # waiting one interval for the first message
-        self.ros.call_later(self.STATUS_PUBLISH_INTERVAL, self._publish_status)
+        self.ros.call_later(self.STATUS_PUBLISH_INTERVAL, self._periodic_publish_status)
 
     def start(self, action_callback):
         """Start the action server.
@@ -349,18 +349,22 @@ class SimpleActionServer(EventEmitterMixin):
         self.on("cancel", _internal_preempt_callback)
 
     def _publish_status(self):
+        current_time = time.time()
+        secs = int(math.floor(current_time))
+        nsecs = int(round(1e9 * (current_time - secs)))
+
+        self.status_message["header"]["stamp"]["secs"] = secs
+        self.status_message["header"]["stamp"]["nsecs"] = nsecs
+
+        self.status_publisher.publish(self.status_message)
+
+    def _periodic_publish_status(self):
         # Status publishing is required for clients to know they've connected
         with self._lock:
-            current_time = time.time()
-            secs = int(math.floor(current_time))
-            nsecs = int(round(1e9 * (current_time - secs)))
-
-            self.status_message["header"]["stamp"]["secs"] = secs
-            self.status_message["header"]["stamp"]["nsecs"] = nsecs
-            self.status_publisher.publish(self.status_message)
+            self._publish_status()
 
         # Invoke again in the defined interval
-        self.ros.call_later(self.STATUS_PUBLISH_INTERVAL, self._publish_status)
+        self.ros.call_later(self.STATUS_PUBLISH_INTERVAL, self._periodic_publish_status)
 
     def _on_goal_message(self, message):
         will_cancel = False
@@ -428,13 +432,25 @@ class SimpleActionServer(EventEmitterMixin):
         LOGGER.info("Action server {} setting current goal to SUCCEEDED".format(self.server_name))
 
         with self._lock:
-            result_message = Message(
-                {"status": {"goal_id": self.current_goal["goal_id"], "status": GoalStatus.SUCCEEDED}, "result": result}
-            )
 
-            self.result_publisher.publish(result_message)
-
+            self.status_message["status_list"] = [
+                dict(
+                    goal_id=self.current_goal["goal_id"],
+                    status=GoalStatus.SUCCEEDED)
+            ]
+            self._publish_status()
             self.status_message["status_list"] = []
+
+            result_message = Message(
+                {
+                    "status": {
+                        "goal_id": self.current_goal["goal_id"],
+                        "status": GoalStatus.SUCCEEDED
+                    },
+                    "result": result
+                }
+            )
+            self.result_publisher.publish(result_message)
 
             if self.next_goal:
                 self.current_goal = self.next_goal
@@ -465,11 +481,23 @@ class SimpleActionServer(EventEmitterMixin):
         LOGGER.info("Action server {} preempting current goal".format(self.server_name))
 
         with self._lock:
-            self.status_message["status_list"] = []
-            result_message = Message(
-                {"status": {"goal_id": self.current_goal["goal_id"], "status": GoalStatus.PREEMPTED}}
-            )
 
+            self.status_message["status_list"] = [
+                dict(
+                    goal_id=self.current_goal["goal_id"],
+                    status=GoalStatus.PREEMPTED)
+            ]
+            self._publish_status()
+            self.status_message["status_list"] = []
+
+            result_message = Message(
+                {
+                    "status": {
+                        "goal_id": self.current_goal["goal_id"],
+                        "status": GoalStatus.PREEMPTED
+                    }
+                }
+            )
             self.result_publisher.publish(result_message)
 
             if self.next_goal:
