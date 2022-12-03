@@ -14,6 +14,7 @@ Unreleased
 
 **Changed**
 
+* Fixed bug with action client/server and now they work as expected.
 * Switched to ``black`` for python code formatting.
 * Fix incompatible settings between ``black`` and ``flake8``.
 
