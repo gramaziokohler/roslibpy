@@ -17,6 +17,7 @@ Unreleased
 * Fixed bug with action client/server and now they work as expected.
 * Switched to ``black`` for python code formatting.
 * Fix incompatible settings between ``black`` and ``flake8``.
+* Updated Github Actions workflows to remove python 3.6 builds.
 
 **Fixed**
 
