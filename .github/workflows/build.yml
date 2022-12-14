@@ -17,15 +17,15 @@ jobs:
       matrix:
         name: [
           "ubuntu-py37",
-          "ubuntu-py311",
+          "ubuntu-py310",
         ]
         include:
           - name: "ubuntu-py37"
             os: ubuntu-latest
             python-version: 3.7
-          - name: "ubuntu-py311"
+          - name: "ubuntu-py310"
             os: ubuntu-latest
-            python-version: 3.11
+            python-version: 3.10
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
