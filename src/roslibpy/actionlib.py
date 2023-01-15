@@ -136,7 +136,7 @@ class Goal(EventEmitterMixin):
             Result of the goal.
         """
         if not self.wait_result.wait(timeout):
-            raise Exception("Goal failed to receive result")
+            raise TimeoutError("Goal failed to receive result")
 
         return self.result
 
@@ -226,7 +226,7 @@ class ActionClient(EventEmitterMixin):
         self.wait_status = threading.Event()
 
         if not self.wait_status.wait(DEFAULT_CONNECTION_TIMEOUT):
-            raise Exception("Action client failed to connect, no status received.")
+            raise TimeoutError("Action client failed to connect, no status received.")
 
     def _on_status_message(self, message):
         self.wait_status.set()

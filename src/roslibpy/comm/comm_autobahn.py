@@ -232,7 +232,7 @@ class TwistedEventLoopManager(object):
         Raises:
             An exception.
         """
-        raise Exception("No service response received")
+        raise TimeoutError("No service response received")
 
     def get_inner_callback(self, result_placeholder):
         """Get the callback which, when called, provides result_placeholder with the result.
