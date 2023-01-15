@@ -126,12 +126,12 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 context['buffer']), self.factory.manager.cancellation_token)
             receive_task.ContinueWith.Overloads[Action[Task[WebSocketReceiveResult], object], object](
                 self.receive_chunk_async, context)
-        except Exception:
+        except Exception as exception:
             error_message = 'Exception on receive_chunk_async, processing will be aborted'
             if task:
                 error_message += '; Task status: {}, Inner exception: {}'.format(task.Status, task.Exception)
             LOGGER.exception(error_message)
-            raise
+            raise RosBridgeException(error_message) from exception
 
     def start_listening(self):
         """Starts listening asynchronously while the socket is open.
@@ -164,10 +164,10 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 except Exception:
                     LOGGER.exception('Exception on start_listening while trying to handle message received.' +
                                      'It could indicate a bug in user code on message handlers. Message skipped.')
-        except Exception:
-            LOGGER.exception(
-                'Exception on start_listening, processing will be aborted')
-            raise
+        except Exception as exception:
+            error_message = 'Exception on start_listening, processing will be aborted'
+            LOGGER.exception(error_message)
+            raise RosBridgeException(error_message) from exception
         finally:
             LOGGER.debug('Leaving the listening thread')
 
@@ -220,9 +220,10 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 task.ContinueWith(lambda _res: self.semaphore.Release())
 
             return task
-        except Exception:
-            LOGGER.exception('Exception while on send_chunk_async')
-            raise
+        except Exception as exception:
+            error_message = 'Exception while on send_chunk_async'
+            LOGGER.exception(error_message)
+            raise RosBridgeException(error_message) from exception
 
     def send_message(self, payload):
         """Start sending a message over the websocket asynchronously."""
@@ -240,9 +241,10 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
                 None, [message_buffer, message_length, chunks_count, 0])
 
             return send_task
-        except Exception:
-            LOGGER.exception('Exception while sending message')
-            raise
+        except Exception as exception:
+            error_message = 'Exception while sending message'
+            LOGGER.exception(error_message)
+            raise RosBridgeException(error_message) from exception
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
@@ -484,7 +486,7 @@ class CliEventLoopManager(object):
         Raises:
             An exception.
         """
-        raise Exception('No service response received')
+        raise TimeoutError('No service response received')
 
     def get_inner_callback(self, result_placeholder):
         """Get the callback which, when called, provides result_placeholder with the result.

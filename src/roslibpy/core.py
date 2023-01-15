@@ -310,6 +310,12 @@ class Topic(object):
         self._advertise_id = None
 
 
+class ServiceException(Exception):
+    """Exception that is thrown when a service call fails."""
+
+    pass
+
+
 class Service(object):
     """Client/server of ROS services.
 
@@ -382,7 +388,7 @@ class Service(object):
         # Blocking mode
         call_results = self.ros.call_sync_service(message, timeout)
         if "exception" in call_results:
-            raise Exception(call_results["exception"])
+            raise ServiceException(call_results["exception"])
 
         return call_results["result"]
 
