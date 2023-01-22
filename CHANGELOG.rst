@@ -16,6 +16,8 @@ Unreleased
 
 **Fixed**
 
+* Fixed bug with action client/server and now they work as expected.
+
 **Deprecated**
 
 **Removed**
