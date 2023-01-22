@@ -11,7 +11,8 @@ LOGGER = logging.getLogger("roslibpy")
 class RosBridgeException(Exception):
     """Exception raised on the ROS bridge communication."""
 
-    pass
+    def __init__(self, message, cause=None):
+        super(RosBridgeException, self).__init__(message, cause)
 
 
 class RosBridgeProtocol(object):

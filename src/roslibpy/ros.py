@@ -5,6 +5,7 @@ import threading
 
 from . import Message, Param, Service, ServiceRequest, Time
 from .comm import RosBridgeClientFactory
+from .core import RosTimeoutError
 
 __all__ = ["Ros", "set_rosapi_timeout"]
 
@@ -96,7 +97,7 @@ class Ros(object):
         self.factory.on_ready(lambda _: wait_connect.set())
 
         if not wait_connect.wait(timeout):
-            raise TimeoutError("Failed to connect to ROS")
+            raise RosTimeoutError("Failed to connect to ROS")
 
     def run_forever(self):
         """Kick-starts a blocking loop to wait for events.

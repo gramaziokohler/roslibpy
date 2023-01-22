@@ -13,6 +13,7 @@ from twisted.internet import defer, reactor, threads
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 
+from ..core import RosTimeoutError
 from ..event_emitter import EventEmitterMixin
 from . import RosBridgeProtocol
 
@@ -232,7 +233,7 @@ class TwistedEventLoopManager(object):
         Raises:
             An exception.
         """
-        raise TimeoutError("No service response received")
+        raise RosTimeoutError("No service response received")
 
     def get_inner_callback(self, result_placeholder):
         """Get the callback which, when called, provides result_placeholder with the result.

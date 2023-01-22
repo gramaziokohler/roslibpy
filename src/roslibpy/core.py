@@ -12,7 +12,15 @@ except ImportError:
 
 LOGGER = logging.getLogger("roslibpy")
 
-__all__ = ["Header", "Message", "Param", "Service", "ServiceRequest", "ServiceResponse", "Time", "Topic"]
+__all__ = ["Header", "Message", "Param", "RosTimeoutError", "Service", "ServiceRequest", "ServiceResponse", "Time", "Topic"]
+
+
+try:
+    class RosTimeoutError(TimeoutError):
+        pass
+except NameError:
+    class RosTimeoutError(Exception):
+        pass
 
 
 class Message(UserDict):
