@@ -41,8 +41,8 @@ jobs:
           python -m pip install --no-cache-dir -r requirements-dev.txt
       - name: Set up docker containers
         run: |
-          docker build -t gramaziokohler/rosbridge ./docker
-          docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge /bin/bash -c "roslaunch /integration-tests.launch"
+          docker build -t gramaziokohler/rosbridge:integration_tests ./docker
+          docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge:integration_tests /bin/bash -c "roslaunch /integration-tests.launch"
           docker ps -a
       - name: Run linter
         run: |
