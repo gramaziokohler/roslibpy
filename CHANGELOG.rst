@@ -17,6 +17,7 @@ Unreleased
 **Fixed**
 
 * Fixed bug with action client/server and now they work as expected.
+* Fixed Python 2.7 incompatibilities introduced in 1.4.0.
 
 **Deprecated**
 
