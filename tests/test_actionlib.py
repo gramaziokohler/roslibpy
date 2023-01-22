@@ -3,7 +3,7 @@ from __future__ import print_function
 import time
 
 from roslibpy import Ros
-from roslibpy.actionlib import ActionClient, Goal, SimpleActionServer, GoalStatus
+from roslibpy.actionlib import ActionClient, Goal, GoalStatus, SimpleActionServer
 
 
 def test_action_success():
