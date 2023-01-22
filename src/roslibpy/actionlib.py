@@ -432,24 +432,12 @@ class SimpleActionServer(EventEmitterMixin):
         LOGGER.info("Action server {} setting current goal to SUCCEEDED".format(self.server_name))
 
         with self._lock:
-
-            self.status_message["status_list"] = [
-                dict(
-                    goal_id=self.current_goal["goal_id"],
-                    status=GoalStatus.SUCCEEDED)
-            ]
+            status = dict(goal_id=self.current_goal["goal_id"], status=GoalStatus.SUCCEEDED)
+            self.status_message["status_list"] = [status]
             self._publish_status()
             self.status_message["status_list"] = []
 
-            result_message = Message(
-                {
-                    "status": {
-                        "goal_id": self.current_goal["goal_id"],
-                        "status": GoalStatus.SUCCEEDED
-                    },
-                    "result": result
-                }
-            )
+            result_message = Message({"status": status, "result": result})
             self.result_publisher.publish(result_message)
 
             if self.next_goal:
@@ -481,23 +469,12 @@ class SimpleActionServer(EventEmitterMixin):
         LOGGER.info("Action server {} preempting current goal".format(self.server_name))
 
         with self._lock:
-
-            self.status_message["status_list"] = [
-                dict(
-                    goal_id=self.current_goal["goal_id"],
-                    status=GoalStatus.PREEMPTED)
-            ]
+            status = dict(goal_id=self.current_goal["goal_id"], status=GoalStatus.PREEMPTED)
+            self.status_message["status_list"] = [status]
             self._publish_status()
             self.status_message["status_list"] = []
 
-            result_message = Message(
-                {
-                    "status": {
-                        "goal_id": self.current_goal["goal_id"],
-                        "status": GoalStatus.PREEMPTED
-                    }
-                }
-            )
+            result_message = Message({"status": status})
             self.result_publisher.publish(result_message)
 
             if self.next_goal:
