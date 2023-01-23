@@ -24,6 +24,7 @@ from System.Threading import (
 )
 from System.Threading.Tasks import Task
 
+from ..core import RosTimeoutError
 from ..event_emitter import EventEmitterMixin
 from . import RosBridgeException, RosBridgeProtocol
 
@@ -131,7 +132,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             if task:
                 error_message += '; Task status: {}, Inner exception: {}'.format(task.Status, task.Exception)
             LOGGER.exception(error_message)
-            raise RosBridgeException(error_message) from exception
+            raise RosBridgeException(error_message, exception)
 
     def start_listening(self):
         """Starts listening asynchronously while the socket is open.
@@ -167,7 +168,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         except Exception as exception:
             error_message = 'Exception on start_listening, processing will be aborted'
             LOGGER.exception(error_message)
-            raise RosBridgeException(error_message) from exception
+            raise RosBridgeException(error_message, exception)
         finally:
             LOGGER.debug('Leaving the listening thread')
 
@@ -223,7 +224,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         except Exception as exception:
             error_message = 'Exception while on send_chunk_async'
             LOGGER.exception(error_message)
-            raise RosBridgeException(error_message) from exception
+            raise RosBridgeException(error_message, exception)
 
     def send_message(self, payload):
         """Start sending a message over the websocket asynchronously."""
@@ -244,7 +245,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
         except Exception as exception:
             error_message = 'Exception while sending message'
             LOGGER.exception(error_message)
-            raise RosBridgeException(error_message) from exception
+            raise RosBridgeException(error_message, exception)
 
     def dispose(self, *args):
         """Dispose the resources held by this protocol instance, i.e. socket."""
@@ -486,7 +487,7 @@ class CliEventLoopManager(object):
         Raises:
             An exception.
         """
-        raise TimeoutError('No service response received')
+        raise RosTimeoutError('No service response received')
 
     def get_inner_callback(self, result_placeholder):
         """Get the callback which, when called, provides result_placeholder with the result.
