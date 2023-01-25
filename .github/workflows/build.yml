@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         name: [
-          "ubuntu-py27",
           "ubuntu-py37",
           "ubuntu-py38",
           "ubuntu-py39",
@@ -24,9 +23,6 @@ jobs:
           "ubuntu-py311",
         ]
         include:
-          - name: "ubuntu-py27"
-            os: ubuntu-latest
-            python-version: "2.7"
           - name: "ubuntu-py37"
             os: ubuntu-latest
             python-version: "3.7"
