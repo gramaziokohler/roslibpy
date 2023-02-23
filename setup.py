@@ -16,7 +16,7 @@ here = abspath(dirname(__file__))
 if sys.platform == "cli":
     requirements = []
 else:
-    requirements = ["autobahn>=17.10", "twisted>=17.9"]
+    requirements = ["autobahn>=17.10", "twisted[tls]>=17.9"]
 
 
 def read(*names, **kwargs):
