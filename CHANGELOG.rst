@@ -14,6 +14,8 @@ Unreleased
 
 **Changed**
 
+* Added ``tls`` to the twisted requirement (#111).
+
 **Fixed**
 
 **Deprecated**
