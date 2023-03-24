@@ -92,4 +92,4 @@ def test_multithreaded_connect_disconnect():
 
     # Assert connection status
     for ros in clients:
-        assert ros.is_connected == False
+        assert not ros.is_connected
