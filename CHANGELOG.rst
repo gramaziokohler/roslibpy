@@ -12,9 +12,13 @@ Unreleased
 
 **Added**
 
+* Added a wait event to close on IronPython to ensure the close request is sent before returning.
+
 **Changed**
 
 **Fixed**
+
+* Fixed reconnection behavior on IronPython which would trigger reconnects even after a manual disconnect.
 
 **Deprecated**
 

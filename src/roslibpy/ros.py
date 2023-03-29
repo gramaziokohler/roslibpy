@@ -74,16 +74,21 @@ class Ros(object):
         self.factory.on_ready(_unset_connecting_flag)
         self.factory.connect()
 
-    def close(self):
+    def close(self, timeout=CONNECTION_TIMEOUT):
         """Disconnect from ROS."""
         if self.is_connected:
+            wait_disconnect = threading.Event()
 
             def _wrapper_callback(proto):
                 self.emit("closing")
                 proto.send_close()
+                wait_disconnect.set()
                 return proto
 
             self.factory.on_ready(_wrapper_callback)
+
+            if not wait_disconnect.wait(timeout):
+                raise RosTimeoutError("Failed to disconnect to ROS")
 
     def run(self, timeout=CONNECTION_TIMEOUT):
         """Kick-starts a non-blocking event loop.

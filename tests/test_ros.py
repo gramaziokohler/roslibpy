@@ -58,3 +58,38 @@ def test_closing_event():
     assert ctx["closing_event_called"]
     assert ctx["was_still_connected"]
     assert closing_was_handled_synchronously_before_close
+
+
+def test_multithreaded_connect_disconnect():
+    CONNECTIONS = 30
+    clients = []
+
+    def connect(clients):
+        ros = Ros(url)
+        ros.run()
+        clients.append(ros)
+
+    # First connect all
+    threads = []
+    for _ in range(CONNECTIONS):
+        thread = threading.Thread(target=connect, args=(clients,))
+        thread.daemon = False
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+    # Assert connection status
+    for ros in clients:
+        assert ros.is_connected
+
+    # Now disconnect all
+    for ros in clients:
+        ros.close()
+
+    time.sleep(0.5)
+
+    # Assert connection status
+    for ros in clients:
+        assert not ros.is_connected

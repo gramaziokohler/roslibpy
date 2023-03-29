@@ -70,7 +70,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
             return
 
         LOGGER.info('Connection to ROS ready.')
-        self._manual_disconnect = False
+        self.factory.manual_disconnect = False
         self.factory.ready(self)
         self.factory.manager.call_in_thread(self.start_listening)
 
@@ -174,7 +174,7 @@ class CliRosBridgeProtocol(RosBridgeProtocol):
 
     def send_close(self):
         """Trigger the closure of the websocket indicating normal closing process."""
-        self._manual_disconnect = True
+        self.factory.manual_disconnect = True
 
         err_desc = ''
         err_code = WebSocketCloseStatus.NormalClosure
@@ -273,6 +273,7 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
     def __init__(self, url, *args, **kwargs):
         super(CliRosBridgeClientFactory, self).__init__(*args, **kwargs)
         self._manager = CliEventLoopManager()
+        self.manual_disconnect = False
         self.proto = None
         self.url = url
         self.delay = self.initial_delay
@@ -313,16 +314,16 @@ class CliRosBridgeClientFactory(EventEmitterMixin):
         self.delay = self.initial_delay
 
     def _reconnect_if_needed(self):
-        if self.proto and self.proto._manual_disconnect:
+        if self.manual_disconnect:
             return
 
         if self.max_retries is not None and (self.retries >= self.max_retries):
-            LOGGER.info('Abandonning after {} retries'.format(self.retries))
+            LOGGER.info("Abandoning after {} retries".format(self.retries))
             return
 
         self.retries += 1
         self.delay = min(self.delay * self.factor, self.max_delay)
-        LOGGER.info('Connection manager will retry in {} seconds'.format(int(self.delay)))
+        LOGGER.info("Connection manager will retry in {} seconds".format(int(self.delay)))
 
         self.manager.call_later(self.delay, self.connect)
 
