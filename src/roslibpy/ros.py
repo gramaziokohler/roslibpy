@@ -555,6 +555,35 @@ class Ros(object):
 
         return output
 
+    def authenticate(self, mac, client, dest, rand, t, level, end):
+        """Sends an authorization request to the server.
+
+        Note:
+            Sends authentication on connection.
+
+        Args:
+            mac (:obj:`str`): MAC (hash) string given by the trusted source.
+            client (:obj:`str`): IP of the client.
+            dest (:obj:`str`): IP of the destination.
+            rand (:obj:`str`): Random string given by the trusted source.
+            t (:obj:`float`): Time of the authorization request.
+            level (:obj:`str`): User level as a string given by the client.
+            end (:obj:`float`): End time of the client's session.
+        """
+        def _ready_callback(*args):
+            self.send_on_ready(Message({
+                'op' : 'auth',
+                'mac' : mac,
+                'client' : client,
+                'dest' : dest,
+                'rand' : rand,
+                't' : t,
+                'level' : level,
+                'end' : end,
+            }))
+
+        self.on('ready', _ready_callback)
+
 
 if __name__ == "__main__":
     FORMAT = "%(asctime)-15s [%(levelname)s] %(message)s"
