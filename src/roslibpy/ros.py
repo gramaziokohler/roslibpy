@@ -570,19 +570,24 @@ class Ros(object):
             level (:obj:`str`): User level as a string given by the client.
             end (:obj:`float`): End time of the client's session.
         """
-        def _ready_callback(*args):
-            self.send_on_ready(Message({
-                'op' : 'auth',
-                'mac' : mac,
-                'client' : client,
-                'dest' : dest,
-                'rand' : rand,
-                't' : t,
-                'level' : level,
-                'end' : end,
-            }))
 
-        self.on('ready', _ready_callback)
+        def _ready_callback(*args):
+            self.send_on_ready(
+                Message(
+                    {
+                        "op": "auth",
+                        "mac": mac,
+                        "client": client,
+                        "dest": dest,
+                        "rand": rand,
+                        "t": t,
+                        "level": level,
+                        "end": end,
+                    }
+                )
+            )
+
+        self.on("ready", _ready_callback)
 
 
 if __name__ == "__main__":
