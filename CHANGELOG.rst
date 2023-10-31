@@ -12,6 +12,8 @@ Unreleased
 
 **Added**
 
+* Added authentication functionality described in [rosauth](http://wiki.ros.org/rosauth).
+
 **Changed**
 
 **Fixed**
