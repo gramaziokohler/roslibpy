@@ -10,3 +10,4 @@ Authors
 * Hiroyuki Obinata `@obi-t4 <https://github.com/obi-t4>`_
 * Pedro Pereira `@MisterOwlPT <https://github.com/MisterOwlPT>`_
 * Domenic Rodriguez `@DomenicP <https://github.com/DomenicP>`_
+* Ilia Baranov `@iliabaranov <https://github.com/iliabaranov>`_

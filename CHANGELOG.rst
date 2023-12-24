@@ -16,6 +16,8 @@ Unreleased
 
 **Fixed**
 
+* Removed seq field from the header message type, as this is no longer supported in ROS2
+
 **Deprecated**
 
 **Removed**
