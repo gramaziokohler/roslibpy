@@ -41,6 +41,19 @@ as an argument to their constructors.
 Main ROS concepts
 =================
 
+ROS1 vs ROS2
+------------
+
+This library has been tested to work with ROS1. ROS2 should work, but it is still
+in the works.
+
+One area in which ROS1 and ROS2 differ is in the header interface. To use ROS2, use
+the header defined in the `roslibpy.ros2` module.
+
+.. autoclass:: roslibpy.ros2.Header
+   :members:
+
+
 Topics
 ------
 

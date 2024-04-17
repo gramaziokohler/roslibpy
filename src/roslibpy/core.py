@@ -48,10 +48,15 @@ class Message(UserDict):
 
 
 class Header(UserDict):
-    """Represents a message header of the ROS type std_msgs/Header."""
+    """Represents a message header of the ROS type std_msgs/Header.
 
-    def __init__(self, stamp=None, frame_id=None):
+    This header is only compatible with ROS1. For ROS2 headers, use :class:`roslibpy.ros2.Header`.
+
+    """
+
+    def __init__(self, seq=None, stamp=None, frame_id=None):
         self.data = {}
+        self.data["seq"] = seq
         self.data["stamp"] = Time(stamp["secs"], stamp["nsecs"]) if stamp else None
         self.data["frame_id"] = frame_id
 

@@ -1,0 +1,22 @@
+# Python 2/3 compatibility import list
+try:
+    from collections import UserDict
+except ImportError:
+    from UserDict import UserDict
+
+from roslibpy import Time
+from roslibpy import Header as ROS1Header
+
+__all__ = [
+    "Header",
+]
+
+
+class Header(ROS1Header):
+    """Represents a message header of the ROS type std_msgs/Header."""
+
+    def __init__(self, stamp=None, frame_id=None):
+        super(Header, self).__init__(stamp=stamp, frame_id=frame_id)
+        self.data["stamp"] = Time(stamp["secs"], stamp["nsecs"]) if stamp else None
+        self.data["frame_id"] = frame_id
+        del self.data["seq"]
