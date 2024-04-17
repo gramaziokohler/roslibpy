@@ -1,5 +1,5 @@
-from roslibpy import Time
 from roslibpy import Header as ROS1Header
+from roslibpy import Time
 
 __all__ = [
     "Header",
