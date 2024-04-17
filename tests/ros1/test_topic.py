@@ -68,7 +68,7 @@ def test_topic_with_header():
         context["wait"].set()
 
     def start_sending():
-        for i in range(3):
+        for _ in range(3):
             msg = dict(header=Header(stamp=Time.now(), frame_id="base"), point=dict(x=0.0, y=1.0, z=2.0))
             publisher.publish(Message(msg))
             time.sleep(0.1)

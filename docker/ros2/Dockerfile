@@ -6,9 +6,9 @@ SHELL ["/bin/bash","-c"]
 # Install rosbridge
 RUN apt-get update && apt-get install -y \
     ros-iron-rosbridge-suite \
-    ros-iron-tf2-web-republisher \
-    ros-iron-ros-tutorials \
-    ros-iron-actionlib-tutorials \
+    # ros-iron-tf2-web-republisher \
+    # ros-iron-ros-tutorials \
+    # ros-iron-actionlib-tutorials \
     --no-install-recommends \
     # Clear apt-cache to reduce image size
     && rm -rf /var/lib/apt/lists/*
