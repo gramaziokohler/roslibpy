@@ -11,24 +11,16 @@ on:
       - main
 
 jobs:
-  build-cpython:
+  build-ros2:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         name: [
-          "ubuntu-py37",
-          "ubuntu-py38",
           "ubuntu-py39",
           "ubuntu-py310",
           "ubuntu-py311",
         ]
         include:
-          - name: "ubuntu-py37"
-            os: ubuntu-latest
-            python-version: "3.7"
-          - name: "ubuntu-py38"
-            os: ubuntu-latest
-            python-version: "3.8"
           - name: "ubuntu-py39"
             os: ubuntu-latest
             python-version: "3.9"
@@ -53,15 +45,15 @@ jobs:
           python -m pip install --no-cache-dir -r requirements-dev.txt
       - name: Set up docker containers
         run: |
-          docker build -t gramaziokohler/rosbridge:integration_tests ./docker
-          docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge:integration_tests /bin/bash -c "roslaunch /integration-tests.launch"
+          docker build -t gramaziokohler/rosbridge:integration_tests_ros2 ./docker/ros2
+          docker run -d -p 9090:9090 --name rosbridge gramaziokohler/rosbridge:integration_tests_ros2 /bin/bash -c "ros2 launch /integration-tests.launch"
           docker ps -a
       - name: Run linter
         run: |
           invoke check
       - name: Run tests
         run: |
-          pytest
+          pytest tests/ros2
       - name: Tear down docker containers
         run: |
           docker rm -f rosbridge

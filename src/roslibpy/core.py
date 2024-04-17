@@ -48,7 +48,11 @@ class Message(UserDict):
 
 
 class Header(UserDict):
-    """Represents a message header of the ROS type std_msgs/Header."""
+    """Represents a message header of the ROS type std_msgs/Header.
+
+    This header is only compatible with ROS1. For ROS2 headers, use :class:`roslibpy.ros2.Header`.
+
+    """
 
     def __init__(self, seq=None, stamp=None, frame_id=None):
         self.data = {}

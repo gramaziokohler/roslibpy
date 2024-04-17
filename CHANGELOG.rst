@@ -12,6 +12,8 @@ Unreleased
 
 **Added**
 
+* Added a ROS2-compatible header class in ``roslibpy.ros2.Header``.
+
 **Changed**
 
 **Fixed**

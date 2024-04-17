@@ -10,3 +10,4 @@ API Reference
 .. automodule:: roslibpy
 .. automodule:: roslibpy.actionlib
 .. automodule:: roslibpy.tf
+.. automodule:: roslibpy.ros2
