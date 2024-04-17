@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  build-cpython:
+  build-ros2:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
