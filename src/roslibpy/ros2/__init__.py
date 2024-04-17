@@ -1,9 +1,3 @@
-# Python 2/3 compatibility import list
-try:
-    from collections import UserDict
-except ImportError:
-    from UserDict import UserDict
-
 from roslibpy import Time
 from roslibpy import Header as ROS1Header
 
