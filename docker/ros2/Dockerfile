@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     # Clear apt-cache to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
-# Copy entrypoint
+# Copy launch
 COPY ./integration-tests.launch /
 
 EXPOSE 9090
