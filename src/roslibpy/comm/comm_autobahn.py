@@ -23,16 +23,9 @@ LOGGER = logging.getLogger("roslibpy")
 class AutobahnRosBridgeProtocol(RosBridgeProtocol, WebSocketClientProtocol):
     def __init__(self, *args, **kwargs):
         super(AutobahnRosBridgeProtocol, self).__init__(*args, **kwargs)
-        self.headers = {}
 
     def onConnect(self, response):
         LOGGER.debug("Server connected: %s", response.peer)
-
-    def getHandshakeRequestHeaders(self):
-        headers = super(AutobahnRosBridgeProtocol, self).getHandshakeRequestHeaders()
-        for key, value in self.headers.items():
-            headers.append((key, value))
-        return headers
 
     def onOpen(self):
         LOGGER.info("Connection to ROS ready.")
@@ -69,19 +62,12 @@ class AutobahnRosBridgeClientFactory(EventEmitterMixin, ReconnectingClientFactor
 
     protocol = AutobahnRosBridgeProtocol
 
-    def __init__(self, *args, headers=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(AutobahnRosBridgeClientFactory, self).__init__(*args, **kwargs)
-        self.headers = headers or {}
         self._proto = None
         self._manager = None
         self.connector = None
         self.setProtocolOptions(closeHandshakeTimeout=5)
-
-    def buildProtocol(self, addr):
-        proto = self.protocol()
-        proto.factory = self
-        proto.headers = self.headers
-        return proto
 
     def connect(self):
         """Establish WebSocket connection to the ROS server defined for this factory."""
