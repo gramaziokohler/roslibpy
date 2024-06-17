@@ -10,4 +10,5 @@ pydocstyle
 pytest>=6.0
 sphinx >=3.4
 twine
+websockets >= 12.0
 -e .

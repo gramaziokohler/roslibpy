@@ -32,12 +32,13 @@ class Ros(object):
         host (:obj:`str`): Name or IP address of the ROS bridge host, e.g. ``127.0.0.1``.
         port (:obj:`int`): ROS bridge port, e.g. ``9090``.
         is_secure (:obj:`bool`): ``True`` to use a secure web sockets connection, otherwise ``False``.
+        headers (:obj:`dict`): Additional headers to include in the WebSocket connection.
     """
 
-    def __init__(self, host, port=None, is_secure=False):
+    def __init__(self, host, port=None, is_secure=False, headers=None):
         self._id_counter = 0
         url = RosBridgeClientFactory.create_url(host, port, is_secure)
-        self.factory = RosBridgeClientFactory(url)
+        self.factory = RosBridgeClientFactory(url, headers=headers)
         self.is_connecting = False
         self.connect()
 
