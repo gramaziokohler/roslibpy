@@ -280,7 +280,7 @@ class Ros(object):
         Args:
             message (:class:`.Message`): ROS Bridge Message containing the request.
             resultback: Callback invoked on successful execution.
-            feedback:
+            feedback: Callback invoked on receiving action feedback.
             errback: Callback invoked on error.
         """
 

@@ -522,12 +522,12 @@ class Service(object):
 
 
 class ActionClient(object):
-    """Action Client of ROS2 services.
+    """Action Client of ROS2 actions.
 
     Args:
         ros (:class:`.Ros`): Instance of the ROS connection.
-        name (:obj:`str`): Service name, e.g. ``/add_two_ints``.
-        service_type (:obj:`str`): Service type, e.g. ``rospy_tutorials/AddTwoInts``.
+        name (:obj:`str`): Service name, e.g. ``/fibonacci``.
+        action_type (:obj:`str`): Action type, e.g. ``rospy_tutorials/fibonacci``.
     """
 
     def __init__(self, ros, name, action_type, reconnect_on_close=True):
@@ -539,23 +539,20 @@ class ActionClient(object):
         self._is_advertised = False
         self.reconnect_on_close = reconnect_on_close
 
-    def send_goal(self, goal, result_back, feedback_back, failed_back):
+    def send_goal(self, goal, resultback, feedback, errback):
         """ Start a service call.
 
             Note:
-            The service can be used either as blocking or non-blocking.
-            If the ``callback`` parameter is ``None``, then the call will
-            block until receiving a response. Otherwise, the service response
-            will be returned in the callback.
+            The action client is non-blocking.
 
             Args:
             request (:class:`.ServiceRequest`): Service request.
-            callback: Callback invoked on successful execution.
+            resultback: Callback invoked on receiving action result.
+            feedback: Callback invoked on receiving action feedback.
             errback: Callback invoked on error.
-            timeout: Timeout for the operation, in seconds. Only used if blocking.
 
             Returns:
-            object: Service response if used as a blocking call, otherwise ``None``.
+            object: goal ID if successfull, otherwise ``None``.
         """
         if self._is_advertised:
             return
@@ -573,10 +570,15 @@ class ActionClient(object):
             }
         )
 
-        self.ros.call_async_action(message,  result_back, feedback_back, failed_back)
+        self.ros.call_async_action(message,  resultback, feedback, errback)
         return action_goal_id
 
     def cancel_goal(self, goal_id):
+        """ Cancel an ongoing action.
+
+            Args:
+            goal_id: Goal ID returned from "send_goal()"
+        """
         message = Message(
             {
                 "op": "cancel_action_goal",
