@@ -20,6 +20,9 @@ __all__ = [
     "Service",
     "ServiceRequest",
     "ServiceResponse",
+    "ActionGoal",
+    "ActionFeedback",
+    "ActionResult",
     "Time",
     "Topic",
 ]
@@ -124,6 +127,33 @@ class ServiceRequest(UserDict):
 
 class ServiceResponse(UserDict):
     """Response returned from a service call."""
+
+    def __init__(self, values=None):
+        self.data = {}
+        if values is not None:
+            self.update(values)
+
+
+class ActionResult(UserDict):
+    """Result returned from a action call."""
+
+    def __init__(self, values=None):
+        self.data = {}
+        if values is not None:
+            self.update(values)
+
+
+class ActionFeedback(UserDict):
+    """Feedback returned from a action call."""
+
+    def __init__(self, values=None):
+        self.data = {}
+        if values is not None:
+            self.update(values)
+
+
+class ActionGoal(UserDict):
+    """Action Goal for an action call."""
 
     def __init__(self, values=None):
         self.data = {}
@@ -489,6 +519,72 @@ class Service(object):
             call["id"] = request["id"]
 
         self.ros.send_on_ready(call)
+
+
+class ActionClient(object):
+    """Action Client of ROS2 services.
+
+    Args:
+        ros (:class:`.Ros`): Instance of the ROS connection.
+        name (:obj:`str`): Service name, e.g. ``/add_two_ints``.
+        service_type (:obj:`str`): Service type, e.g. ``rospy_tutorials/AddTwoInts``.
+    """
+
+    def __init__(self, ros, name, action_type, reconnect_on_close=True):
+        self.ros = ros
+        self.name = name
+        self.action_type = action_type
+
+        self._service_callback = None
+        self._is_advertised = False
+        self.reconnect_on_close = reconnect_on_close
+
+    def send_goal(self, goal, result_back, feedback_back, failed_back):
+        """ Start a service call.
+
+            Note:
+            The service can be used either as blocking or non-blocking.
+            If the ``callback`` parameter is ``None``, then the call will
+            block until receiving a response. Otherwise, the service response
+            will be returned in the callback.
+
+            Args:
+            request (:class:`.ServiceRequest`): Service request.
+            callback: Callback invoked on successful execution.
+            errback: Callback invoked on error.
+            timeout: Timeout for the operation, in seconds. Only used if blocking.
+
+            Returns:
+            object: Service response if used as a blocking call, otherwise ``None``.
+        """
+        if self._is_advertised:
+            return
+
+        action_goal_id = "send_action_goal:%s:%d" % (self.name, self.ros.id_counter)
+
+        message = Message(
+            {
+                "op": "send_action_goal",
+                "id": action_goal_id,
+                "action": self.name,
+                "action_type": self.action_type,
+                "args": dict(goal),
+                "feedback": True,
+            }
+        )
+
+        self.ros.call_async_action(message,  result_back, feedback_back, failed_back)
+        return action_goal_id
+
+    def cancel_goal(self, goal_id):
+        message = Message(
+            {
+                "op": "cancel_action_goal",
+                "id": goal_id,
+                "action": self.name,
+            }
+        )
+        self.ros.send_on_ready(message)
 
 
 class Param(object):
