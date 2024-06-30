@@ -82,6 +82,20 @@ model via :class:`Services <Service>`.
 .. autoclass:: ServiceResponse
    :members:
 
+Actions
+--------
+
+An Action client for ROS2 Actions can be used by managing goal/feedback/result
+messages via :class:`ActionClient <ActionClient>`.
+
+.. autoclass:: ActionClient
+   :members:
+.. autoclass:: ActionGoal
+   :members:
+.. autoclass:: ActionFeedback
+   :members:
+.. autoclass:: ActionResult
+   :members:
 
 Parameter server
 ----------------
@@ -114,6 +128,10 @@ from .__version__ import (
     __version__,
 )
 from .core import (
+    ActionClient,
+    ActionFeedback,
+    ActionGoal,
+    ActionResult,
     Header,
     Message,
     Param,
@@ -140,6 +158,10 @@ __all__ = [
     "Service",
     "ServiceRequest",
     "ServiceResponse",
+    "ActionClient",
+    "ActionGoal",
+    "ActionFeedback",
+    "ActionResult",
     "Time",
     "Topic",
     "set_rosapi_timeout",
