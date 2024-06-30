@@ -1,5 +1,9 @@
 from __future__ import print_function
 import roslibpy
+import time
+
+
+global result
 
 client = roslibpy.Ros(host='localhost', port=9090)
 client.run()
@@ -7,9 +11,11 @@ client.run()
 action_client = roslibpy.ActionClient(client,
                                       '/fibonacci',
                                       'custom_action_interfaces/action/Fibonacci')
+result = None
 
 def result_callback(msg):
-    print('Action result:',msg['sequence'])
+    global result
+    result = msg['result']
 
 def feedback_callback(msg):
     print('Action feedback:',msg['partial_sequence'])
@@ -22,9 +28,7 @@ goal_id = action_client.send_goal(roslibpy.ActionGoal({'order': 8}),
                                   feedback_callback,
                                   fail_callback)
 
-goal.on('feedback', lambda f: print(f['sequence']))
-goal.send()
-result = goal.wait(10)
-action_client.dispose()
-
-print('Result: {}'.format(result['sequence']))
+while result == None:
+    time.sleep(1)
+    
+print('Action result: {}'.format(result['sequence']))

@@ -575,6 +575,7 @@ class ActionClient(object):
 
     def cancel_goal(self, goal_id):
         """ Cancel an ongoing action.
+            NOTE: Async cancelation is not yet supported on rosbridge (rosbridge_suite issue #909)
 
             Args:
             goal_id: Goal ID returned from "send_goal()"
@@ -587,6 +588,7 @@ class ActionClient(object):
             }
         )
         self.ros.send_on_ready(message)
+        # Remove message_id from RosBridgeProtocol._pending_action_requests in comms.py?
 
 
 class Param(object):
