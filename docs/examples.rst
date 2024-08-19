@@ -246,7 +246,7 @@ This example is very simplified and uses the :meth:`roslibpy.actionlib.Goal.wait
 function to make the code easier to read as an example. A more robust way to handle
 results is to hook up to the ``result`` event with a callback.
 
-For action clients to deal with ROS2 action servers, check the following example: 
+For action clients to deal with ROS 2 action servers, check the following example: 
 
 .. literalinclude :: files/ros2-action-client.py
    :language: python

@@ -11,7 +11,7 @@ Unreleased
 ----------
 
 **Added**
-* Added ROS2 action client object with limited capabilities ``roslibpy.ActionClient``.
+* Added ROS 2 action client object with limited capabilities ``roslibpy.ActionClient``.
 
 **Changed**
 
@@ -26,7 +26,7 @@ Unreleased
 
 **Added**
 
-* Added a ROS2-compatible header class in ``roslibpy.ros2.Header``.
+* Added a ROS 2 compatible header class in ``roslibpy.ros2.Header``.
 
 **Changed**
 

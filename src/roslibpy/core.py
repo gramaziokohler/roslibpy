@@ -53,7 +53,7 @@ class Message(UserDict):
 class Header(UserDict):
     """Represents a message header of the ROS type std_msgs/Header.
 
-    This header is only compatible with ROS1. For ROS2 headers, use :class:`roslibpy.ros2.Header`.
+    This header is only compatible with ROS 1. For ROS 2 headers, use :class:`roslibpy.ros2.Header`.
 
     """
 
@@ -522,7 +522,7 @@ class Service(object):
 
 
 class ActionClient(object):
-    """Action Client of ROS2 actions.
+    """Action Client of ROS 2 actions.
 
     Args:
         ros (:class:`.Ros`): Instance of the ROS connection.
