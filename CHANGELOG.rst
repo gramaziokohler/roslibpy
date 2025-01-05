@@ -21,6 +21,21 @@ Unreleased
 
 **Removed**
 
+1.8.0
+----------
+
+**Added**
+
+* Added websocket header support to the ROS-client.
+
+**Changed**
+
+**Fixed**
+
+**Deprecated**
+
+**Removed**
+
 1.7.0
 ----------
 
