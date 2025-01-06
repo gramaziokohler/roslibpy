@@ -38,7 +38,8 @@ def test_action_success(action_client):
 
 def test_action_cancel(action_client):
     """ This test function sends a cancel request to an Action server.
-        NOTE: Cancel request is not functional for now...
+        NOTE: Make sure to start the "rosbridge_server" node with the parameter
+              "send_action_goals_in_new_thread" set to "true".
     """
     global result
     result = None
