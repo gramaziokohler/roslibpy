@@ -3,6 +3,7 @@ from __future__ import print_function
 import json
 import logging
 import time
+from enum import Enum
 
 # Python 2/3 compatibility import list
 try:
@@ -150,6 +151,20 @@ class ActionFeedback(UserDict):
         self.data = {}
         if values is not None:
             self.update(values)
+
+
+class ActionGoalStatus(Enum):
+    """ ROS2 Action Goal statuses.
+        Reference: https://docs.ros2.org/latest/api/action_msgs/msg/GoalStatus.html
+    """
+
+    UNKNOWN = 0
+    ACCEPTED = 1
+    EXECUTING = 2
+    CANCELING = 3
+    SUCCEEDED = 4
+    CANCELED = 5
+    ABORTED = 6
 
 
 class ActionGoal(UserDict):
@@ -589,6 +604,7 @@ class ActionClient(object):
         )
         self.ros.send_on_ready(message)
         # Remove message_id from RosBridgeProtocol._pending_action_requests in comms.py?
+        # Not needed since an action result is returned upon cancelation.
 
 
 class Param(object):

@@ -5,6 +5,7 @@ import logging
 
 from roslibpy.core import (
     ActionFeedback,
+    ActionGoalStatus,
     ActionResult,
     Message,
     MessageEncoder,
@@ -162,9 +163,13 @@ class RosBridgeProtocol(object):
         resultback, _ , errback = action_handlers
         del self._pending_action_requests[request_id]
 
+        LOGGER.debug("Received Action result with status: %s", message["status"])
+
+        results = {"status": ActionGoalStatus(message["status"]).name, "values": message["values"]}
+
         if "result" in message and message["result"] is False:
             if errback:
-                errback(message["values"])
+                errback(results)
         else:
             if resultback:
-                resultback(ActionResult(message["values"]))
+                resultback(ActionResult(results))
