@@ -16,6 +16,8 @@ Unreleased
 
 **Fixed**
 
+* Fixed ROS connection issue on IronPython.
+
 **Deprecated**
 
 **Removed**
